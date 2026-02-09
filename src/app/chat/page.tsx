@@ -4,8 +4,11 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Header from "@/components/landing/Header";
 import ChatMessage, { MessageType } from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
-import PreviewPanel from "@/components/chat/PreviewPanel";
+import PreviewPanel, { GeneratedImage } from "@/components/chat/PreviewPanel";
 import Link from "next/link";
+
+let msgCounter = 0;
+const genId = (prefix: string) => `${prefix}-${++msgCounter}-${Math.random().toString(36).slice(2, 8)}`;
 
 const INITIAL_MESSAGE: MessageType = {
   id: "welcome",
@@ -29,6 +32,9 @@ export default function ChatPage() {
     }
   }, []);
   const [isTyping, setIsTyping] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null | undefined>(undefined);
+  const [currentProposal, setCurrentProposal] = useState<MessageType["proposal"] | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -98,9 +104,67 @@ export default function ChatPage() {
     }
   };
 
+  const generateImage = async (proposal: MessageType["proposal"], aspectRatio: string = "1:1") => {
+    if (!proposal) return;
+
+    setIsGeneratingImage(true);
+    setGeneratedImage(undefined);
+    setPreviewOpen(true);
+
+    try {
+      // 構成案からプロンプトを生成
+      const prompt = `飲食店「${proposal.shopName}」のSNS用メニュー画像を作成してください。
+デザインの方向性: ${proposal.designDirection || "ナチュラル"}
+キャッチコピー: ${proposal.catchCopies?.[0] || ""}
+スタイル: プロフェッショナルなフード写真風、暖かい照明、食欲をそそるビジュアル
+テキストは画像に含めないでください。写真のみを生成してください。`;
+
+      const res = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, aspectRatio }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        // エラーメッセージをチャットに表示
+        const errorMsg: MessageType = {
+          id: genId("ai-err"),
+          role: "ai",
+          content: `⚠️ ${data.error || "画像の生成に失敗しました。もう一度お試しください。"}`,
+          time: getTimeStr(),
+        };
+        setMessages((prev) => [...prev, errorMsg]);
+        setGeneratedImage(null);
+      } else if (data.image) {
+        setGeneratedImage({ data: data.image, mimeType: data.mimeType });
+        // 成功メッセージをチャットに表示
+        const successMsg: MessageType = {
+          id: genId("ai-img"),
+          role: "ai",
+          content: "画像が生成されました！ 🎉<br>プレビューパネルで確認し、ダウンロードできます。<br>別のデザインをご希望の場合は「再生成」ボタンをお使いください。",
+          time: getTimeStr(),
+        };
+        setMessages((prev) => [...prev, successMsg]);
+      }
+    } catch {
+      const errorMsg: MessageType = {
+        id: genId("ai-err"),
+        role: "ai",
+        content: "⚠️ 画像生成中に通信エラーが発生しました。もう一度お試しください。",
+        time: getTimeStr(),
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+      setGeneratedImage(null);
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
   const handleSend = async (text: string) => {
     const userMsg: MessageType = {
-      id: `user-${Date.now()}`,
+      id: genId("user"),
       role: "user",
       content: text,
       time: getTimeStr(),
@@ -112,8 +176,13 @@ export default function ChatPage() {
 
     const { reply, proposal } = await callGeminiAPI(updatedMessages);
 
+    // 構成案が返ってきたらプレビュー用に保持
+    if (proposal) {
+      setCurrentProposal(proposal);
+    }
+
     const aiMsg: MessageType = {
-      id: `ai-${Date.now()}`,
+      id: genId("ai"),
       role: "ai",
       content: reply,
       time: getTimeStr(),
@@ -129,11 +198,27 @@ export default function ChatPage() {
   };
 
   const handleApproveProposal = () => {
-    handleSend("キャッチコピーはAでお願いします！画像を生成してください。");
+    const latestProposal = currentProposal || messages.findLast((m) => m.proposal)?.proposal;
+    if (latestProposal) {
+      const copyLabel = latestProposal.catchCopies?.[0]
+        ? `「${latestProposal.catchCopies[0]}」`
+        : "この内容";
+      handleSend(`${copyLabel}でお願いします！画像を生成してください。`);
+      generateImage(latestProposal);
+    } else {
+      handleSend("この構成案で画像を生成してください。");
+    }
   };
 
   const handleReviseProposal = () => {
     handleSend("構成案を修正したいです。別のキャッチコピーやデザインの方向性を提案してもらえますか？");
+  };
+
+  const handleRegenerate = (aspectRatio: string) => {
+    const latestProposal = currentProposal || messages.findLast((m) => m.proposal)?.proposal;
+    if (latestProposal) {
+      generateImage(latestProposal, aspectRatio);
+    }
   };
 
   return (
@@ -210,13 +295,17 @@ export default function ChatPage() {
           </div>
 
           {/* 入力エリア */}
-          <ChatInput onSend={handleSend} />
+          <ChatInput onSend={handleSend} disabled={isTyping || isGeneratingImage} />
         </div>
 
         {/* プレビューパネル */}
         <PreviewPanel
           isOpen={previewOpen}
           onToggle={() => setPreviewOpen(false)}
+          generatedImage={generatedImage}
+          isGenerating={isGeneratingImage}
+          onRegenerate={handleRegenerate}
+          proposal={currentProposal}
         />
       </div>
     </>

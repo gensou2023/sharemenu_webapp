@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 
 const SYSTEM_PROMPT = `あなたは「MenuCraft AI」というAIメニューデザインアシスタントです。
@@ -49,37 +49,49 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { messages } = await req.json();
+    const body = await req.json();
+    const { messages } = body;
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json(
+        { reply: "メッセージが指定されていません。" },
+        { status: 400 }
+      );
+    }
+
+    // メッセージの長さ制限（直近20件のみ使用）
+    const recentMessages = messages.slice(-20);
+
+    const ai = new GoogleGenAI({ apiKey });
 
     // チャット履歴を構築（最初のAIメッセージを除外し、userから始まるようにする）
-    const filteredMessages = messages.slice(0, -1);
-    // 最初のメッセージがAI（ウェルカムメッセージ）の場合は除外
+    const filteredMessages = recentMessages.slice(0, -1);
     const startIndex = filteredMessages.length > 0 && filteredMessages[0].role === "ai" ? 1 : 0;
     const history = filteredMessages.slice(startIndex).map((msg: { role: string; content: string }) => ({
       role: msg.role === "ai" ? "model" : "user",
       parts: [{ text: msg.content }],
     }));
 
-    const chat = model.startChat({
+    const chat = ai.chats.create({
+      model: "gemini-2.0-flash",
       history,
-      systemInstruction: {
-        role: "user",
-        parts: [{ text: SYSTEM_PROMPT }],
+      config: {
+        systemInstruction: SYSTEM_PROMPT,
       },
     });
 
-    const lastMessage = messages[messages.length - 1];
-    const result = await chat.sendMessage(lastMessage.content);
-    const reply = result.response.text();
+    const lastMessage = recentMessages[recentMessages.length - 1];
+    // メッセージを最大1000文字に制限
+    const userContent = typeof lastMessage.content === "string"
+      ? lastMessage.content.slice(0, 1000)
+      : "";
+    const response = await chat.sendMessage({ message: userContent });
+    const reply = response.text ?? "";
 
     return NextResponse.json({ reply });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Gemini API error:", errorMessage);
-    // エラー詳細はサーバーログのみに記録し、ユーザーには汎用メッセージを返す
     return NextResponse.json(
       { reply: "申し訳ございません。エラーが発生しました。もう一度お試しください。" },
       { status: 200 }

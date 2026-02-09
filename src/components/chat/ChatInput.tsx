@@ -4,13 +4,16 @@ import { useState } from "react";
 
 export default function ChatInput({
   onSend,
+  disabled = false,
 }: {
   onSend: (message: string) => void;
+  disabled?: boolean;
 }) {
   const [value, setValue] = useState("");
   const [showAttachNotice, setShowAttachNotice] = useState(false);
 
   const handleSubmit = () => {
+    if (disabled) return;
     const trimmed = value.trim();
     if (!trimmed) return;
     onSend(trimmed);
@@ -61,14 +64,16 @@ export default function ChatInput({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="メッセージを入力..."
-          className="flex-1 border-none bg-transparent text-sm py-2 outline-none text-text-primary placeholder:text-text-muted"
+          disabled={disabled}
+          placeholder={disabled ? "処理中です..." : "メッセージを入力..."}
+          className="flex-1 border-none bg-transparent text-sm py-2 outline-none text-text-primary placeholder:text-text-muted disabled:opacity-50"
         />
 
         {/* 送信ボタン */}
         <button
           onClick={handleSubmit}
-          className="w-[38px] h-[38px] rounded-[8px] border-none bg-bg-dark text-white cursor-pointer flex items-center justify-center transition-all duration-300 hover:bg-accent-warm flex-shrink-0"
+          disabled={disabled}
+          className="w-[38px] h-[38px] rounded-[8px] border-none bg-bg-dark text-white cursor-pointer flex items-center justify-center transition-all duration-300 hover:bg-accent-warm flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path
