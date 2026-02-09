@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Header from "@/components/landing/Header";
 import ChatMessage, { MessageType } from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
-import PreviewPanel, { GeneratedImage } from "@/components/chat/PreviewPanel";
+import PreviewPanel, { GeneratedImage, FlowStep } from "@/components/chat/PreviewPanel";
 import Link from "next/link";
 
 let msgCounter = 0;
@@ -35,6 +35,7 @@ export default function ChatPage() {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null | undefined>(undefined);
   const [currentProposal, setCurrentProposal] = useState<MessageType["proposal"] | null>(null);
+  const [currentStep, setCurrentStep] = useState<FlowStep>(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -110,6 +111,7 @@ export default function ChatPage() {
     setIsGeneratingImage(true);
     setGeneratedImage(undefined);
     setPreviewOpen(true);
+    setCurrentStep(5);
 
     try {
       // 構成案からプロンプトを生成
@@ -162,6 +164,14 @@ export default function ChatPage() {
     }
   };
 
+  // 構成案の予告だけで終わったか判定（JSON未出力の場合）
+  const isProposalPreview = (text: string): boolean => {
+    const plain = text.replace(/<[^>]*>/g, "");
+    const hasKeyword = /構成案|まとめ|キャッチコピー.*考え/.test(plain);
+    const hasPromise = /お見せ|ご連絡|お待ち|準備/.test(plain);
+    return hasKeyword && hasPromise;
+  };
+
   const handleSend = async (text: string) => {
     const userMsg: MessageType = {
       id: genId("user"),
@@ -179,6 +189,7 @@ export default function ChatPage() {
     // 構成案が返ってきたらプレビュー用に保持
     if (proposal) {
       setCurrentProposal(proposal);
+      setCurrentStep(4);
     }
 
     const aiMsg: MessageType = {
@@ -190,6 +201,45 @@ export default function ChatPage() {
     };
 
     setMessages((prev) => [...prev, aiMsg]);
+
+    // ステップ自動進行（構成案が無い場合のキーワード判定）
+    if (!proposal) {
+      const plain = reply.replace(/<[^>]*>/g, "");
+      if (currentStep === 1 && /デザイン|方向性|テイスト|雰囲気/.test(plain)) {
+        setCurrentStep(2);
+      } else if (currentStep === 2 && /メニュー|料理|価格|写真/.test(plain)) {
+        setCurrentStep(3);
+      }
+    }
+
+    // 構成案の予告だけで終わった場合、自動でフォローアップして構成案を引き出す
+    if (!proposal && isProposalPreview(reply)) {
+      const followUp: MessageType[] = [...updatedMessages, aiMsg];
+      const followUpUser: MessageType = {
+        id: genId("auto"),
+        role: "user",
+        content: "はい、お願いします！構成案をJSON形式で見せてください。",
+        time: getTimeStr(),
+      };
+      const allMsgs = [...followUp, followUpUser];
+      // ユーザーメッセージは表示せず、ローディングを継続
+      const { reply: reply2, proposal: proposal2 } = await callGeminiAPI(allMsgs);
+
+      if (proposal2) {
+        setCurrentProposal(proposal2);
+        setCurrentStep(4);
+      }
+
+      const aiMsg2: MessageType = {
+        id: genId("ai"),
+        role: "ai",
+        content: reply2,
+        time: getTimeStr(),
+        proposal: proposal2,
+      };
+      setMessages((prev) => [...prev, aiMsg2]);
+    }
+
     setIsTyping(false);
   };
 
@@ -306,6 +356,7 @@ export default function ChatPage() {
           isGenerating={isGeneratingImage}
           onRegenerate={handleRegenerate}
           proposal={currentProposal}
+          currentStep={currentStep}
         />
       </div>
     </>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 export default function ChatInput({
   onSend,
@@ -11,6 +11,18 @@ export default function ChatInput({
 }) {
   const [value, setValue] = useState("");
   const [showAttachNotice, setShowAttachNotice] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjustHeight = useCallback(() => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    ta.style.height = "auto";
+    ta.style.height = `${Math.min(ta.scrollHeight, 160)}px`;
+  }, []);
+
+  useEffect(() => {
+    adjustHeight();
+  }, [value, adjustHeight]);
 
   const handleSubmit = () => {
     if (disabled) return;
@@ -21,10 +33,13 @@ export default function ChatInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    // Cmd+Enter (Mac) / Ctrl+Enter (Win) で送信
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       handleSubmit();
+      return;
     }
+    // Enter のみは改行（デフォルト動作）
   };
 
   return (
@@ -58,21 +73,23 @@ export default function ChatInput({
           )}
         </div>
 
-        {/* 入力フィールド */}
-        <input
-          type="text"
+        {/* 入力フィールド（複数行対応） */}
+        <textarea
+          ref={textareaRef}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={disabled}
           placeholder={disabled ? "処理中です..." : "メッセージを入力..."}
-          className="flex-1 border-none bg-transparent text-sm py-2 outline-none text-text-primary placeholder:text-text-muted disabled:opacity-50"
+          rows={1}
+          className="flex-1 border-none bg-transparent text-sm py-2 outline-none text-text-primary placeholder:text-text-muted disabled:opacity-50 resize-none leading-relaxed"
         />
 
         {/* 送信ボタン */}
         <button
           onClick={handleSubmit}
-          disabled={disabled}
+          disabled={disabled || !value.trim()}
+          title="⌘+Enter で送信"
           className="w-[38px] h-[38px] rounded-[8px] border-none bg-bg-dark text-white cursor-pointer flex items-center justify-center transition-all duration-300 hover:bg-accent-warm flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -87,7 +104,7 @@ export default function ChatInput({
         </button>
       </div>
       <div className="text-[11px] text-text-muted mt-2 text-center">
-        📎 写真アップロード対応（10MB以内 / JPEG, PNG, WebP）
+        ⌘+Enter で送信 · Enter で改行 · 📎 写真アップロード対応
       </div>
     </div>
   );

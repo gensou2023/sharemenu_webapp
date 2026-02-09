@@ -21,6 +21,61 @@ export type GeneratedImage = {
   mimeType: string;
 };
 
+// ステップ定義
+type StepStatus = "pending" | "active" | "done";
+type Step = { label: string; status: StepStatus };
+
+function StepFlow({ steps }: { steps: Step[] }) {
+  return (
+    <div className="w-full px-1">
+      <div className="text-[11px] font-semibold text-accent-warm uppercase tracking-[1px] mb-3">
+        作成フロー
+      </div>
+      <div className="flex flex-col gap-0">
+        {steps.map((step, i) => (
+          <div key={i} className="flex items-start gap-2.5">
+            {/* ライン + ドット */}
+            <div className="flex flex-col items-center">
+              <div
+                className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold transition-all duration-300 ${
+                  step.status === "done"
+                    ? "bg-accent-olive text-white"
+                    : step.status === "active"
+                    ? "bg-accent-warm text-white animate-pulse"
+                    : "bg-border-light text-text-muted"
+                }`}
+              >
+                {step.status === "done" ? "✓" : i + 1}
+              </div>
+              {i < steps.length - 1 && (
+                <div
+                  className={`w-px h-4 transition-all duration-300 ${
+                    step.status === "done" ? "bg-accent-olive/40" : "bg-border-light"
+                  }`}
+                />
+              )}
+            </div>
+            {/* ラベル */}
+            <div
+              className={`text-xs pt-0.5 transition-all duration-300 ${
+                step.status === "done"
+                  ? "text-text-secondary line-through opacity-60"
+                  : step.status === "active"
+                  ? "text-text-primary font-semibold"
+                  : "text-text-muted"
+              }`}
+            >
+              {step.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export type FlowStep = 1 | 2 | 3 | 4 | 5;
+
 export default function PreviewPanel({
   isOpen,
   onToggle,
@@ -28,6 +83,7 @@ export default function PreviewPanel({
   isGenerating,
   onRegenerate,
   proposal,
+  currentStep = 1,
 }: {
   isOpen: boolean;
   onToggle: () => void;
@@ -40,6 +96,7 @@ export default function PreviewPanel({
     designDirection?: string;
     hashtags?: string[];
   } | null;
+  currentStep?: FlowStep;
 }) {
   const [activeRatio, setActiveRatio] = useState<RatioKey>("1-1");
 
@@ -173,18 +230,18 @@ export default function PreviewPanel({
             </div>
           )}
 
-          {!proposal && (
-            <div className="w-full p-4 bg-bg-primary rounded-[12px] border border-border-light text-[13px] leading-relaxed text-center">
-              <div className="text-[11px] font-semibold text-accent-warm uppercase tracking-[1px] mb-2">
-                ご利用ガイド
-              </div>
-              <div className="text-text-muted text-xs leading-relaxed">
-                チャットでお店の情報をお伝えいただくと、<br />
-                AIが構成案を作成します。<br />
-                構成案が完成すると、ここに情報が表示されます。
-              </div>
-            </div>
-          )}
+          {/* ステップフロー（常時表示） */}
+          <div className="w-full p-4 bg-bg-primary rounded-[12px] border border-border-light">
+            <StepFlow
+              steps={[
+                { label: "お店の名前を入力", status: currentStep > 1 ? "done" : currentStep === 1 ? "active" : "pending" },
+                { label: "デザインの方向性を選択", status: currentStep > 2 ? "done" : currentStep === 2 ? "active" : "pending" },
+                { label: "メニュー・価格を入力", status: currentStep > 3 ? "done" : currentStep === 3 ? "active" : "pending" },
+                { label: "構成案を確認・承認", status: currentStep > 4 ? "done" : currentStep === 4 ? "active" : "pending" },
+                { label: "画像を生成・ダウンロード", status: currentStep >= 5 ? (generatedImage ? "done" : "active") : "pending" },
+              ]}
+            />
+          </div>
         </div>
 
         {/* フッター */}
