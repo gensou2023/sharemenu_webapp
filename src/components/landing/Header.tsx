@@ -2,7 +2,17 @@
 
 import Link from "next/link";
 
-export default function Header() {
+type HeaderProps = {
+  activeTab?: "home" | "dashboard" | "chat";
+};
+
+const navItems = [
+  { key: "home", label: "ホーム", href: "/" },
+  { key: "dashboard", label: "ダッシュボード", href: "/dashboard" },
+  { key: "chat", label: "チャット", href: "/chat" },
+] as const;
+
+export default function Header({ activeTab = "home" }: HeaderProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-bg-dark flex items-center px-6 h-[52px]">
       {/* Brand Logo */}
@@ -26,24 +36,19 @@ export default function Header() {
 
       {/* Navigation */}
       <nav className="hidden md:flex items-center">
-        <Link
-          href="/"
-          className="py-3.5 px-5 text-text-inverse text-[13px] font-medium border-b-2 border-accent-gold transition-all duration-300 no-underline"
-        >
-          ホーム
-        </Link>
-        <Link
-          href="/dashboard"
-          className="py-3.5 px-5 text-text-muted text-[13px] font-medium border-b-2 border-transparent hover:text-[#D5CFC7] transition-all duration-300 no-underline"
-        >
-          ダッシュボード
-        </Link>
-        <Link
-          href="/chat"
-          className="py-3.5 px-5 text-text-muted text-[13px] font-medium border-b-2 border-transparent hover:text-[#D5CFC7] transition-all duration-300 no-underline"
-        >
-          チャット
-        </Link>
+        {navItems.map((item) => (
+          <Link
+            key={item.key}
+            href={item.href}
+            className={`py-3.5 px-5 text-[13px] font-medium border-b-2 transition-all duration-300 no-underline ${
+              activeTab === item.key
+                ? "text-text-inverse border-accent-gold"
+                : "text-text-muted border-transparent hover:text-[#D5CFC7]"
+            }`}
+          >
+            {item.label}
+          </Link>
+        ))}
       </nav>
 
       {/* Spacer */}
