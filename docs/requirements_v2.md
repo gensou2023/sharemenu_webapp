@@ -222,14 +222,15 @@ AIがステップバイステップで以下の情報を収集する。
 
 | レイヤー | 技術 | 備考 |
 |----------|------|------|
-| フロントエンド | Streamlit | Python軽量UIフレームワーク |
-| バックエンド | Python 3.11+ | Streamlit内蔵 + 追加ロジック |
-| LLM（チャット） | Google Gemini API | ヒアリング・構成案生成 |
-| 画像生成 | nano banana pro（Google AI Studio経由） | メニュー画像生成 |
-| データベース | SQLite（デモ）→ PostgreSQL（本番） | ユーザー・履歴管理 |
-| 認証 | streamlit-authenticator | 簡易認証（デモ用） |
-| ファイルストレージ | ローカル（デモ）→ Cloud Storage（本番） | 生成画像保存 |
-| デプロイ | Streamlit Cloud（デモ） | 無料枠で検証可能 |
+| フロントエンド | Next.js 15.5 + React 19 + TypeScript | App Router使用 |
+| スタイリング | Tailwind CSS v4 | @theme inlineでデザイントークン定義 |
+| LLM（チャット） | Google Gemini 2.0 Flash | ヒアリング・構成案生成 |
+| 画像生成 | Gemini 2.0 Flash (image generation) | メニュー画像生成（5サイズ対応） |
+| データベース | Supabase（PostgreSQL） | ユーザー・セッション・画像メタデータ |
+| 認証 | NextAuth.js v5（Credentials） | デモアカウント + Supabaseユーザー同期 |
+| ファイルストレージ | Supabase Storage | generated / references / uploads バケット |
+| 画像処理 | sharp | リサイズ・JPEG変換（長辺1200px、品質80%） |
+| デプロイ | Vercel（Hobby プラン） | GitHub連携自動デプロイ |
 
 ### 4.2 アーキテクチャ概要図
 
@@ -377,36 +378,45 @@ AIがステップバイステップで以下の情報を収集する。
 
 ## 7. 開発フェーズ
 
-### Phase 1: デモ（MVP）— 目標: 2〜3週間
+### Phase 1: デモ（MVP）— 完了済み + 残タスク
+
+**完了済み:**
 - [x] システムプロンプト完成
 - [x] 要件定義書作成
 - [x] UIモックアップ作成
-- [ ] Streamlit基盤セットアップ
-- [ ] ランディングページ実装（ヒーロー・事例・料金プラン・問い合わせフォーム）
-- [ ] チャットUI実装（Gemini API連携）
-- [ ] 画像アップロード機能
-- [ ] 画像生成パイプライン（nano banana pro連携）
-- [ ] 3サイズプレビュー・ダウンロード
-- [ ] 簡易認証（streamlit-authenticator）
-- [ ] プラン管理（Free/Proフラグ切替 + 制限ロジック）
-- [ ] 生成履歴（SQLite）
-- [ ] お問い合わせフォーム（DB保存）
-- [ ] Streamlit Cloudデプロイ
+- [x] Next.js + Vercel 基盤セットアップ（※Streamlitから変更）
+- [x] ランディングページ実装（ヒーロー・事例・料金プラン・問い合わせフォーム）
+- [x] チャットUI実装（Gemini 2.0 Flash 連携・5ステップヒアリング）
+- [x] 画像アップロード機能（sharp リサイズ・JPEG変換）
+- [x] 画像生成パイプライン（Gemini 画像生成API・5サイズ対応）
+- [x] プレビュー・ダウンロード（アスペクト比切替）
+- [x] NextAuth.js 認証（Credentials + デモアカウント）
+- [x] Supabase DB統合（7テーブル + Storage 3バケット）
+- [x] ダッシュボード（セッション履歴・統計表示）
+- [x] 管理画面（統計・セッション管理・プロンプト編集・参考画像・APIログ）
+- [x] Vercel デプロイ（本番稼働中）
 
-### Phase 2: 改善 — Phase 1完了後
-- [ ] 業態別テンプレート
-- [ ] UI/UXブラッシュアップ（レスポンシブ対応）
-- [ ] 生成品質の向上（プロンプトチューニング）
+**MVP残タスク:**
+- [ ] セッション履歴の復元（過去セッションの再開機能）
+- [ ] API使用ログの記録実装（テーブルは存在、記録ロジック未実装）
+- [ ] プロンプトテンプレートのDB読み込み（現在はハードコード）
 - [ ] エラーハンドリング強化
+- [ ] APIレート制限の実装
+
+### Phase 2: 改善 — MVP残タスク完了後
+- [ ] セッションステータス管理（active → completed 遷移）
+- [ ] 参考画像の画像生成連携
+- [ ] ユーザー登録フロー完成（デモ制限解除）
+- [ ] 画像ダウンロード・共有機能
+- [ ] デザインプリセット（業態別テンプレート）
 
 ### Phase 3: 本番化 — 需要検証後
-- [ ] PostgreSQL移行
-- [ ] Cloud Storage移行
-- [ ] OAuth認証
+- [ ] OAuth認証（Google, LINE）
 - [ ] 決済連携（Stripe等）によるPro課金
 - [ ] エンタープライズプラン対応
-- [ ] チーム共有機能
-- [ ] Canva/Figma連携
+- [ ] CI/CD パイプライン（GitHub Actions）
+- [ ] テスト追加（API + 統合テスト）
+- [ ] モニタリング（Sentry等）
 
 ---
 
