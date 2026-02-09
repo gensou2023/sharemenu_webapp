@@ -36,7 +36,10 @@ export default function ChatPage() {
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null | undefined>(undefined);
   const [currentProposal, setCurrentProposal] = useState<MessageType["proposal"] | null>(null);
   const [currentStep, setCurrentStep] = useState<FlowStep>(1);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  // 保存済みメッセージ数を追跡（差分保存用）
+  const savedMsgCountRef = useRef(1); // 初期メッセージ(welcome)分
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,6 +48,81 @@ export default function ChatPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping, scrollToBottom]);
+
+  // セッション作成（初回メッセージ送信時）
+  const ensureSession = useCallback(async () => {
+    if (sessionId) return sessionId;
+    try {
+      const res = await fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: "新規セッション" }),
+      });
+      const data = await res.json();
+      if (data.session?.id) {
+        setSessionId(data.session.id);
+        return data.session.id as string;
+      }
+    } catch {
+      // DB未接続時は無視
+    }
+    return null;
+  }, [sessionId]);
+
+  // メッセージをDBに保存（差分のみ）
+  const saveMessages = useCallback(async (
+    sid: string | null,
+    allMessages: MessageType[],
+    shopName?: string,
+    category?: string
+  ) => {
+    if (!sid) return;
+    const unsaved = allMessages.slice(savedMsgCountRef.current);
+    if (unsaved.length === 0) return;
+    try {
+      const rows = unsaved.map((m) => ({
+        role: m.role,
+        content: m.content.replace(/<[^>]*>/g, ""), // HTMLタグ除去
+        proposal_json: m.proposal || null,
+      }));
+      await fetch(`/api/sessions/${sid}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: rows, shopName, category }),
+      });
+      savedMsgCountRef.current = allMessages.length;
+    } catch {
+      // 保存失敗は無視（チャット自体は継続）
+    }
+  }, []);
+
+  // 生成画像をDBに保存
+  const saveImage = useCallback(async (
+    sid: string | null,
+    imageBase64: string,
+    mimeType: string,
+    prompt: string,
+    aspectRatio: string,
+    proposalJson: unknown
+  ) => {
+    if (!sid) return;
+    try {
+      await fetch("/api/images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: sid,
+          imageBase64,
+          mimeType,
+          prompt,
+          aspectRatio,
+          proposalJson,
+        }),
+      });
+    } catch {
+      // 保存失敗は無視
+    }
+  }, []);
 
   const getTimeStr = () =>
     new Date().toLocaleTimeString("ja-JP", {
@@ -149,6 +227,9 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
           time: getTimeStr(),
         };
         setMessages((prev) => [...prev, successMsg]);
+
+        // 画像をDBに保存
+        saveImage(sessionId, data.image, data.mimeType, prompt, aspectRatio, proposal);
       }
     } catch {
       const errorMsg: MessageType = {
@@ -173,6 +254,9 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
   };
 
   const handleSend = async (text: string) => {
+    // 初回メッセージ時にセッション作成
+    const sid = await ensureSession();
+
     const userMsg: MessageType = {
       id: genId("user"),
       role: "user",
@@ -200,7 +284,20 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
       proposal,
     };
 
-    setMessages((prev) => [...prev, aiMsg]);
+    const msgsWithAi = [...updatedMessages, aiMsg];
+    setMessages(msgsWithAi);
+
+    // メッセージをDBに保存
+    saveMessages(sid, msgsWithAi, proposal?.shopName);
+
+    // セッションタイトルを店名で更新
+    if (proposal?.shopName && sid) {
+      fetch(`/api/sessions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: proposal.shopName }),
+      }).catch(() => {});
+    }
 
     // ステップ自動進行（構成案が無い場合のキーワード判定）
     if (!proposal) {
@@ -237,7 +334,12 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
         time: getTimeStr(),
         proposal: proposal2,
       };
-      setMessages((prev) => [...prev, aiMsg2]);
+      setMessages((prev) => {
+        const updated = [...prev, aiMsg2];
+        // フォローアップ分もDB保存
+        saveMessages(sid, updated, proposal2?.shopName);
+        return updated;
+      });
     }
 
     setIsTyping(false);
