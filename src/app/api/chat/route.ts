@@ -54,8 +54,11 @@ export async function POST(req: NextRequest) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    // チャット履歴を構築
-    const history = messages.slice(0, -1).map((msg: { role: string; content: string }) => ({
+    // チャット履歴を構築（最初のAIメッセージを除外し、userから始まるようにする）
+    const filteredMessages = messages.slice(0, -1);
+    // 最初のメッセージがAI（ウェルカムメッセージ）の場合は除外
+    const startIndex = filteredMessages.length > 0 && filteredMessages[0].role === "ai" ? 1 : 0;
+    const history = filteredMessages.slice(startIndex).map((msg: { role: string; content: string }) => ({
       role: msg.role === "ai" ? "model" : "user",
       parts: [{ text: msg.content }],
     }));
