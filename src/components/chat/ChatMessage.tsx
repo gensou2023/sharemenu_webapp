@@ -52,11 +52,13 @@ export default function ChatMessage({
   onQuickReply,
   onApproveProposal,
   onReviseProposal,
+  disabled = false,
 }: {
   msg: MessageType;
   onQuickReply?: (reply: string) => void;
   onApproveProposal?: () => void;
   onReviseProposal?: () => void;
+  disabled?: boolean;
 }) {
   const isAI = msg.role === "ai";
 
@@ -151,13 +153,15 @@ export default function ChatMessage({
             <div className="px-4 py-3 border-t border-border-light flex gap-2">
               <button
                 onClick={onApproveProposal}
-                className="px-5 py-2 rounded-[28px] border-none text-[13px] font-semibold bg-accent-warm text-white cursor-pointer transition-all duration-300 hover:bg-accent-warm-hover"
+                disabled={disabled}
+                className="px-5 py-2 rounded-[28px] border-none text-[13px] font-semibold bg-accent-warm text-white cursor-pointer transition-all duration-300 hover:bg-accent-warm-hover disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 ✅ この内容で生成する
               </button>
               <button
                 onClick={onReviseProposal}
-                className="px-5 py-2 rounded-[28px] text-[13px] font-semibold bg-transparent text-text-secondary border border-border-medium cursor-pointer transition-all duration-300 hover:border-text-primary"
+                disabled={disabled}
+                className="px-5 py-2 rounded-[28px] text-[13px] font-semibold bg-transparent text-text-secondary border border-border-medium cursor-pointer transition-all duration-300 hover:border-text-primary disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 修正する
               </button>

@@ -114,12 +114,12 @@ export default function ChatPage() {
     setCurrentStep(5);
 
     try {
-      // 構成案からプロンプトを生成
-      const prompt = `飲食店「${proposal.shopName}」のSNS用メニュー画像を作成してください。
-デザインの方向性: ${proposal.designDirection || "ナチュラル"}
-キャッチコピー: ${proposal.catchCopies?.[0] || ""}
-スタイル: プロフェッショナルなフード写真風、暖かい照明、食欲をそそるビジュアル
-テキストは画像に含めないでください。写真のみを生成してください。`;
+      // 構成案からプロンプトを生成（英語プロンプト＋テキスト描画禁止）
+      const prompt = `A professional food photography for a restaurant menu.
+Restaurant: ${proposal.shopName}
+Design style: ${proposal.designDirection || "natural, warm"}
+Mood: appetizing, warm lighting, high-quality food photo
+IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or captions in the image. Generate ONLY the food photograph with no text overlay whatsoever.`;
 
       const res = await fetch("/api/generate-image", {
         method: "POST",
@@ -248,15 +248,23 @@ export default function ChatPage() {
   };
 
   const handleApproveProposal = () => {
+    // 生成中・タイピング中は連打を防止
+    if (isGeneratingImage || isTyping) return;
+
     const latestProposal = currentProposal || messages.findLast((m) => m.proposal)?.proposal;
     if (latestProposal) {
       const copyLabel = latestProposal.catchCopies?.[0]
         ? `「${latestProposal.catchCopies[0]}」`
         : "この内容";
-      handleSend(`${copyLabel}でお願いします！画像を生成してください。`);
+      // チャットにユーザーメッセージだけ表示（APIは呼ばない）
+      const userMsg: MessageType = {
+        id: genId("user"),
+        role: "user",
+        content: `${copyLabel}でお願いします！画像を生成してください。`,
+        time: getTimeStr(),
+      };
+      setMessages((prev) => [...prev, userMsg]);
       generateImage(latestProposal);
-    } else {
-      handleSend("この構成案で画像を生成してください。");
     }
   };
 
@@ -322,6 +330,7 @@ export default function ChatPage() {
                 onQuickReply={handleQuickReply}
                 onApproveProposal={handleApproveProposal}
                 onReviseProposal={handleReviseProposal}
+                disabled={isTyping || isGeneratingImage}
               />
             ))}
 
