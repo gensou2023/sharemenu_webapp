@@ -9,15 +9,17 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDemoNotice, setShowDemoNotice] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreed) return;
     setIsLoading(true);
-    // TODO: ユーザー登録API連携
+    // デモ版のため、登録完了メッセージを表示してからログインページへ誘導
     setTimeout(() => {
-      window.location.href = "/dashboard";
-    }, 1000);
+      setIsLoading(false);
+      setShowDemoNotice(true);
+    }, 800);
   };
 
   return (
@@ -51,6 +53,26 @@ export default function SignupPage() {
           <p className="text-text-secondary text-sm text-center mb-8">
             30秒で登録完了。クレジットカード不要です。
           </p>
+
+          {/* デモ版通知 */}
+          {showDemoNotice && (
+            <div className="mb-6 p-4 rounded-[12px] bg-[rgba(196,113,59,.08)] border border-[rgba(196,113,59,.2)]">
+              <div className="text-sm font-semibold text-accent-warm mb-1">📋 デモ版のお知らせ</div>
+              <p className="text-xs text-text-secondary leading-relaxed mb-3">
+                現在デモ版のため、新規アカウント登録は受け付けておりません。以下のデモアカウントでログインしてお試しください。
+              </p>
+              <div className="text-xs text-text-secondary mb-3">
+                Email: <code className="bg-[#EDE8E0] px-1 rounded">demo@menucraft.jp</code><br/>
+                Pass: <code className="bg-[#EDE8E0] px-1 rounded">demo1234</code>
+              </div>
+              <Link
+                href="/login"
+                className="inline-block px-5 py-2 rounded-[28px] bg-accent-warm text-white text-xs font-semibold no-underline transition-all duration-300 hover:bg-accent-warm-hover"
+              >
+                ログインページへ →
+              </Link>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* 店舗名 */}
@@ -111,9 +133,9 @@ export default function SignupPage() {
                 className="mt-0.5 w-4 h-4 accent-accent-warm cursor-pointer"
               />
               <span className="text-xs text-text-secondary leading-relaxed">
-                <Link href="#" className="text-accent-warm no-underline hover:text-accent-warm-hover">利用規約</Link>
+                <Link href="/terms" className="text-accent-warm no-underline hover:text-accent-warm-hover">利用規約</Link>
                 {" "}と{" "}
-                <Link href="#" className="text-accent-warm no-underline hover:text-accent-warm-hover">プライバシーポリシー</Link>
+                <Link href="/privacy" className="text-accent-warm no-underline hover:text-accent-warm-hover">プライバシーポリシー</Link>
                 {" "}に同意します
               </span>
             </label>

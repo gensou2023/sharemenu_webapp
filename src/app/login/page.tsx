@@ -100,7 +100,7 @@ export default function LoginPage() {
                   パスワード
                 </label>
                 <Link
-                  href="#"
+                  href="/forgot-password"
                   className="text-xs text-accent-warm hover:text-accent-warm-hover transition-colors no-underline"
                 >
                   パスワードをお忘れですか？

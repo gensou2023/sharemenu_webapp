@@ -79,8 +79,9 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Gemini API error:", errorMessage);
+    // エラー詳細はサーバーログのみに記録し、ユーザーには汎用メッセージを返す
     return NextResponse.json(
-      { reply: `申し訳ございません。エラーが発生しました。(${errorMessage})` },
+      { reply: "申し訳ございません。エラーが発生しました。もう一度お試しください。" },
       { status: 200 }
     );
   }

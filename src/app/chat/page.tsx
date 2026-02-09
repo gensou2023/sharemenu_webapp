@@ -20,7 +20,14 @@ const INITIAL_MESSAGE: MessageType = {
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<MessageType[]>([INITIAL_MESSAGE]);
-  const [previewOpen, setPreviewOpen] = useState(true);
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  // 画面幅に応じてプレビューのデフォルト状態を設定
+  useEffect(() => {
+    if (window.innerWidth >= 1024) {
+      setPreviewOpen(true);
+    }
+  }, []);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -125,6 +132,10 @@ export default function ChatPage() {
     handleSend("キャッチコピーはAでお願いします！画像を生成してください。");
   };
 
+  const handleReviseProposal = () => {
+    handleSend("構成案を修正したいです。別のキャッチコピーやデザインの方向性を提案してもらえますか？");
+  };
+
   return (
     <>
       <Header activeTab="chat" />
@@ -132,14 +143,14 @@ export default function ChatPage() {
         {/* チャットメイン */}
         <div className="flex-1 flex flex-col min-w-0 bg-bg-primary">
           {/* チャットヘッダー */}
-          <div className="px-7 py-4 border-b border-border-light flex items-center justify-between bg-bg-secondary flex-shrink-0">
+          <div className="px-4 md:px-7 py-3 md:py-4 border-b border-border-light flex items-center justify-between bg-bg-secondary flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-accent-olive animate-pulse" />
               <div>
-                <div className="font-semibold text-[15px]">
+                <div className="font-semibold text-sm md:text-[15px]">
                   メニューデザイン - 新規作成
                 </div>
-                <div className="text-xs text-text-muted">
+                <div className="text-xs text-text-muted hidden sm:block">
                   AIアシスタントとチャット
                 </div>
               </div>
@@ -168,13 +179,14 @@ export default function ChatPage() {
           </div>
 
           {/* メッセージ一覧 */}
-          <div className="flex-1 overflow-y-auto px-7 py-7 flex flex-col gap-5">
+          <div className="flex-1 overflow-y-auto px-4 md:px-7 py-5 md:py-7 flex flex-col gap-4 md:gap-5">
             {messages.map((msg) => (
               <ChatMessage
                 key={msg.id}
                 msg={msg}
                 onQuickReply={handleQuickReply}
                 onApproveProposal={handleApproveProposal}
+                onReviseProposal={handleReviseProposal}
               />
             ))}
 

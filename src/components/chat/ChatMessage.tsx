@@ -1,3 +1,16 @@
+// 許可するHTMLタグのみ残し、それ以外を除去するサニタイズ関数
+function sanitizeHTML(html: string): string {
+  // まず全てのHTMLタグを除去
+  const stripped = html.replace(/<[^>]*>/g, (match) => {
+    // 許可するタグ: <br>, <br/>, <strong>, </strong>, <em>, </em>
+    if (/^<br\s*\/?>$/i.test(match)) return match;
+    if (/^<\/?(strong|em)>$/i.test(match)) return match;
+    // それ以外のタグはエスケープ
+    return match.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  });
+  return stripped;
+}
+
 export type MessageType = {
   id: string;
   role: "ai" | "user";
@@ -38,10 +51,12 @@ export default function ChatMessage({
   msg,
   onQuickReply,
   onApproveProposal,
+  onReviseProposal,
 }: {
   msg: MessageType;
   onQuickReply?: (reply: string) => void;
   onApproveProposal?: () => void;
+  onReviseProposal?: () => void;
 }) {
   const isAI = msg.role === "ai";
 
@@ -60,7 +75,7 @@ export default function ChatMessage({
               ? "bg-bg-secondary border border-border-light rounded-tl-[4px]"
               : "bg-[#2C2520] text-text-inverse rounded-tr-[4px]"
           }`}
-          dangerouslySetInnerHTML={{ __html: msg.content }}
+          dangerouslySetInnerHTML={{ __html: isAI ? sanitizeHTML(msg.content) : msg.content.replace(/</g, "&lt;").replace(/>/g, "&gt;") }}
         />
 
         {/* 画像アップロード */}
@@ -140,7 +155,10 @@ export default function ChatMessage({
               >
                 ✅ この内容で生成する
               </button>
-              <button className="px-5 py-2 rounded-[28px] text-[13px] font-semibold bg-transparent text-text-secondary border border-border-medium cursor-pointer transition-all duration-300 hover:border-text-primary">
+              <button
+                onClick={onReviseProposal}
+                className="px-5 py-2 rounded-[28px] text-[13px] font-semibold bg-transparent text-text-secondary border border-border-medium cursor-pointer transition-all duration-300 hover:border-text-primary"
+              >
                 修正する
               </button>
             </div>

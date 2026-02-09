@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
 
 export default function FooterSection() {
@@ -166,17 +167,17 @@ export default function FooterSection() {
         </p>
         <div className="flex gap-5">
           {[
-            "利用規約",
-            "プライバシーポリシー",
-            "特定商取引法に基づく表記",
+            { label: "利用規約", href: "/terms" },
+            { label: "プライバシーポリシー", href: "/privacy" },
+            { label: "特定商取引法に基づく表記", href: "/tokushoho" },
           ].map((link) => (
-            <a
-              key={link}
-              href="#"
-              className="text-xs text-text-secondary hover:text-text-muted transition-colors duration-300"
+            <Link
+              key={link.label}
+              href={link.href}
+              className="text-xs text-text-secondary hover:text-text-muted transition-colors duration-300 no-underline"
             >
-              {link}
-            </a>
+              {link.label}
+            </Link>
           ))}
         </div>
       </div>
