@@ -6,10 +6,16 @@ export default function PlanLimitModal({
   isOpen,
   onClose,
   sessionCount,
+  onDeleteOldest,
+  deleting,
+  oldestSessionName,
 }: {
   isOpen: boolean;
   onClose: () => void;
   sessionCount: number;
+  onDeleteOldest?: () => void;
+  deleting?: boolean;
+  oldestSessionName?: string;
 }) {
   if (!isOpen) return null;
 
@@ -65,6 +71,24 @@ export default function PlanLimitModal({
             </div>
           </div>
 
+          {/* 古い順に削除して続行オプション */}
+          {onDeleteOldest && (
+            <div className="px-6 pb-4">
+              <div className="p-3 rounded-[12px] bg-amber-50 border border-amber-200">
+                <p className="text-xs text-amber-700 leading-relaxed">
+                  または、一番古いセッション
+                  {oldestSessionName && (
+                    <strong>&ldquo;{oldestSessionName}&rdquo;</strong>
+                  )}
+                  を削除して新しいセッションを作成できます。
+                </p>
+                <p className="text-[10px] text-amber-600 mt-1">
+                  ⚠ 削除されたデータは復元できません
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* ボタン */}
           <div className="px-6 pb-6 flex flex-col gap-2.5">
             <Link
@@ -73,6 +97,22 @@ export default function PlanLimitModal({
             >
               Proプランにアップグレード →
             </Link>
+            {onDeleteOldest && (
+              <button
+                onClick={onDeleteOldest}
+                disabled={deleting}
+                className="w-full py-3 rounded-[28px] text-sm text-red-600 bg-transparent border border-red-300 cursor-pointer transition-all duration-300 hover:bg-red-50 hover:border-red-400 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
+                    削除中...
+                  </>
+                ) : (
+                  "古いセッションを削除して作成 →"
+                )}
+              </button>
+            )}
             <button
               onClick={onClose}
               className="w-full py-3 rounded-[28px] text-sm text-text-secondary bg-transparent border border-border-medium cursor-pointer transition-all duration-300 hover:border-text-primary"

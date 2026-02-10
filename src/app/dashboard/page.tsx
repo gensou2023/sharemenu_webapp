@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Header from "@/components/landing/Header";
 import AdPlaceholder from "@/components/AdPlaceholder";
 import PlanLimitModal from "@/components/PlanLimitModal";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import Link from "next/link";
 
 const FREE_SESSION_LIMIT = 3;
@@ -79,25 +80,88 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<string | null>(null);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [deletingOldest, setDeletingOldest] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<SessionData | null>(null);
+  const [deletingSession, setDeletingSession] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch("/api/dashboard");
-        if (res.ok) {
-          const data = await res.json();
-          setSessions(data.sessions || []);
-          setStats(data.stats || null);
-        }
-      } catch {
-        // API失敗時はフォールバック表示
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchData();
   }, []);
+
+  async function fetchData() {
+    try {
+      const res = await fetch("/api/dashboard");
+      if (res.ok) {
+        const data = await res.json();
+        setSessions(data.sessions || []);
+        setStats(data.stats || null);
+      }
+    } catch {
+      // API失敗時はフォールバック表示
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // セッション削除
+  async function deleteSession(sessionId: string) {
+    const res = await fetch(`/api/sessions/${sessionId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      throw new Error("削除に失敗しました");
+    }
+  }
+
+  // 個別セッション削除の確定
+  async function handleDeleteConfirm() {
+    if (!deleteTarget) return;
+    setDeletingSession(true);
+    try {
+      await deleteSession(deleteTarget.id);
+      setSessions((prev) => prev.filter((s) => s.id !== deleteTarget.id));
+      // stats を更新
+      if (stats) {
+        setStats({
+          ...stats,
+          totalImages: stats.totalImages - deleteTarget.imageCount,
+          recentSessions: Math.max(0, stats.recentSessions - 1),
+        });
+      }
+      setDeleteTarget(null);
+    } catch {
+      alert("削除に失敗しました。もう一度お試しください。");
+    } finally {
+      setDeletingSession(false);
+    }
+  }
+
+  // 古いセッションを削除して新規作成
+  async function handleDeleteOldestAndCreate() {
+    const oldest = [...sessions].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    )[0];
+    if (!oldest) return;
+
+    setDeletingOldest(true);
+    try {
+      await deleteSession(oldest.id);
+      setSessions((prev) => prev.filter((s) => s.id !== oldest.id));
+      setShowLimitModal(false);
+      // 削除成功後、チャットページへ遷移
+      router.push("/chat");
+    } catch {
+      alert("削除に失敗しました。もう一度お試しください。");
+    } finally {
+      setDeletingOldest(false);
+    }
+  }
+
+  // 一番古いセッション名を取得
+  const oldestSession = [...sessions].sort(
+    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  )[0];
 
   const statsCards = [
     {
@@ -250,38 +314,61 @@ export default function DashboardPage() {
                     {/* 情報 */}
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-1">
-                        <div className="font-semibold text-[15px]">
+                        <div className="font-semibold text-[15px] truncate mr-2">
                           {item.shop_name || item.title}
                         </div>
-                        {item.imageCount > 0 && (
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          {/* ダウンロードボタン */}
+                          {item.imageCount > 0 && (
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setDownloading(item.id);
+                                downloadImages(item.imageUrls, item.shop_name).finally(() =>
+                                  setDownloading(null)
+                                );
+                              }}
+                              disabled={downloading === item.id}
+                              title="画像を一括ダウンロード"
+                              className="w-8 h-8 rounded-[8px] border border-border-light bg-bg-primary cursor-pointer flex items-center justify-center transition-all duration-300 text-text-secondary hover:bg-accent-warm hover:text-white hover:border-accent-warm flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              {downloading === item.id ? (
+                                <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                  <path
+                                    d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2M8 2v9m0 0L5 8m3 3l3-3"
+                                    stroke="currentColor"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              )}
+                            </button>
+                          )}
+                          {/* 削除ボタン */}
                           <button
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              setDownloading(item.id);
-                              downloadImages(item.imageUrls, item.shop_name).finally(() =>
-                                setDownloading(null)
-                              );
+                              setDeleteTarget(item);
                             }}
-                            disabled={downloading === item.id}
-                            title="画像を一括ダウンロード"
-                            className="w-8 h-8 rounded-[8px] border border-border-light bg-bg-primary cursor-pointer flex items-center justify-center transition-all duration-300 text-text-secondary hover:bg-accent-warm hover:text-white hover:border-accent-warm flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                            title="セッションを削除"
+                            className="w-8 h-8 rounded-[8px] border border-border-light bg-bg-primary cursor-pointer flex items-center justify-center transition-all duration-300 text-text-secondary hover:bg-red-500 hover:text-white hover:border-red-500 flex-shrink-0"
                           >
-                            {downloading === item.id ? (
-                              <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                            ) : (
-                              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                                <path
-                                  d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2M8 2v9m0 0L5 8m3 3l3-3"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                            )}
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                              <path
+                                d="M2 4h12M5.333 4V2.667a1.333 1.333 0 011.334-1.334h2.666a1.333 1.333 0 011.334 1.334V4m2 0v9.333a1.333 1.333 0 01-1.334 1.334H4.667a1.333 1.333 0 01-1.334-1.334V4h9.334z"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
                           </button>
-                        )}
+                        </div>
                       </div>
                       <div className="text-xs text-text-muted flex gap-3">
                         <span>{item.category || "—"}</span>
@@ -302,6 +389,18 @@ export default function DashboardPage() {
         isOpen={showLimitModal}
         onClose={() => setShowLimitModal(false)}
         sessionCount={sessions.length}
+        onDeleteOldest={handleDeleteOldestAndCreate}
+        deleting={deletingOldest}
+        oldestSessionName={oldestSession?.shop_name || oldestSession?.title}
+      />
+
+      {/* 削除確認モーダル */}
+      <DeleteConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        shopName={deleteTarget?.shop_name || deleteTarget?.title || ""}
+        loading={deletingSession}
       />
     </>
   );
