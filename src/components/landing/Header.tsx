@@ -5,7 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 
 type HeaderProps = {
-  activeTab?: "home" | "dashboard" | "chat";
+  activeTab?: "home" | "dashboard" | "chat" | "settings";
 };
 
 const navItems = [
@@ -94,6 +94,22 @@ export default function Header({ activeTab = "home" }: HeaderProps) {
                   <div className="text-sm font-semibold text-text-primary">{userName}</div>
                   <div className="text-xs text-text-muted">{session.user.email}</div>
                 </div>
+                <Link
+                  href="/settings"
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-3 text-sm text-text-primary hover:bg-bg-primary no-underline transition-colors duration-200"
+                >
+                  ⚙ アカウント設定
+                </Link>
+                {session.user.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-4 py-3 text-sm text-text-primary hover:bg-bg-primary no-underline transition-colors duration-200 border-b border-border-light"
+                  >
+                    🛠 管理画面
+                  </Link>
+                )}
                 <button
                   onClick={handleLogout}
                   className="w-full px-4 py-3 text-left text-sm text-red-500 hover:bg-bg-primary cursor-pointer bg-transparent border-none transition-colors duration-200"
