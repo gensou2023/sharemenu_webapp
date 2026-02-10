@@ -17,12 +17,12 @@ export default function Home() {
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />
-        <div className="max-w-[1080px] mx-auto px-6 md:px-10 py-4">
+        <div className="max-w-[1080px] mx-auto px-6 md:px-10 py-6">
           <AdPlaceholder variant="banner" />
         </div>
         <CasesSection />
         <UseCasesSection />
-        <div className="max-w-[1080px] mx-auto px-6 md:px-10 py-4">
+        <div className="max-w-[1080px] mx-auto px-6 md:px-10 py-6">
           <AdPlaceholder variant="banner" />
         </div>
         <PricingSection />

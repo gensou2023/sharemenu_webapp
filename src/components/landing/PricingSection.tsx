@@ -2,9 +2,13 @@ export default function PricingSection() {
   return (
     <section
       id="pricing"
-      className="w-full py-20 px-6 md:px-10 bg-bg-primary"
+      className="w-full py-20 px-6 md:px-10 bg-bg-primary relative overflow-hidden"
     >
-      <div className="text-center mb-12">
+      {/* Background decorations */}
+      <div className="absolute top-[10%] left-[5%] w-64 h-64 bg-accent-warm/[.04] rounded-full blur-3xl" />
+      <div className="absolute bottom-[15%] right-[8%] w-48 h-48 bg-accent-gold/[.05] rounded-full blur-3xl" />
+
+      <div className="relative z-10 text-center mb-14">
         <span className="inline-block text-xs font-semibold text-accent-warm uppercase tracking-[2px] mb-3">
           Pricing
         </span>
@@ -14,10 +18,16 @@ export default function PricingSection() {
         <p className="text-[15px] text-text-secondary max-w-[560px] mx-auto leading-relaxed">
           まずは無料プランでお試しください。お店の成長に合わせてProへアップグレード。
         </p>
+        {/* Decorative line */}
+        <div className="flex items-center justify-center gap-2 mt-5">
+          <div className="w-8 h-[2px] bg-accent-warm/20 rounded-full" />
+          <div className="w-2 h-2 rounded-full bg-accent-warm/30" />
+          <div className="w-8 h-[2px] bg-accent-warm/20 rounded-full" />
+        </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-7 max-w-[780px] mx-auto">
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-7 max-w-[780px] mx-auto">
         {/* Free Plan */}
-        <div className="rounded-2xl border border-border-light bg-bg-secondary p-8 md:p-9 transition-all duration-300 hover:shadow-[0_4px_24px_rgba(26,23,20,.08)]">
+        <div className="rounded-2xl border border-border-light bg-bg-secondary p-8 md:p-9 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(26,23,20,.08)] hover:-translate-y-1">
           <div className="text-sm font-semibold text-text-muted uppercase tracking-[1.5px] mb-4">
             無料プラン
           </div>
@@ -54,7 +64,7 @@ export default function PricingSection() {
         </div>
 
         {/* Pro Plan */}
-        <div className="rounded-2xl border-2 border-accent-warm bg-bg-secondary p-8 md:p-9 relative shadow-[0_4px_24px_rgba(232,113,58,.12)] transition-all duration-300 hover:shadow-[0_12px_40px_rgba(232,113,58,.18)]">
+        <div className="rounded-2xl border-2 border-accent-warm bg-bg-secondary p-8 md:p-9 relative shadow-[0_4px_24px_rgba(232,113,58,.12)] transition-all duration-300 hover:shadow-[0_12px_40px_rgba(232,113,58,.18)] hover:-translate-y-1">
           <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-5 py-1 rounded-full bg-accent-warm text-white text-xs font-semibold whitespace-nowrap shadow-md">
             おすすめ
           </span>
