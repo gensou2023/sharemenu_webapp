@@ -18,6 +18,16 @@ const getTimeStr = () =>
     minute: "2-digit",
   });
 
+// デザイン方向性のプリセット選択肢
+const DESIGN_DIRECTION_OPTIONS = [
+  "ナチュラル・温かみ",
+  "和モダン・洗練",
+  "ポップ・カラフル",
+  "シンプル・ミニマル",
+  "レトロ・ヴィンテージ",
+  "高級感・エレガント",
+];
+
 // デザイン方向性・店名からカテゴリを推定
 const inferCategory = (proposal: { shopName: string; designDirection: string }): string => {
   const text = `${proposal.shopName} ${proposal.designDirection}`.toLowerCase();
@@ -513,12 +523,22 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
       setCurrentStep(4);
     }
 
+    // ステップ2（方向性を聞いている）の判定 → quickReplies 付与
+    let quickReplies: string[] | undefined;
+    if (!isError && !proposal) {
+      const plain = reply.replace(/<[^>]*>/g, "");
+      if (currentStep === 1 && /デザイン|方向性|テイスト|雰囲気/.test(plain)) {
+        quickReplies = DESIGN_DIRECTION_OPTIONS;
+      }
+    }
+
     const aiMsg: MessageType = {
       id: genId("ai"),
       role: "ai",
       content: reply,
       time: getTimeStr(),
       proposal,
+      quickReplies,
       // エラー時はリトライ情報を付与
       isError,
       retryPayload: isError ? text : undefined,

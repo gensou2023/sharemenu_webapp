@@ -116,12 +116,13 @@ export default function ChatMessage({
 
         {/* クイック返信 */}
         {msg.quickReplies && msg.quickReplies.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-3">
+          <div className="grid grid-cols-2 gap-2 mt-3">
             {msg.quickReplies.map((reply) => (
               <button
                 key={reply}
                 onClick={() => onQuickReply?.(reply)}
-                className="px-4 py-2 rounded-[28px] border border-border-medium bg-bg-primary text-[13px] cursor-pointer transition-all duration-300 hover:bg-accent-warm hover:text-white hover:border-accent-warm"
+                disabled={disabled}
+                className="px-4 py-2.5 rounded-[12px] border border-border-medium bg-bg-primary text-[13px] cursor-pointer transition-all duration-300 hover:bg-accent-warm hover:text-white hover:border-accent-warm text-text-primary text-center disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {reply}
               </button>
