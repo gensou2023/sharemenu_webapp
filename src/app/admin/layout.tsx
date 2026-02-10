@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "ダッシュボード", icon: "📊" },
@@ -13,6 +16,11 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
+  const isActive = (href: string) =>
+    href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+
   return (
     <div className="min-h-screen bg-bg-primary">
       {/* 管理画面ヘッダー */}
@@ -38,7 +46,11 @@ export default function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-[8px] text-sm text-text-secondary no-underline transition-all duration-200 hover:bg-bg-primary hover:text-text-primary"
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-[8px] text-sm no-underline transition-all duration-200 ${
+                  isActive(item.href)
+                    ? "bg-bg-primary text-text-primary font-medium shadow-sm"
+                    : "text-text-secondary hover:bg-bg-primary hover:text-text-primary"
+                }`}
               >
                 <span className="text-base">{item.icon}</span>
                 {item.label}
