@@ -3,23 +3,30 @@ import Credentials from "next-auth/providers/credentials";
 import { createAdminClient } from "@/lib/supabase";
 import bcrypt from "bcryptjs";
 
-// デモ用フォールバック（Supabase未接続時）
-const DEMO_USERS = [
-  {
-    id: "1",
-    email: "demo@menucraft.jp",
-    password: "demo1234",
-    name: "田中オーナー",
-    role: "user" as const,
-  },
-  {
-    id: "2",
-    email: "admin@menucraft.jp",
-    password: "admin1234",
-    name: "管理者",
-    role: "admin" as const,
-  },
-];
+// デモモード判定（環境変数 or 開発環境で有効）
+const isDemoMode =
+  process.env.NEXT_PUBLIC_DEMO_MODE === "true" ||
+  process.env.NODE_ENV === "development";
+
+// デモ用フォールバック（デモモード時のみ使用）
+const DEMO_USERS = isDemoMode
+  ? [
+      {
+        id: "1",
+        email: "demo@menucraft.jp",
+        password: "demo1234",
+        name: "田中オーナー",
+        role: "user" as const,
+      },
+      {
+        id: "2",
+        email: "admin@menucraft.jp",
+        password: "admin1234",
+        name: "管理者",
+        role: "admin" as const,
+      },
+    ]
+  : [];
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -70,7 +77,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // Supabase未接続の場合はフォールバック
         }
 
-        // フォールバック: デモユーザーで検証
+        // フォールバック: デモモード時のみデモユーザーで検証
+        if (!isDemoMode) return null;
         const demoUser = DEMO_USERS.find(
           (u) => u.email === email && u.password === password
         );

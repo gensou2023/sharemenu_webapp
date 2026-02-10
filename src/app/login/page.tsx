@@ -61,14 +61,16 @@ export default function LoginPage() {
             アカウントにログインしてください
           </p>
 
-          {/* デモ情報 */}
-          <div className="mb-6 p-3 rounded-[8px] bg-[rgba(123,138,100,.1)] border border-[rgba(123,138,100,.2)]">
-            <div className="text-xs font-semibold text-accent-olive mb-1">デモアカウント</div>
-            <div className="text-xs text-text-secondary">
-              Email: <code className="bg-bg-tag px-1 rounded">demo@menucraft.jp</code><br/>
-              Pass: <code className="bg-bg-tag px-1 rounded">demo1234</code>
+          {/* デモ情報（デモモード時のみ表示） */}
+          {process.env.NEXT_PUBLIC_DEMO_MODE === "true" && (
+            <div className="mb-6 p-3 rounded-[8px] bg-[rgba(123,138,100,.1)] border border-[rgba(123,138,100,.2)]">
+              <div className="text-xs font-semibold text-accent-olive mb-1">デモアカウント</div>
+              <div className="text-xs text-text-secondary">
+                Email: <code className="bg-bg-tag px-1 rounded">demo@menucraft.jp</code><br/>
+                Pass: <code className="bg-bg-tag px-1 rounded">demo1234</code>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* エラー表示 */}
           {error && (

@@ -18,6 +18,17 @@ const getTimeStr = () =>
     minute: "2-digit",
   });
 
+// デザイン方向性・店名からカテゴリを推定
+const inferCategory = (proposal: { shopName: string; designDirection: string }): string => {
+  const text = `${proposal.shopName} ${proposal.designDirection}`.toLowerCase();
+  if (/和食|和モダン|寿司|天ぷら|うどん|そば|懐石|割烹|日本料理/.test(text)) return "japanese";
+  if (/洋食|フレンチ|イタリアン|パスタ|ビストロ|ダイニング/.test(text)) return "western";
+  if (/中華|中国|餃子|麻婆|点心|ラーメン/.test(text)) return "chinese";
+  if (/カフェ|cafe|コーヒー|スイーツ|パンケーキ|ベーカリー/.test(text)) return "cafe";
+  if (/居酒屋|バル|bar|酒場|焼鳥|串/.test(text)) return "izakaya";
+  return "general";
+};
+
 const INITIAL_MESSAGE: MessageType = {
   id: "welcome",
   role: "ai",
@@ -384,10 +395,12 @@ Design style: ${proposal.designDirection || "natural, warm"}
 Mood: appetizing, warm lighting, high-quality food photo
 IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or captions in the image. Generate ONLY the food photograph with no text overlay whatsoever.`;
 
+      const category = inferCategory(proposal);
+
       const res = await fetch("/api/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, aspectRatio, sessionId }),
+        body: JSON.stringify({ prompt, aspectRatio, sessionId, category }),
       });
 
       const data = await res.json().catch(() => ({ error: "" }));

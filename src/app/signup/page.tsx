@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 
 export default function SignupPage() {
   const [shopName, setShopName] = useState("");
@@ -9,17 +10,51 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showDemoNotice, setShowDemoNotice] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreed) return;
+
     setIsLoading(true);
-    // デモ版のため、登録完了メッセージを表示してからログインページへ誘導
-    setTimeout(() => {
+    setError("");
+
+    try {
+      // 1. ユーザー登録API呼び出し
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: shopName, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "登録に失敗しました。");
+        setIsLoading(false);
+        return;
+      }
+
+      // 2. 登録成功 → 自動ログイン
+      const signInResult = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (signInResult?.error) {
+        // 登録は成功したがログインに失敗（稀なケース）
+        setError("アカウントは作成されました。ログインページからログインしてください。");
+        setIsLoading(false);
+        return;
+      }
+
+      // 3. ダッシュボードへリダイレクト
+      window.location.href = "/dashboard";
+    } catch {
+      setError("通信エラーが発生しました。もう一度お試しください。");
       setIsLoading(false);
-      setShowDemoNotice(true);
-    }, 800);
+    }
   };
 
   return (
@@ -54,23 +89,10 @@ export default function SignupPage() {
             30秒で登録完了。クレジットカード不要です。
           </p>
 
-          {/* デモ版通知 */}
-          {showDemoNotice && (
-            <div className="mb-6 p-4 rounded-[12px] bg-[rgba(196,113,59,.08)] border border-[rgba(196,113,59,.2)]">
-              <div className="text-sm font-semibold text-accent-warm mb-1">📋 デモ版のお知らせ</div>
-              <p className="text-xs text-text-secondary leading-relaxed mb-3">
-                現在デモ版のため、新規アカウント登録は受け付けておりません。以下のデモアカウントでログインしてお試しください。
-              </p>
-              <div className="text-xs text-text-secondary mb-3">
-                Email: <code className="bg-bg-tag px-1 rounded">demo@menucraft.jp</code><br/>
-                Pass: <code className="bg-bg-tag px-1 rounded">demo1234</code>
-              </div>
-              <Link
-                href="/login"
-                className="inline-block px-5 py-2 rounded-[28px] bg-accent-warm text-white text-xs font-semibold no-underline transition-all duration-300 hover:bg-accent-warm-hover"
-              >
-                ログインページへ →
-              </Link>
+          {/* エラー表示 */}
+          {error && (
+            <div className="mb-4 p-3 rounded-[8px] bg-red-50 border border-red-200 text-red-600 text-sm">
+              {error}
             </div>
           )}
 

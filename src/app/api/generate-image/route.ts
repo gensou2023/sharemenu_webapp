@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { logApiUsage } from "@/lib/api-logger";
 import { getActivePrompt } from "@/lib/prompt-loader";
 import { checkRateLimit } from "@/lib/rate-limiter";
+import { createAdminClient } from "@/lib/supabase";
 
 const IMAGE_MODEL = "gemini-2.0-flash-exp-image-generation";
 
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { prompt, aspectRatio = "1:1", sessionId, shopName, designDirection } = await req.json();
+    const { prompt, aspectRatio = "1:1", sessionId, shopName, designDirection, category } = await req.json();
 
     // DBテンプレートを使った動的プロンプト生成 or クライアント直送プロンプト
     let finalPrompt: string;
@@ -70,14 +71,73 @@ export async function POST(req: NextRequest) {
     const validRatios = ["1:1", "9:16", "16:9", "3:4", "4:3"];
     const safeRatio = validRatios.includes(aspectRatio) ? aspectRatio : "1:1";
 
+    // --- 参考画像の取得 ---
+    type ContentPart = { text: string } | { inlineData: { data: string; mimeType: string } };
+    const contentParts: ContentPart[] = [];
+
+    try {
+      const supabase = createAdminClient();
+      const effectiveCategory = category || "general";
+
+      // カテゴリに一致する参考画像を最大2枚取得
+      const { data: refImages } = await supabase
+        .from("reference_images")
+        .select("storage_path, label")
+        .eq("category", effectiveCategory)
+        .order("created_at", { ascending: false })
+        .limit(2);
+
+      if (refImages && refImages.length > 0) {
+        // 参考画像をダウンロードしてBase64として取得
+        for (const refImg of refImages) {
+          try {
+            const { data: fileData } = await supabase.storage
+              .from("references")
+              .download(refImg.storage_path);
+
+            if (fileData) {
+              const buffer = Buffer.from(await fileData.arrayBuffer());
+              const base64 = buffer.toString("base64");
+              contentParts.push({
+                inlineData: {
+                  data: base64,
+                  mimeType: "image/jpeg",
+                },
+              });
+            }
+          } catch {
+            // 個別画像のダウンロード失敗は無視
+          }
+        }
+
+        // 参考画像がある場合、プロンプトにスタイル参考の指示を追加
+        if (contentParts.length > 0) {
+          const labels = refImages
+            .slice(0, contentParts.length)
+            .map((r) => r.label)
+            .join(", ");
+          contentParts.push({
+            text: `${sanitizedPrompt}\n\nUse the above reference image(s) (${labels}) as style/mood reference for the food photography. Match similar lighting, color palette, and composition style.${safeRatio !== "1:1" ? `\n\nアスペクト比: ${safeRatio} で生成してください。` : ""}`,
+          });
+        }
+      }
+    } catch {
+      // 参考画像取得失敗は無視（テキストプロンプトのみで続行）
+    }
+
     const ai = new GoogleGenAI({ apiKey });
 
     // Gemini Native画像生成を使用（テキスト+画像同時生成が可能）
+    // 参考画像がある場合はマルチモーダル入力、なければテキストのみ
+    const geminiContents = contentParts.length > 0
+      ? contentParts
+      : safeRatio !== "1:1"
+        ? `${sanitizedPrompt}\n\nアスペクト比: ${safeRatio} で生成してください。`
+        : sanitizedPrompt;
+
     const response = await ai.models.generateContent({
       model: IMAGE_MODEL,
-      contents: safeRatio !== "1:1"
-        ? `${sanitizedPrompt}\n\nアスペクト比: ${safeRatio} で生成してください。`
-        : sanitizedPrompt,
+      contents: geminiContents,
       config: {
         responseModalities: ["TEXT", "IMAGE"],
       },
