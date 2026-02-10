@@ -33,13 +33,15 @@ export default function ChatInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Cmd+Enter (Mac) / Ctrl+Enter (Win) で送信
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+    if (e.key === "Enter") {
+      if (e.shiftKey) {
+        // Shift+Enter で改行（デフォルト動作のまま）
+        return;
+      }
+      // Enter のみで送信
       e.preventDefault();
       handleSubmit();
-      return;
     }
-    // Enter のみは改行（デフォルト動作）
   };
 
   return (
@@ -89,7 +91,7 @@ export default function ChatInput({
         <button
           onClick={handleSubmit}
           disabled={disabled || !value.trim()}
-          title="⌘+Enter で送信"
+          title="Enter で送信"
           className="w-[38px] h-[38px] rounded-[8px] border-none bg-bg-dark text-white cursor-pointer flex items-center justify-center transition-all duration-300 hover:bg-accent-warm flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -104,7 +106,7 @@ export default function ChatInput({
         </button>
       </div>
       <div className="text-[11px] text-text-muted mt-2 text-center">
-        ⌘+Enter で送信 · Enter で改行 · 📎 写真アップロード対応
+        Enter で送信 · Shift+Enter で改行 · 📎 写真アップロード対応
       </div>
     </div>
   );
