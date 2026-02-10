@@ -150,11 +150,11 @@ export default function PreviewPanel({
         <div className="flex-1 overflow-y-auto p-5 flex flex-col items-center gap-4">
           {/* 画像エリア */}
           <div
-            className={`w-full rounded-[12px] overflow-hidden bg-border-light ${ratioClasses[activeRatio]}`}
+            className={`w-full rounded-[12px] overflow-hidden bg-border-light relative ${ratioClasses[activeRatio]}`}
           >
             {isGenerating ? (
               /* ローディング表示 */
-              <div className="w-full h-full bg-gradient-to-br from-bg-dark-warm to-bg-dark-warm-light flex flex-col items-center justify-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-bg-dark-warm to-bg-dark-warm-light flex flex-col items-center justify-center overflow-hidden">
                 <div className="absolute inset-0" style={{
                   background: "radial-gradient(circle at 60% 40%, rgba(196,113,59,.15), transparent 50%), radial-gradient(circle at 30% 70%, rgba(212,168,83,.1), transparent 40%)",
                 }} />
@@ -169,11 +169,11 @@ export default function PreviewPanel({
               <img
                 src={`data:${generatedImage.mimeType};base64,${generatedImage.data}`}
                 alt="生成されたメニュー画像"
-                className="w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover"
               />
             ) : (
               /* デフォルト表示（コンセプト案） */
-              <div className="w-full h-full bg-gradient-to-br from-bg-dark-warm to-bg-dark-warm-light flex flex-col items-center justify-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-bg-dark-warm to-bg-dark-warm-light flex flex-col items-center justify-center overflow-hidden">
                 <div className="absolute inset-0" style={{
                   background: "radial-gradient(circle at 60% 40%, rgba(196,113,59,.15), transparent 50%), radial-gradient(circle at 30% 70%, rgba(212,168,83,.1), transparent 40%)",
                 }} />
