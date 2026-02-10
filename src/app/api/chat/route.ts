@@ -1,42 +1,41 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { logApiUsage } from "@/lib/api-logger";
+import { getActivePrompt } from "@/lib/prompt-loader";
+import { checkRateLimit } from "@/lib/rate-limiter";
 
-const SYSTEM_PROMPT = `あなたは「MenuCraft AI」というAIメニューデザインアシスタントです。
-飲食店オーナーのメニュー画像作成を手伝います。
-
-## あなたの役割
-1. お店の名前、料理の情報、デザインの方向性をヒアリングする
-2. メニューのキャッチコピーとハッシュタグを提案する
-3. 構成案をまとめて提示する
-
-## ヒアリングの流れ
-1. まずお店の名前を聞く
-2. デザインの方向性（和モダン/ナチュラル/シック/ポップ）を聞く
-3. 料理写真のアップロードを促す（テキストのみの場合はスキップ）
-4. メニュー名と価格を聞く
-5. 構成案をJSON形式で提示する
-
-## 構成案の出力形式
-ヒアリングが完了したら、以下のJSON形式で構成案を出力してください（必ず \`\`\`json\`\`\` で囲む）：
-
-\`\`\`json
-{
-  "type": "proposal",
-  "shopName": "店舗名",
-  "catchCopies": ["キャッチコピーA", "キャッチコピーB"],
-  "designDirection": "デザイン方向性の説明",
-  "hashtags": ["#タグ1", "#タグ2", "#タグ3"]
-}
-\`\`\`
-
-## 注意事項
-- 親しみやすく丁寧な日本語で会話する
-- 絵文字を適度に使う
-- 1回のメッセージは短めにする（長文を避ける）
-- 飲食店オーナーが相手なので、専門用語は避ける
-`;
+const CHAT_MODEL = "gemini-2.0-flash";
 
 export async function POST(req: NextRequest) {
+  // --- 認証チェック ---
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json(
+      { reply: "認証が必要です。ログインしてください。" },
+      { status: 401 }
+    );
+  }
+  const userId = session.user.id;
+
+  // --- レート制限チェック ---
+  const rateLimit = checkRateLimit(userId, "chat");
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "リクエストが多すぎます。しばらくお待ちください。" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil((rateLimit.retryAfterMs ?? 1000) / 1000)),
+          "X-RateLimit-Limit": String(rateLimit.limit),
+          "X-RateLimit-Remaining": String(rateLimit.remaining),
+        },
+      }
+    );
+  }
+
+  const startTime = Date.now();
+
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey || apiKey === "YOUR_GEMINI_API_KEY_HERE") {
@@ -50,7 +49,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { messages } = body;
+    const { messages, sessionId } = body;
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
@@ -64,6 +63,9 @@ export async function POST(req: NextRequest) {
 
     const ai = new GoogleGenAI({ apiKey });
 
+    // DBからシステムプロンプトを取得（キャッシュ＋フォールバック付き）
+    const systemPrompt = await getActivePrompt("chat_system");
+
     // チャット履歴を構築（最初のAIメッセージを除外し、userから始まるようにする）
     const filteredMessages = recentMessages.slice(0, -1);
     const startIndex = filteredMessages.length > 0 && filteredMessages[0].role === "ai" ? 1 : 0;
@@ -73,10 +75,10 @@ export async function POST(req: NextRequest) {
     }));
 
     const chat = ai.chats.create({
-      model: "gemini-2.0-flash",
+      model: CHAT_MODEL,
       history,
       config: {
-        systemInstruction: SYSTEM_PROMPT,
+        systemInstruction: systemPrompt,
       },
     });
 
@@ -86,12 +88,41 @@ export async function POST(req: NextRequest) {
       ? lastMessage.content.slice(0, 1000)
       : "";
     const response = await chat.sendMessage({ message: userContent });
+    const durationMs = Date.now() - startTime;
     const reply = response.text ?? "";
+
+    // トークン使用量を取得
+    const tokensIn = response.usageMetadata?.promptTokenCount ?? null;
+    const tokensOut = response.usageMetadata?.candidatesTokenCount ?? null;
+
+    // 使用ログを記録
+    await logApiUsage({
+      userId,
+      sessionId: sessionId ?? null,
+      apiType: "chat",
+      model: CHAT_MODEL,
+      durationMs,
+      status: "success",
+      tokensIn,
+      tokensOut,
+    });
 
     return NextResponse.json({ reply });
   } catch (error) {
+    const durationMs = Date.now() - startTime;
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Gemini API error:", errorMessage);
+
+    // エラー時も使用ログを記録
+    await logApiUsage({
+      userId,
+      apiType: "chat",
+      model: CHAT_MODEL,
+      durationMs,
+      status: "error",
+      errorMessage,
+    });
+
     return NextResponse.json(
       { reply: "申し訳ございません。エラーが発生しました。もう一度お試しください。" },
       { status: 200 }

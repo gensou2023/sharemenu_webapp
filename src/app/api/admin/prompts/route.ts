@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createAdminClient } from "@/lib/supabase";
+import { clearPromptCache } from "@/lib/prompt-loader";
 
 // プロンプト一覧取得
 export async function GET() {
@@ -74,6 +75,9 @@ export async function POST(req: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // プロンプトキャッシュをクリアして即時反映
+  clearPromptCache();
 
   return NextResponse.json({ prompt: data });
 }
