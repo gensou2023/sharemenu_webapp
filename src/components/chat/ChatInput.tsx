@@ -30,6 +30,10 @@ export default function ChatInput({
     if (!trimmed) return;
     onSend(trimmed);
     setValue("");
+    // 送信後にテキストエリアにフォーカスを戻す
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 0);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

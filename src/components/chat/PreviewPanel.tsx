@@ -150,7 +150,7 @@ export default function PreviewPanel({
         <div className="flex-1 overflow-y-auto p-5 flex flex-col items-center gap-4">
           {/* 画像エリア */}
           <div
-            className={`w-full rounded-[12px] overflow-hidden bg-border-light ${ratioClasses[activeRatio]}`}
+            className={`w-full rounded-[12px] overflow-hidden bg-border-light flex-shrink-0 ${ratioClasses[activeRatio]}`}
           >
             {isGenerating ? (
               /* ローディング表示 */
