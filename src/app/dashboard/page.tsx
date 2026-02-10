@@ -74,6 +74,34 @@ async function downloadImages(urls: string[], shopName: string | null) {
   }
 }
 
+// Stats accent color map
+const statsAccentMap = {
+  warm: {
+    iconBg: "bg-accent-warm/10",
+    iconText: "text-accent-warm",
+    topBar: "bg-accent-warm",
+    subText: "text-accent-warm",
+    hoverBorder: "hover:border-accent-warm/30",
+    hoverShadow: "hover:shadow-[0_8px_30px_rgba(232,113,58,.08)]",
+  },
+  gold: {
+    iconBg: "bg-accent-gold/10",
+    iconText: "text-accent-gold",
+    topBar: "bg-accent-gold",
+    subText: "text-accent-gold",
+    hoverBorder: "hover:border-accent-gold/30",
+    hoverShadow: "hover:shadow-[0_8px_30px_rgba(212,168,83,.08)]",
+  },
+  olive: {
+    iconBg: "bg-accent-olive/10",
+    iconText: "text-accent-olive",
+    topBar: "bg-accent-olive",
+    subText: "text-accent-olive",
+    hoverBorder: "hover:border-accent-olive/30",
+    hoverShadow: "hover:shadow-[0_8px_30px_rgba(123,138,100,.08)]",
+  },
+} as const;
+
 export default function DashboardPage() {
   const [sessions, setSessions] = useState<SessionData[]>([]);
   const [stats, setStats] = useState<StatsData | null>(null);
@@ -163,81 +191,160 @@ export default function DashboardPage() {
     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
   )[0];
 
+  // 新規作成ハンドラー
+  const handleCreateNew = () => {
+    if (sessions.length >= FREE_SESSION_LIMIT) {
+      setShowLimitModal(true);
+    } else {
+      router.push("/chat");
+    }
+  };
+
   const statsCards = [
     {
       label: "総生成数",
       value: stats ? String(stats.totalImages) : "—",
       sub: stats ? `画像 ${stats.totalImages} 枚` : "",
-      subColor: "text-accent-olive",
+      accent: "warm" as const,
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <path d="M21 15l-5-5L5 21" />
+        </svg>
+      ),
     },
     {
       label: "今月の生成",
       value: stats ? String(stats.monthlyImages) : "—",
       sub: "残り: 無制限（Pro）",
-      subColor: "text-accent-olive",
+      accent: "gold" as const,
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+          <path d="M16 2v4M8 2v4M3 10h18" />
+        </svg>
+      ),
     },
     {
       label: "保存セッション",
       value: stats ? String(stats.recentSessions) : "—",
       sub: "直近30日間",
-      subColor: "text-accent-olive",
+      accent: "olive" as const,
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+          <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+        </svg>
+      ),
     },
   ];
 
   return (
     <>
       <Header activeTab="dashboard" />
-      <main className="mt-[56px] min-h-[calc(100vh-56px)] bg-bg-primary">
-        <div className="max-w-[1080px] mx-auto px-6 sm:px-10 py-10">
+      <main className="mt-[56px] min-h-[calc(100vh-56px)] bg-bg-primary relative overflow-hidden">
+        {/* Background blur decorations */}
+        <div className="absolute top-[5%] left-[3%] w-72 h-72 bg-accent-warm/[.04] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-[30%] right-[5%] w-56 h-56 bg-accent-gold/[.05] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-[15%] left-[10%] w-48 h-48 bg-accent-olive/[.04] rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-[1080px] mx-auto px-6 sm:px-10 py-10 relative z-10">
           {/* ヘッダー部分 */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
+              <span className="inline-block text-xs font-semibold text-accent-warm uppercase tracking-[2px] mb-2">
+                Dashboard
+              </span>
               <h1 className="font-[family-name:var(--font-playfair)] text-[32px] font-bold">
                 ダッシュボード
               </h1>
               <p className="text-text-secondary text-sm mt-1.5">
                 生成履歴と統計
               </p>
+              {/* Decorative line */}
+              <div className="flex items-center gap-2 mt-3">
+                <div className="w-8 h-[2px] bg-accent-warm/30 rounded-full" />
+                <div className="w-2 h-2 rounded-full bg-accent-warm/40" />
+                <div className="w-8 h-[2px] bg-accent-warm/30 rounded-full" />
+              </div>
             </div>
             <button
-              onClick={() => {
-                if (sessions.length >= FREE_SESSION_LIMIT) {
-                  setShowLimitModal(true);
-                } else {
-                  router.push("/chat");
-                }
-              }}
-              className="inline-flex items-center gap-2 px-7 py-3.5 bg-bg-dark text-text-inverse rounded-[28px] text-sm font-semibold shadow-[0_4px_24px_rgba(26,23,20,.10)] hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(26,23,20,.14)] transition-all duration-300 cursor-pointer border-none"
+              onClick={handleCreateNew}
+              className="inline-flex items-center gap-2 px-8 py-3.5 bg-accent-warm text-white rounded-full text-[15px] font-semibold shadow-[0_4px_20px_rgba(232,113,58,.25)] hover:-translate-y-0.5 hover:bg-accent-warm-hover hover:shadow-[0_8px_30px_rgba(232,113,58,.3)] transition-all duration-300 cursor-pointer border-none"
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
               新しいメニューを作成
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
             </button>
           </div>
 
           {/* 統計カード */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5 mb-9">
-            {statsCards.map((stat) => (
-              <div
-                key={stat.label}
-                className="bg-bg-secondary rounded-[20px] p-6 border border-border-light"
-              >
-                <div className="text-xs text-text-muted uppercase tracking-[1px] mb-2">
-                  {stat.label}
+            {statsCards.map((stat) => {
+              const colors = statsAccentMap[stat.accent];
+              return (
+                <div
+                  key={stat.label}
+                  className={`bg-bg-secondary rounded-[20px] p-6 border border-border-light relative overflow-hidden transition-all duration-300 hover:-translate-y-1 ${colors.hoverBorder} ${colors.hoverShadow}`}
+                >
+                  {/* Top accent line */}
+                  <div className={`absolute top-0 left-0 right-0 h-[3px] ${colors.topBar} opacity-60`} />
+
+                  {/* Icon + label row */}
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <div className={`w-9 h-9 rounded-xl ${colors.iconBg} ${colors.iconText} flex items-center justify-center`}>
+                      {stat.icon}
+                    </div>
+                    <div className="text-xs text-text-muted uppercase tracking-[1px]">
+                      {stat.label}
+                    </div>
+                  </div>
+
+                  <div className="font-[family-name:var(--font-playfair)] text-4xl font-bold">
+                    {loading ? (
+                      <div className="w-12 h-10 bg-border-light rounded animate-pulse" />
+                    ) : (
+                      stat.value
+                    )}
+                  </div>
+                  <div className={`text-xs mt-1.5 ${colors.subText}`}>
+                    {stat.sub}
+                  </div>
                 </div>
-                <div className="font-[family-name:var(--font-playfair)] text-4xl font-bold">
-                  {loading ? (
-                    <div className="w-12 h-10 bg-border-light rounded animate-pulse" />
-                  ) : (
-                    stat.value
-                  )}
-                </div>
-                <div className={`text-xs mt-1 ${stat.subColor}`}>
-                  {stat.sub}
-                </div>
-              </div>
-            ))}
+              );
+            })}
+          </div>
+
+          {/* クイックアクション */}
+          <div className="flex flex-wrap gap-3 mb-9">
+            <button
+              onClick={handleCreateNew}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent-warm/10 text-accent-warm text-[13px] font-semibold border border-accent-warm/20 transition-all duration-300 hover:bg-accent-warm hover:text-white hover:shadow-[0_4px_16px_rgba(232,113,58,.2)] cursor-pointer"
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              新規作成
+            </button>
+            <Link
+              href="/chat"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent-gold/10 text-accent-gold text-[13px] font-semibold border border-accent-gold/20 transition-all duration-300 hover:bg-accent-gold hover:text-white hover:shadow-[0_4px_16px_rgba(212,168,83,.2)] no-underline"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+              </svg>
+              チャットを開く
+            </Link>
+            <Link
+              href="/#pricing"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent-olive/10 text-accent-olive text-[13px] font-semibold border border-accent-olive/20 transition-all duration-300 hover:bg-accent-olive hover:text-white hover:shadow-[0_4px_16px_rgba(123,138,100,.2)] no-underline"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+              </svg>
+              プラン変更
+            </Link>
           </div>
 
           {/* 広告プレースホルダー */}
@@ -247,9 +354,20 @@ export default function DashboardPage() {
 
           {/* 生成履歴 */}
           <section>
-            <h2 className="text-base font-semibold mb-4 flex items-center gap-2">
-              生成履歴
-            </h2>
+            <div className="mb-6">
+              <span className="inline-block text-xs font-semibold text-accent-warm uppercase tracking-[2px] mb-2">
+                History
+              </span>
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                生成履歴
+              </h2>
+              {/* Decorative line */}
+              <div className="flex items-center gap-2 mt-3">
+                <div className="w-8 h-[2px] bg-accent-warm/20 rounded-full" />
+                <div className="w-2 h-2 rounded-full bg-accent-warm/30" />
+                <div className="w-8 h-[2px] bg-accent-warm/20 rounded-full" />
+              </div>
+            </div>
 
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -264,15 +382,35 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : sessions.length === 0 ? (
-              <div className="text-center py-16 text-text-muted">
-                <div className="text-5xl mb-4">🍽</div>
-                <p className="text-sm">まだ生成履歴がありません</p>
-                <Link
-                  href="/chat"
-                  className="inline-block mt-4 px-6 py-2.5 bg-accent-warm text-white rounded-[28px] text-sm font-semibold no-underline hover:bg-accent-warm-hover transition-colors"
-                >
-                  最初のメニューを作成
-                </Link>
+              /* 空状態 — リッチデザイン */
+              <div className="text-center py-20 relative">
+                {/* Decorative background */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-48 h-48 bg-accent-warm/[.04] rounded-full blur-2xl" />
+                </div>
+
+                <div className="relative z-10">
+                  {/* Emoji with decorative ring */}
+                  <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-accent-warm/[.06] border border-accent-warm/10 mb-6">
+                    <span className="text-5xl">🍽</span>
+                  </div>
+
+                  <h3 className="font-[family-name:var(--font-playfair)] text-xl font-bold mb-2 text-text-primary">
+                    まだ生成履歴がありません
+                  </h3>
+                  <p className="text-sm text-text-muted mb-6 max-w-[320px] mx-auto leading-relaxed">
+                    AIとチャットするだけで、プロ品質のメニュー画像を作成できます
+                  </p>
+                  <Link
+                    href="/chat"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-accent-warm text-white rounded-full text-[15px] font-semibold no-underline transition-all duration-300 hover:bg-accent-warm-hover hover:shadow-[0_4px_20px_rgba(232,113,58,.3)] hover:-translate-y-0.5"
+                  >
+                    最初のメニューを作成
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -280,17 +418,25 @@ export default function DashboardPage() {
                   <Link
                     key={item.id}
                     href={`/chat?session=${item.id}`}
-                    className="group bg-bg-secondary rounded-[20px] border border-border-light overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_4px_24px_rgba(26,23,20,.10)] no-underline text-text-primary"
+                    className="group bg-bg-secondary rounded-[20px] border border-border-light overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_40px_rgba(26,23,20,.12)] hover:border-accent-warm/20 no-underline text-text-primary"
                   >
                     {/* サムネイル */}
                     <div
-                      className="h-40 relative flex items-end"
+                      className="h-40 relative flex items-end overflow-hidden"
                       style={{
                         background: item.thumbnailUrl
                           ? `url(${item.thumbnailUrl}) center/cover`
                           : gradients[idx % gradients.length],
                       }}
                     >
+                      {/* Dot pattern overlay */}
+                      <div
+                        className="absolute inset-0 opacity-[.06] z-[1]"
+                        style={{
+                          backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)",
+                          backgroundSize: "20px 20px",
+                        }}
+                      />
                       <span
                         className={`absolute top-3 right-3 px-3 py-1 rounded-full text-[11px] font-semibold text-white z-10 ${
                           item.status === "completed"
@@ -301,12 +447,12 @@ export default function DashboardPage() {
                         {item.status === "completed" ? "完了" : "進行中"}
                       </span>
                       <div
-                        className="absolute bottom-0 left-0 right-0 h-[60px]"
+                        className="absolute bottom-0 left-0 right-0 h-[60px] z-[2]"
                         style={{
                           background: "linear-gradient(transparent, rgba(26,23,20,.5))",
                         }}
                       />
-                      <span className="text-5xl absolute bottom-4 left-4 z-10 drop-shadow-[0_4px_16px_rgba(0,0,0,.3)]">
+                      <span className="text-5xl absolute bottom-4 left-4 z-10 drop-shadow-[0_4px_16px_rgba(0,0,0,.3)] transition-transform duration-300 group-hover:scale-110">
                         {getCategoryEmoji(item.category, item.shop_name)}
                       </span>
                     </div>
