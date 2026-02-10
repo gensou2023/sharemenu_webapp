@@ -111,7 +111,7 @@ function PricingItem({
         className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] shrink-0 mt-0.5 ${
           available
             ? "bg-accent-olive/15 text-accent-olive"
-            : "bg-[#F0EDEA] text-text-muted"
+            : "bg-bg-tertiary text-text-muted"
         }`}
       >
         {available ? "✓" : "—"}

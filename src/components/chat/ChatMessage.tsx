@@ -1,3 +1,8 @@
+import { Message, Proposal } from "@/lib/types";
+
+// 後方互換のためエイリアスをエクスポート
+export type MessageType = Message;
+
 // 許可するHTMLタグのみ残し、それ以外を除去するサニタイズ関数
 function sanitizeHTML(html: string): string {
   // まず全てのHTMLタグを除去
@@ -11,29 +16,11 @@ function sanitizeHTML(html: string): string {
   return stripped;
 }
 
-export type MessageType = {
-  id: string;
-  role: "ai" | "user";
-  content: string;
-  time: string;
-  image?: {
-    emoji: string;
-    fileName: string;
-    fileSize: string;
-    bgColor: string;
-  };
-  quickReplies?: string[];
-  proposal?: {
-    shopName: string;
-    catchCopies: string[];
-    designDirection: string;
-    hashtags: string[];
-  };
-};
+// Proposal型はprops内のMessageType経由で利用
 
 function AIAvatar() {
   return (
-    <div className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-base bg-gradient-to-br from-[#FFF0D6] to-[#FDDCAB] border border-[#EDD5B3]">
+    <div className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-base bg-gradient-to-br from-avatar-ai-from to-avatar-ai-to border border-avatar-ai-border">
       🍽
     </div>
   );
@@ -75,7 +62,7 @@ export default function ChatMessage({
           className={`px-5 py-4 rounded-[20px] text-sm leading-relaxed ${
             isAI
               ? "bg-bg-secondary border border-border-light rounded-tl-[4px]"
-              : "bg-[#2C2520] text-text-inverse rounded-tr-[4px]"
+              : "bg-bg-dark-warm text-text-inverse rounded-tr-[4px]"
           }`}
           dangerouslySetInnerHTML={{ __html: isAI ? sanitizeHTML(msg.content) : msg.content.replace(/</g, "&lt;").replace(/>/g, "&gt;") }}
         />
@@ -114,7 +101,7 @@ export default function ChatMessage({
         {/* 構成案カード */}
         {msg.proposal && (
           <div className="mt-3 bg-bg-primary rounded-[12px] border border-border-light overflow-hidden">
-            <div className="px-4 py-3 bg-gradient-to-r from-[#2C2520] to-[#3D3530] text-text-inverse text-[13px] font-semibold flex items-center gap-2">
+            <div className="px-4 py-3 bg-gradient-to-r from-bg-dark-warm to-bg-dark-warm-light text-text-inverse text-[13px] font-semibold flex items-center gap-2">
               📋 構成案 - {msg.proposal.shopName}
             </div>
             <div className="p-4 text-[13px] leading-relaxed">
@@ -142,7 +129,7 @@ export default function ChatMessage({
                   {msg.proposal.hashtags.map((tag) => (
                     <span
                       key={tag}
-                      className="px-2.5 py-0.5 rounded-full text-xs bg-[#EDE8E0] text-text-secondary"
+                      className="px-2.5 py-0.5 rounded-full text-xs bg-bg-tag text-text-secondary"
                     >
                       {tag}
                     </span>

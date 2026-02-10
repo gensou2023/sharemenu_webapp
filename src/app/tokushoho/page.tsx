@@ -62,7 +62,7 @@ export default function TokushohoPage() {
             <h2 className="text-lg font-semibold text-text-primary mb-2">お問い合わせ</h2>
             <p>ご不明な点がございましたら、以下までご連絡ください。</p>
             <p className="mt-2">
-              <code className="bg-[#EDE8E0] px-2 py-0.5 rounded text-xs">support@menucraft-ai.jp</code>
+              <code className="bg-bg-tag px-2 py-0.5 rounded text-xs">support@menucraft-ai.jp</code>
             </p>
           </section>
         </div>

@@ -80,7 +80,7 @@ export default function CasesSection() {
                 {c.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-2.5 py-0.5 rounded-full text-[11px] bg-[#EDE8E0] text-text-secondary"
+                    className="px-2.5 py-0.5 rounded-full text-[11px] bg-bg-tag text-text-secondary"
                   >
                     {tag}
                   </span>

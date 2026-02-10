@@ -48,7 +48,7 @@ export default function TermsPage() {
             <h2 className="text-lg font-semibold text-text-primary mb-2">第5条（お問い合わせ）</h2>
             <p>本規約に関するお問い合わせは、以下までご連絡ください。</p>
             <p className="mt-2">
-              <code className="bg-[#EDE8E0] px-2 py-0.5 rounded text-xs">support@menucraft-ai.jp</code>
+              <code className="bg-bg-tag px-2 py-0.5 rounded text-xs">support@menucraft-ai.jp</code>
             </p>
           </section>
         </div>

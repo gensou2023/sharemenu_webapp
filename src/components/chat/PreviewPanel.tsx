@@ -1,6 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import type { GeneratedImage, FlowStep, Proposal } from "@/lib/types";
+
+// 後方互換のためエクスポート
+export type { GeneratedImage, FlowStep };
 
 const ratioTabs = [
   { key: "1-1", label: "1:1 Feed", apiRatio: "1:1" },
@@ -14,11 +18,6 @@ const ratioClasses: Record<RatioKey, string> = {
   "1-1": "aspect-square",
   "9-16": "aspect-[9/16] max-h-[500px]",
   "16-9": "aspect-video",
-};
-
-export type GeneratedImage = {
-  data: string; // Base64
-  mimeType: string;
 };
 
 // ステップ定義
@@ -74,8 +73,6 @@ function StepFlow({ steps }: { steps: Step[] }) {
   );
 }
 
-export type FlowStep = 1 | 2 | 3 | 4 | 5;
-
 export default function PreviewPanel({
   isOpen,
   onToggle,
@@ -90,12 +87,7 @@ export default function PreviewPanel({
   generatedImage?: GeneratedImage | null;
   isGenerating?: boolean;
   onRegenerate?: (aspectRatio: string) => void;
-  proposal?: {
-    shopName?: string;
-    catchCopies?: string[];
-    designDirection?: string;
-    hashtags?: string[];
-  } | null;
+  proposal?: Partial<Proposal> | null;
   currentStep?: FlowStep;
 }) {
   const [activeRatio, setActiveRatio] = useState<RatioKey>("1-1");
@@ -158,11 +150,11 @@ export default function PreviewPanel({
         <div className="flex-1 overflow-y-auto p-5 flex flex-col items-center gap-4">
           {/* 画像エリア */}
           <div
-            className={`w-full rounded-[12px] overflow-hidden bg-[#E8E2DA] ${ratioClasses[activeRatio]}`}
+            className={`w-full rounded-[12px] overflow-hidden bg-border-light ${ratioClasses[activeRatio]}`}
           >
             {isGenerating ? (
               /* ローディング表示 */
-              <div className="w-full h-full bg-gradient-to-br from-[#2C2520] to-[#3D3530] flex flex-col items-center justify-center relative overflow-hidden">
+              <div className="w-full h-full bg-gradient-to-br from-bg-dark-warm to-bg-dark-warm-light flex flex-col items-center justify-center relative overflow-hidden">
                 <div className="absolute inset-0" style={{
                   background: "radial-gradient(circle at 60% 40%, rgba(196,113,59,.15), transparent 50%), radial-gradient(circle at 30% 70%, rgba(212,168,83,.1), transparent 40%)",
                 }} />
@@ -181,7 +173,7 @@ export default function PreviewPanel({
               />
             ) : (
               /* デフォルト表示（コンセプト案） */
-              <div className="w-full h-full bg-gradient-to-br from-[#2C2520] to-[#3D3530] flex flex-col items-center justify-center relative overflow-hidden">
+              <div className="w-full h-full bg-gradient-to-br from-bg-dark-warm to-bg-dark-warm-light flex flex-col items-center justify-center relative overflow-hidden">
                 <div className="absolute inset-0" style={{
                   background: "radial-gradient(circle at 60% 40%, rgba(196,113,59,.15), transparent 50%), radial-gradient(circle at 30% 70%, rgba(212,168,83,.1), transparent 40%)",
                 }} />
@@ -208,22 +200,22 @@ export default function PreviewPanel({
                 構成案情報
               </div>
               <div>
-                店名: <code className="bg-[#EDE8E0] px-1.5 py-0.5 rounded text-xs text-text-secondary">{proposal.shopName}</code>
+                店名: <code className="bg-bg-tag px-1.5 py-0.5 rounded text-xs text-text-secondary">{proposal.shopName}</code>
               </div>
               {proposal.designDirection && (
                 <div>
-                  方向性: <code className="bg-[#EDE8E0] px-1.5 py-0.5 rounded text-xs text-text-secondary">{proposal.designDirection}</code>
+                  方向性: <code className="bg-bg-tag px-1.5 py-0.5 rounded text-xs text-text-secondary">{proposal.designDirection}</code>
                 </div>
               )}
               {proposal.catchCopies && proposal.catchCopies.length > 0 && (
                 <div>
-                  コピー: <code className="bg-[#EDE8E0] px-1.5 py-0.5 rounded text-xs text-text-secondary">{proposal.catchCopies[0]}</code>
+                  コピー: <code className="bg-bg-tag px-1.5 py-0.5 rounded text-xs text-text-secondary">{proposal.catchCopies[0]}</code>
                 </div>
               )}
               {proposal.hashtags && proposal.hashtags.length > 0 && (
                 <div className="mt-1.5 flex flex-wrap gap-1">
                   {proposal.hashtags.map((tag) => (
-                    <span key={tag} className="px-2 py-0.5 bg-[#EDE8E0] rounded text-xs text-text-secondary">{tag}</span>
+                    <span key={tag} className="px-2 py-0.5 bg-bg-tag rounded text-xs text-text-secondary">{tag}</span>
                   ))}
                 </div>
               )}
