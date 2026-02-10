@@ -50,7 +50,7 @@ export default function ChatInput({
 
   return (
     <div className="px-4 md:px-7 py-3 md:py-4 border-t border-border-light bg-bg-secondary flex-shrink-0">
-      <div className="flex items-end gap-2 md:gap-3 bg-bg-primary border border-border-light rounded-[20px] px-3 md:px-4 py-2 transition-all duration-300 focus-within:border-accent-warm focus-within:shadow-[0_0_0_3px_rgba(196,113,59,.1)]">
+      <div className="flex items-end gap-2 md:gap-3 bg-bg-primary border border-border-light rounded-full px-3 md:px-4 py-2 transition-all duration-300 focus-within:border-accent-warm focus-within:shadow-[0_0_0_3px_rgba(232,113,58,.1)]">
         {/* 添付ボタン */}
         <div className="relative flex-shrink-0">
           <button
@@ -59,7 +59,7 @@ export default function ChatInput({
               setTimeout(() => setShowAttachNotice(false), 3000);
             }}
             title="写真を添付"
-            className="w-[34px] h-[34px] sm:w-[38px] sm:h-[38px] rounded-[8px] border border-dashed border-border-medium bg-transparent cursor-pointer flex items-center justify-center transition-all duration-300 text-text-muted hover:border-accent-warm hover:text-accent-warm"
+            className="w-[34px] h-[34px] sm:w-[38px] sm:h-[38px] rounded-full border border-dashed border-border-medium bg-transparent cursor-pointer flex items-center justify-center transition-all duration-300 text-text-muted hover:border-accent-warm hover:text-accent-warm"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path
@@ -96,7 +96,7 @@ export default function ChatInput({
           onClick={handleSubmit}
           disabled={disabled || !value.trim()}
           title="Enter で送信"
-          className="w-[34px] h-[34px] sm:w-[38px] sm:h-[38px] rounded-[8px] border-none bg-bg-dark text-white cursor-pointer flex items-center justify-center transition-all duration-300 hover:bg-accent-warm flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-[34px] h-[34px] sm:w-[38px] sm:h-[38px] rounded-full border-none bg-accent-warm text-white cursor-pointer flex items-center justify-center transition-all duration-300 hover:bg-accent-warm-hover hover:shadow-[0_2px_12px_rgba(232,113,58,.25)] flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path

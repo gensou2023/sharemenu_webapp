@@ -122,7 +122,7 @@ export default function ChatMessage({
                 key={reply}
                 onClick={() => onQuickReply?.(reply)}
                 disabled={disabled}
-                className="px-3 sm:px-4 py-2.5 rounded-[12px] border border-border-medium bg-bg-primary text-[13px] cursor-pointer transition-all duration-300 hover:bg-accent-warm hover:text-white hover:border-accent-warm text-text-primary text-center disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px]"
+                className="px-3 sm:px-4 py-2.5 rounded-full border border-border-medium bg-bg-primary text-[13px] cursor-pointer transition-all duration-300 hover:bg-accent-warm hover:text-white hover:border-accent-warm hover:shadow-[0_2px_8px_rgba(232,113,58,.15)] text-text-primary text-center disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px]"
               >
                 {reply}
               </button>
@@ -133,8 +133,14 @@ export default function ChatMessage({
         {/* 構成案カード */}
         {msg.proposal && (
           <div className="mt-3 bg-bg-primary rounded-[12px] border border-border-light overflow-hidden">
-            <div className="px-4 py-3 bg-gradient-to-r from-bg-dark-warm to-bg-dark-warm-light text-text-inverse text-[13px] font-semibold flex items-center gap-2">
-              📋 構成案 - {msg.proposal.shopName}
+            <div className="px-4 py-3 bg-gradient-to-r from-bg-dark-warm to-bg-dark-warm-light text-text-inverse text-[13px] font-semibold flex items-center gap-2 relative overflow-hidden">
+              <div className="absolute inset-0 opacity-[.06]" style={{
+                backgroundImage: "radial-gradient(circle, white 1px, transparent 1px)",
+                backgroundSize: "16px 16px",
+              }} />
+              <span className="relative z-10 flex items-center gap-2">
+                📋 構成案 - {msg.proposal.shopName}
+              </span>
             </div>
             <div className="p-4 text-[13px] leading-relaxed">
               <div className="mb-3">
@@ -173,14 +179,14 @@ export default function ChatMessage({
               <button
                 onClick={onApproveProposal}
                 disabled={disabled}
-                className="px-5 py-2 rounded-[28px] border-none text-[13px] font-semibold bg-accent-warm text-white cursor-pointer transition-all duration-300 hover:bg-accent-warm-hover disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-5 py-2 rounded-full border-none text-[13px] font-semibold bg-accent-warm text-white cursor-pointer transition-all duration-300 hover:bg-accent-warm-hover hover:shadow-[0_2px_8px_rgba(232,113,58,.2)] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 ✅ この内容で生成する
               </button>
               <button
                 onClick={onReviseProposal}
                 disabled={disabled}
-                className="px-5 py-2 rounded-[28px] text-[13px] font-semibold bg-transparent text-text-secondary border border-border-medium cursor-pointer transition-all duration-300 hover:border-text-primary disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-5 py-2 rounded-full text-[13px] font-semibold bg-transparent text-text-secondary border border-border-medium cursor-pointer transition-all duration-300 hover:border-accent-warm/40 hover:text-accent-warm disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 修正する
               </button>

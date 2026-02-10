@@ -80,12 +80,19 @@ function ChatPageInner() {
       <Header activeTab="chat" />
       <div className="flex h-[calc(100vh-56px)] mt-[56px]">
         {/* チャットメイン */}
-        <div className="flex-1 flex flex-col min-w-0 bg-bg-primary">
+        <div className="flex-1 flex flex-col min-w-0 bg-bg-primary relative overflow-hidden">
+          {/* 背景装飾ブラー（ツール画面のため控えめ） */}
+          <div className="absolute top-[10%] left-[5%] w-56 h-56 bg-accent-warm/[.03] rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-[20%] right-[5%] w-48 h-48 bg-accent-gold/[.03] rounded-full blur-3xl pointer-events-none" />
+
           {/* チャットヘッダー */}
-          <div className="px-4 md:px-7 py-3 md:py-4 border-b border-border-light flex items-center justify-between bg-bg-secondary flex-shrink-0">
+          <div className="relative z-10 px-4 md:px-7 py-3 md:py-4 border-b border-border-light flex items-center justify-between bg-bg-secondary flex-shrink-0">
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-accent-olive animate-pulse" />
               <div>
+                <span className="text-[10px] font-semibold text-accent-warm uppercase tracking-[1.5px]">
+                  Menu Design
+                </span>
                 <div className="font-semibold text-sm md:text-[15px]">
                   {restoredShopName
                     ? `メニューデザイン - ${restoredShopName}`
@@ -100,7 +107,7 @@ function ChatPageInner() {
               <button
                 onClick={() => setPreviewOpen(!previewOpen)}
                 title="プレビュー切替"
-                className="w-9 h-9 rounded-[8px] border border-border-light bg-bg-secondary cursor-pointer flex items-center justify-center transition-all duration-300 text-text-secondary hover:bg-bg-primary hover:border-border-medium"
+                className="w-9 h-9 rounded-full border border-border-light bg-bg-secondary cursor-pointer flex items-center justify-center transition-all duration-300 text-text-secondary hover:bg-accent-warm/10 hover:text-accent-warm hover:border-accent-warm/30"
               >
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                   <rect x="1" y="1" width="7" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
@@ -110,7 +117,7 @@ function ChatPageInner() {
               <Link
                 href="/dashboard"
                 title="ダッシュボード"
-                className="w-9 h-9 rounded-[8px] border border-border-light bg-bg-secondary cursor-pointer flex items-center justify-center transition-all duration-300 text-text-secondary hover:bg-bg-primary hover:border-border-medium no-underline"
+                className="w-9 h-9 rounded-full border border-border-light bg-bg-secondary cursor-pointer flex items-center justify-center transition-all duration-300 text-text-secondary hover:bg-accent-warm/10 hover:text-accent-warm hover:border-accent-warm/30 no-underline"
               >
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                   <path d="M3 9l6-6 6 6M5 7.5V15h3v-4h2v4h3V7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -121,7 +128,7 @@ function ChatPageInner() {
 
           {/* オフラインバナー */}
           {!isOnline && (
-            <div className="px-4 md:px-7 py-2 bg-amber-50 border-b border-amber-200 flex items-center gap-2 flex-shrink-0">
+            <div className="relative z-10 px-4 md:px-7 py-2 bg-amber-50 border-b border-amber-200 flex items-center gap-2 flex-shrink-0">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-amber-600 flex-shrink-0">
                 <path d="M8 1L1 14h14L8 1z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
                 <path d="M8 6v3M8 11.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -131,7 +138,7 @@ function ChatPageInner() {
           )}
 
           {/* メッセージ一覧 */}
-          <div className="flex-1 overflow-y-auto px-4 md:px-7 py-5 md:py-7 flex flex-col gap-4 md:gap-5">
+          <div className="relative z-10 flex-1 overflow-y-auto px-4 md:px-7 py-5 md:py-7 flex flex-col gap-4 md:gap-5">
             {isRestoring ? (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
@@ -172,7 +179,7 @@ function ChatPageInner() {
           </div>
 
           {/* 広告プレースホルダー */}
-          <div className="px-4 md:px-7 flex-shrink-0">
+          <div className="relative z-10 px-4 md:px-7 flex-shrink-0">
             <AdPlaceholder variant="inline" />
           </div>
 

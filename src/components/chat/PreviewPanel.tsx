@@ -113,10 +113,15 @@ export default function PreviewPanel({
       <div className="fixed right-0 top-[56px] bottom-0 w-[min(420px,100vw)] z-50 lg:relative lg:top-auto lg:bottom-auto lg:z-auto lg:w-[420px] bg-bg-secondary border-l border-border-light flex flex-col flex-shrink-0">
         {/* ヘッダー */}
         <div className="px-5 py-4 border-b border-border-light flex items-center justify-between">
-          <div className="font-semibold text-sm">プレビュー</div>
+          <div>
+            <span className="text-[10px] font-semibold text-accent-warm uppercase tracking-[1.5px]">
+              Preview
+            </span>
+            <div className="font-semibold text-sm">プレビュー</div>
+          </div>
           <button
             onClick={onToggle}
-            className="w-7 h-7 rounded-[8px] border border-border-light bg-bg-secondary cursor-pointer flex items-center justify-center transition-all duration-300 text-text-secondary hover:bg-bg-primary hover:border-border-medium"
+            className="w-7 h-7 rounded-full border border-border-light bg-bg-secondary cursor-pointer flex items-center justify-center transition-all duration-300 text-text-secondary hover:bg-accent-warm/10 hover:text-accent-warm hover:border-accent-warm/30"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path
@@ -135,10 +140,10 @@ export default function PreviewPanel({
             <button
               key={tab.key}
               onClick={() => setActiveRatio(tab.key)}
-              className={`px-3.5 py-2 rounded-[28px] text-xs font-medium cursor-pointer border transition-all duration-300 ${
+              className={`px-3.5 py-2 rounded-full text-xs font-medium cursor-pointer border transition-all duration-300 ${
                 activeRatio === tab.key
-                  ? "bg-bg-dark text-text-inverse border-bg-dark"
-                  : "bg-transparent text-text-secondary border-border-light hover:border-border-medium"
+                  ? "bg-accent-warm text-white border-accent-warm shadow-[0_2px_8px_rgba(232,113,58,.2)]"
+                  : "bg-transparent text-text-secondary border-border-light hover:border-accent-warm/30 hover:text-accent-warm"
               }`}
             >
               {tab.label}
@@ -147,10 +152,10 @@ export default function PreviewPanel({
         </div>
 
         {/* プレビュー本体 */}
-        <div className="flex-1 overflow-y-auto p-5 flex flex-col items-center gap-4">
+        <div className="flex-1 overflow-y-auto p-5 flex flex-col items-center gap-4 animate-fade-in-up">
           {/* 画像エリア */}
           <div
-            className={`w-full rounded-[12px] overflow-hidden bg-border-light flex-shrink-0 ${ratioClasses[activeRatio]}`}
+            className={`w-full rounded-[16px] overflow-hidden bg-border-light flex-shrink-0 ${ratioClasses[activeRatio]}`}
           >
             {isGenerating ? (
               /* ローディング表示 */
@@ -196,7 +201,8 @@ export default function PreviewPanel({
 
           {/* 構成案情報 */}
           {proposal && (
-            <div className="w-full p-4 bg-bg-primary rounded-[12px] border border-border-light text-[13px] leading-relaxed">
+            <div className="w-full p-4 bg-bg-primary rounded-[16px] border border-border-light text-[13px] leading-relaxed relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-accent-gold opacity-40" />
               <div className="text-[11px] font-semibold text-accent-warm uppercase tracking-[1px] mb-1.5">
                 構成案情報
               </div>
@@ -224,7 +230,8 @@ export default function PreviewPanel({
           )}
 
           {/* ステップフロー（常時表示） */}
-          <div className="w-full p-4 bg-bg-primary rounded-[12px] border border-border-light">
+          <div className="w-full p-4 bg-bg-primary rounded-[16px] border border-border-light relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-accent-warm opacity-40" />
             <StepFlow
               steps={[
                 { label: "お店の名前を入力", status: currentStep > 1 ? "done" : currentStep === 1 ? "active" : "pending" },
@@ -242,7 +249,7 @@ export default function PreviewPanel({
           <button
             onClick={handleDownload}
             disabled={!generatedImage || isGenerating}
-            className="w-full py-3 rounded-[12px] border-none text-[13px] font-semibold bg-bg-dark text-white cursor-pointer flex items-center justify-center gap-2 transition-all duration-300 hover:bg-accent-warm disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full py-3 rounded-full border-none text-[13px] font-semibold bg-accent-warm text-white cursor-pointer flex items-center justify-center gap-2 transition-all duration-300 hover:bg-accent-warm-hover hover:shadow-[0_4px_16px_rgba(232,113,58,.25)] hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path
@@ -262,7 +269,7 @@ export default function PreviewPanel({
                 onRegenerate(tab?.apiRatio || "1:1");
               }}
               disabled={isGenerating}
-              className="w-full py-3 rounded-[12px] text-[13px] font-semibold bg-transparent text-text-secondary border border-border-light cursor-pointer flex items-center justify-center gap-2 transition-all duration-300 hover:border-border-medium disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-full text-[13px] font-semibold bg-transparent text-text-secondary border border-border-light cursor-pointer flex items-center justify-center gap-2 transition-all duration-300 hover:border-accent-warm/40 hover:text-accent-warm disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
