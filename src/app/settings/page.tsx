@@ -69,7 +69,7 @@ export default function SettingsPage() {
   return (
     <>
       <Header activeTab="settings" />
-      <main className="mt-[52px] min-h-[calc(100vh-52px)] bg-bg-primary">
+      <main className="mt-[56px] min-h-[calc(100vh-56px)] bg-bg-primary">
         <div className="max-w-[640px] mx-auto px-6 sm:px-10 py-10">
           <h1 className="font-[family-name:var(--font-playfair)] text-[28px] font-bold mb-2">
             アカウント設定

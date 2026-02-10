@@ -2,34 +2,35 @@
 
 @theme inline {
   /* Background */
-  --color-bg-primary: #FAF7F2;
+  --color-bg-primary: #FAFAF8;
   --color-bg-secondary: #FFFFFF;
-  --color-bg-tertiary: #F0EDEA;
-  --color-bg-dark: #1A1714;
+  --color-bg-tertiary: #F5F3F0;
+  --color-bg-dark: #1A1A1A;
   --color-bg-dark-warm: #2C2520;
   --color-bg-dark-warm-light: #3D3530;
-  --color-bg-tag: #EDE8E0;
+  --color-bg-tag: #F0ECE6;
 
   /* Accent */
-  --color-accent-warm: #C4713B;
-  --color-accent-warm-hover: #b5632f;
+  --color-accent-warm: #E8713A;
+  --color-accent-warm-hover: #D4642F;
+  --color-accent-warm-light: #FFF4ED;
   --color-accent-gold: #D4A853;
   --color-accent-olive: #7B8A64;
 
   /* Text */
-  --color-text-primary: #1A1714;
+  --color-text-primary: #1A1A1A;
   --color-text-secondary: #6B6560;
   --color-text-muted: #9B9590;
-  --color-text-inverse: #FAF7F2;
+  --color-text-inverse: #FFFFFF;
 
   /* Border */
-  --color-border-light: #E8E2DA;
-  --color-border-medium: #D5CFC7;
+  --color-border-light: #EEEBE6;
+  --color-border-medium: #DDD8D0;
 
   /* Avatar (AI) */
-  --color-avatar-ai-from: #FFF0D6;
-  --color-avatar-ai-to: #FDDCAB;
-  --color-avatar-ai-border: #EDD5B3;
+  --color-avatar-ai-from: #FFEAD6;
+  --color-avatar-ai-to: #FFD4AB;
+  --color-avatar-ai-border: #F0C89B;
 
   /* Typography */
   --font-family-display: 'Playfair Display', serif;

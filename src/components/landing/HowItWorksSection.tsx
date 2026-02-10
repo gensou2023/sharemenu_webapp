@@ -2,24 +2,24 @@ export default function HowItWorksSection() {
   const steps = [
     {
       number: "01",
-      icon: "💬",
-      title: "お店の情報を入力",
+      title: "AIとチャットで伝える",
       description:
-        "店舗名、デザインの方向性をチャットで伝えるだけ。AIが最適なデザインを提案します。",
+        "店舗名、メニュー、デザインの方向性をチャットで伝えるだけ。AIが最適な構成を提案します。",
+      color: "bg-accent-warm",
     },
     {
       number: "02",
-      icon: "🎨",
-      title: "構成案を確認・調整",
+      title: "AIが自動でデザイン",
       description:
-        "AIが作成したキャッチコピーやハッシュタグの構成案を確認。修正も何度でもOK。",
+        "AIがキャッチコピー、ハッシュタグ、レイアウトを自動生成。修正のやり取りも何度でもOK。",
+      color: "bg-accent-gold",
     },
     {
       number: "03",
-      icon: "📸",
-      title: "画像を生成・ダウンロード",
+      title: "画像をダウンロード",
       description:
-        "1:1（Feed）、9:16（Story）、16:9（X Post）の3サイズでSNS用画像を即時生成。",
+        "1:1（Feed）、9:16（Story）、16:9（X Post）の3サイズでSNS用画像を即時生成・DL。",
+      color: "bg-accent-olive",
     },
   ];
 
@@ -37,25 +37,24 @@ export default function HowItWorksSection() {
         </p>
       </div>
 
-      <div className="max-w-[1080px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="max-w-[960px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         {steps.map((step, i) => (
-          <div key={i} className="relative text-center">
-            {/* ステップ番号 */}
-            <div className="text-[48px] sm:text-[64px] font-[family-name:var(--font-playfair)] font-bold text-border-light absolute -top-2 left-1/2 -translate-x-1/2 select-none">
-              {step.number}
-            </div>
-            {/* アイコン */}
-            <div className="relative z-10 w-16 h-16 mx-auto mb-5 rounded-full bg-bg-secondary border border-border-light flex items-center justify-center text-3xl shadow-[0_4px_16px_rgba(26,23,20,.06)]">
-              {step.icon}
-            </div>
-            {/* コネクトライン（1,2番目のみ） */}
+          <div key={i} className="relative">
+            {/* Connector line */}
             {i < steps.length - 1 && (
-              <div className="hidden md:block absolute top-8 left-[calc(50%+40px)] w-[calc(100%-80px)] h-px bg-border-light" />
+              <div className="hidden md:block absolute top-10 left-[calc(50%+48px)] w-[calc(100%-96px)] border-t-2 border-dashed border-border-medium" />
             )}
-            <h3 className="font-semibold text-base mb-2">{step.title}</h3>
-            <p className="text-[13px] text-text-secondary leading-relaxed max-w-[280px] mx-auto">
-              {step.description}
-            </p>
+
+            <div className="flex flex-col items-center text-center">
+              {/* Step number circle */}
+              <div className={`w-20 h-20 rounded-full ${step.color} flex items-center justify-center text-white text-2xl font-bold font-[family-name:var(--font-playfair)] mb-5 shadow-lg relative z-10`}>
+                {step.number}
+              </div>
+              <h3 className="font-semibold text-base mb-2">{step.title}</h3>
+              <p className="text-[13px] text-text-secondary leading-relaxed max-w-[280px]">
+                {step.description}
+              </p>
+            </div>
           </div>
         ))}
       </div>

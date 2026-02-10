@@ -78,7 +78,7 @@ function ChatPageInner() {
   return (
     <>
       <Header activeTab="chat" />
-      <div className="flex h-[calc(100vh-52px)] mt-[52px]">
+      <div className="flex h-[calc(100vh-56px)] mt-[56px]">
         {/* チャットメイン */}
         <div className="flex-1 flex flex-col min-w-0 bg-bg-primary">
           {/* チャットヘッダー */}

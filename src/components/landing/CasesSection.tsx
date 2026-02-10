@@ -1,59 +1,60 @@
 export default function CasesSection() {
   const cases = [
     {
-      emoji: "🍜",
-      shopName: "麺屋 一番星",
-      type: "ラーメン",
+      emoji: "&#127836;",
+      shopName: "ハンバーガーショップ",
+      type: "ファストフード",
       description:
-        "看板メニュー「濃厚味噌ラーメン」のSNS投稿用画像を3サイズ生成。Instagramフォロワーが1ヶ月で+320人増加。",
-      tags: ["#ラーメン", "#味噌ラーメン", "#新宿ランチ"],
-      gradient: "from-[#3D3530] to-[#5C4F45]",
+        "看板メニューのSNS投稿用画像を3サイズ生成。Instagramフォロワーが1ヶ月で+320人増加。",
+      tags: ["#ハンバーガー", "#新メニュー", "#渋谷ランチ"],
+      image: "from-[#8B4513] to-[#A0522D]",
     },
     {
-      emoji: "🍵",
-      shopName: "茶寮 さくら",
-      type: "和カフェ",
+      emoji: "&#127862;",
+      shopName: "カフェ&ティールーム",
+      type: "カフェ",
       description:
-        "季節限定の桜メニュー全5品のビジュアルを一括作成。春のキャンペーン告知をInstagramストーリーズで展開。",
-      tags: ["#和カフェ", "#桜スイーツ", "#渋谷カフェ"],
-      gradient: "from-[#4A5940] to-[#6B7A5E]",
+        "季節限定メニュー全5品のビジュアルを一括作成。春のキャンペーン告知をストーリーズで展開。",
+      tags: ["#カフェ", "#季節限定", "#おしゃれカフェ"],
+      image: "from-[#4A5940] to-[#6B7A5E]",
     },
     {
-      emoji: "🍕",
-      shopName: "Trattoria LUNA",
+      emoji: "&#127833;",
+      shopName: "イタリアンキッチン",
       type: "イタリアン",
       description:
         "グランドメニューリニューアルに合わせ、全12品のメニュー画像を作成。店頭ポスターとX投稿に活用。",
       tags: ["#イタリアン", "#ピザ", "#恵比寿ディナー"],
-      gradient: "from-[#4A3A30] to-[#6B5545]",
+      image: "from-[#4A3A30] to-[#6B5545]",
     },
   ];
 
   return (
-    <section className="w-full py-20 px-6 md:px-10 bg-bg-secondary border-t border-b border-border-light">
+    <section className="w-full py-20 px-6 md:px-10 bg-bg-dark">
       <div className="text-center mb-12">
         <span className="inline-block text-xs font-semibold text-accent-warm uppercase tracking-[2px] mb-3">
           Case Studies
         </span>
-        <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl font-bold mb-3">
+        <h2 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl font-bold mb-3 text-white">
           導入事例
         </h2>
-        <p className="text-[15px] text-text-secondary max-w-[560px] mx-auto leading-relaxed">
+        <p className="text-[15px] text-text-muted max-w-[560px] mx-auto leading-relaxed">
           MenuCraft AI で作成されたメニューデザインの実例をご紹介します
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-7 max-w-[1080px] mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-[1080px] mx-auto">
         {cases.map((c, i) => (
           <div
             key={i}
-            className="rounded-[20px] overflow-hidden border border-border-light bg-bg-primary transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_4px_24px_rgba(26,23,20,.10)]"
+            className="rounded-2xl overflow-hidden bg-white/[.06] border border-white/[.08] transition-all duration-300 hover:-translate-y-1 hover:bg-white/[.10]"
           >
             <div
-              className={`h-[220px] relative flex items-center justify-center bg-gradient-to-br ${c.gradient}`}
+              className={`h-[200px] relative flex items-center justify-center bg-gradient-to-br ${c.image}`}
             >
-              <span className="text-7xl drop-shadow-[0_4px_16px_rgba(0,0,0,0.3)] relative z-10">
-                {c.emoji}
-              </span>
+              <span
+                className="text-7xl drop-shadow-[0_4px_16px_rgba(0,0,0,0.3)] relative z-10"
+                dangerouslySetInnerHTML={{ __html: c.emoji }}
+              />
               <div className="absolute bottom-3 left-3 flex gap-1.5 z-20">
                 {["1:1", "9:16", "16:9"].map((size) => (
                   <span
@@ -67,20 +68,20 @@ export default function CasesSection() {
               <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/60 to-transparent" />
             </div>
             <div className="p-5">
-              <div className="font-bold text-base mb-1 flex items-center gap-2">
+              <div className="font-bold text-[15px] mb-1 flex items-center gap-2 text-white">
                 {c.shopName}
-                <span className="px-2.5 py-0.5 rounded-xl text-[11px] font-medium bg-accent-olive/15 text-accent-olive">
+                <span className="px-2.5 py-0.5 rounded-xl text-[11px] font-medium bg-accent-olive/20 text-accent-olive">
                   {c.type}
                 </span>
               </div>
-              <p className="text-[13px] text-text-secondary leading-relaxed mt-2">
+              <p className="text-[13px] text-text-muted leading-relaxed mt-2">
                 {c.description}
               </p>
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {c.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-2.5 py-0.5 rounded-full text-[11px] bg-bg-tag text-text-secondary"
+                    className="px-2.5 py-0.5 rounded-full text-[11px] bg-white/[.06] text-text-muted"
                   >
                     {tag}
                   </span>

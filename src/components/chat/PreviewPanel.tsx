@@ -110,7 +110,7 @@ export default function PreviewPanel({
         className="fixed inset-0 bg-black/30 z-40 lg:hidden"
         onClick={onToggle}
       />
-      <div className="fixed right-0 top-[52px] bottom-0 w-[min(420px,100vw)] z-50 lg:relative lg:top-auto lg:bottom-auto lg:z-auto lg:w-[420px] bg-bg-secondary border-l border-border-light flex flex-col flex-shrink-0">
+      <div className="fixed right-0 top-[56px] bottom-0 w-[min(420px,100vw)] z-50 lg:relative lg:top-auto lg:bottom-auto lg:z-auto lg:w-[420px] bg-bg-secondary border-l border-border-light flex flex-col flex-shrink-0">
         {/* ヘッダー */}
         <div className="px-5 py-4 border-b border-border-light flex items-center justify-between">
           <div className="font-semibold text-sm">プレビュー</div>

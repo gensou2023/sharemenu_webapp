@@ -2,7 +2,7 @@ export default function PricingSection() {
   return (
     <section
       id="pricing"
-      className="w-full py-20 px-6 md:px-10 bg-[radial-gradient(ellipse_at_30%_50%,rgba(212,168,83,.05),transparent_50%),radial-gradient(ellipse_at_70%_50%,rgba(196,113,59,.05),transparent_50%)]"
+      className="w-full py-20 px-6 md:px-10 bg-bg-primary"
     >
       <div className="text-center mb-12">
         <span className="inline-block text-xs font-semibold text-accent-warm uppercase tracking-[2px] mb-3">
@@ -17,12 +17,12 @@ export default function PricingSection() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-7 max-w-[780px] mx-auto">
         {/* Free Plan */}
-        <div className="rounded-[20px] border border-border-light bg-bg-secondary p-8 md:p-9 transition-all duration-300 hover:shadow-[0_4px_24px_rgba(26,23,20,.10)]">
-          <div className="text-sm font-semibold text-text-secondary uppercase tracking-[1.5px] mb-3">
-            Free
+        <div className="rounded-2xl border border-border-light bg-bg-secondary p-8 md:p-9 transition-all duration-300 hover:shadow-[0_4px_24px_rgba(26,23,20,.08)]">
+          <div className="text-sm font-semibold text-text-muted uppercase tracking-[1.5px] mb-4">
+            無料プラン
           </div>
           <div className="font-[family-name:var(--font-playfair)] text-5xl font-bold mb-1 leading-none">
-            <span className="text-2xl align-top mr-0.5">¥</span>0
+            <span className="text-2xl align-top mr-0.5">&yen;</span>0
             <span className="text-base text-text-muted font-normal ml-1">
               {" "}
               / 月
@@ -48,21 +48,21 @@ export default function PricingSection() {
             <PricingItem available text="チャットヒアリング" />
             <PricingItem available text="キャッチコピー・ハッシュタグ提案" />
           </ul>
-          <button className="w-full py-3.5 rounded-[28px] text-sm font-semibold border-[1.5px] border-border-medium bg-transparent text-text-primary transition-all duration-300 hover:border-text-primary cursor-pointer">
+          <button className="w-full py-3.5 rounded-full text-sm font-semibold border-[1.5px] border-border-medium bg-transparent text-text-primary transition-all duration-300 hover:border-text-primary hover:bg-bg-tertiary cursor-pointer">
             無料で始める
           </button>
         </div>
 
         {/* Pro Plan */}
-        <div className="rounded-[20px] border-2 border-accent-warm bg-bg-secondary p-8 md:p-9 relative shadow-[0_4px_24px_rgba(26,23,20,.10)] transition-all duration-300 hover:shadow-[0_12px_40px_rgba(26,23,20,.14)]">
-          <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-5 py-1 rounded-full bg-accent-warm text-white text-xs font-semibold whitespace-nowrap">
+        <div className="rounded-2xl border-2 border-accent-warm bg-bg-secondary p-8 md:p-9 relative shadow-[0_4px_24px_rgba(232,113,58,.12)] transition-all duration-300 hover:shadow-[0_12px_40px_rgba(232,113,58,.18)]">
+          <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-5 py-1 rounded-full bg-accent-warm text-white text-xs font-semibold whitespace-nowrap shadow-md">
             おすすめ
           </span>
-          <div className="text-sm font-semibold text-text-secondary uppercase tracking-[1.5px] mb-3">
-            Pro
+          <div className="text-sm font-semibold text-text-muted uppercase tracking-[1.5px] mb-4">
+            プロプラン
           </div>
           <div className="font-[family-name:var(--font-playfair)] text-5xl font-bold mb-1 leading-none">
-            <span className="text-2xl align-top mr-0.5">¥</span>700
+            <span className="text-2xl align-top mr-0.5">&yen;</span>700
             <span className="text-base text-text-muted font-normal ml-1">
               {" "}
               / 月
@@ -85,8 +85,8 @@ export default function PricingSection() {
             <PricingItem available text="チャットヒアリング" />
             <PricingItem available text="キャッチコピー・ハッシュタグ提案" />
           </ul>
-          <button className="w-full py-3.5 rounded-[28px] text-sm font-semibold bg-bg-dark text-white shadow-[0_2px_12px_rgba(26,23,20,.06)] transition-all duration-300 hover:bg-accent-warm cursor-pointer border-none">
-            Proで始める →
+          <button className="w-full py-3.5 rounded-full text-sm font-semibold bg-accent-warm text-white shadow-[0_2px_12px_rgba(232,113,58,.2)] transition-all duration-300 hover:bg-accent-warm-hover hover:-translate-y-0.5 cursor-pointer border-none">
+            Proで始める &rarr;
           </button>
         </div>
       </div>
@@ -114,7 +114,7 @@ function PricingItem({
             : "bg-bg-tertiary text-text-muted"
         }`}
       >
-        {available ? "✓" : "—"}
+        {available ? "\u2713" : "\u2014"}
       </span>
       <span className={available ? "" : "text-text-muted"}>{text}</span>
       {limit && (

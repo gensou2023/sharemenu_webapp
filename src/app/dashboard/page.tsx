@@ -187,7 +187,7 @@ export default function DashboardPage() {
   return (
     <>
       <Header activeTab="dashboard" />
-      <main className="mt-[52px] min-h-[calc(100vh-52px)] bg-bg-primary">
+      <main className="mt-[56px] min-h-[calc(100vh-56px)] bg-bg-primary">
         <div className="max-w-[1080px] mx-auto px-6 sm:px-10 py-10">
           {/* ヘッダー部分 */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
