@@ -55,7 +55,7 @@ export default function ChatInput({
               setTimeout(() => setShowAttachNotice(false), 3000);
             }}
             title="写真を添付"
-            className="w-[38px] h-[38px] rounded-[8px] border border-dashed border-border-medium bg-transparent cursor-pointer flex items-center justify-center transition-all duration-300 text-text-muted hover:border-accent-warm hover:text-accent-warm"
+            className="w-[34px] h-[34px] sm:w-[38px] sm:h-[38px] rounded-[8px] border border-dashed border-border-medium bg-transparent cursor-pointer flex items-center justify-center transition-all duration-300 text-text-muted hover:border-accent-warm hover:text-accent-warm"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path
@@ -92,7 +92,7 @@ export default function ChatInput({
           onClick={handleSubmit}
           disabled={disabled || !value.trim()}
           title="Enter で送信"
-          className="w-[38px] h-[38px] rounded-[8px] border-none bg-bg-dark text-white cursor-pointer flex items-center justify-center transition-all duration-300 hover:bg-accent-warm flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="w-[34px] h-[34px] sm:w-[38px] sm:h-[38px] rounded-[8px] border-none bg-bg-dark text-white cursor-pointer flex items-center justify-center transition-all duration-300 hover:bg-accent-warm flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path

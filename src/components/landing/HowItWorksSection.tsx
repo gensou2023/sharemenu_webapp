@@ -41,7 +41,7 @@ export default function HowItWorksSection() {
         {steps.map((step, i) => (
           <div key={i} className="relative text-center">
             {/* ステップ番号 */}
-            <div className="text-[64px] font-[family-name:var(--font-playfair)] font-bold text-border-light absolute -top-2 left-1/2 -translate-x-1/2 select-none">
+            <div className="text-[48px] sm:text-[64px] font-[family-name:var(--font-playfair)] font-bold text-border-light absolute -top-2 left-1/2 -translate-x-1/2 select-none">
               {step.number}
             </div>
             {/* アイコン */}

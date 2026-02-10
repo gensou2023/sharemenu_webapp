@@ -17,6 +17,7 @@ const navItems = [
 export default function Header({ activeTab = "home" }: HeaderProps) {
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const userName = session?.user?.name || "ゲスト";
   const userInitial = userName.charAt(0);
@@ -62,6 +63,23 @@ export default function Header({ activeTab = "home" }: HeaderProps) {
           </Link>
         ))}
       </nav>
+
+      {/* モバイルハンバーガーメニューボタン */}
+      <button
+        onClick={() => setMobileNavOpen(!mobileNavOpen)}
+        className="md:hidden w-8 h-8 flex items-center justify-center text-text-muted cursor-pointer bg-transparent border-none"
+        aria-label="メニュー"
+      >
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          {mobileNavOpen ? (
+            <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          ) : (
+            <>
+              <path d="M3 6h14M3 10h14M3 14h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </>
+          )}
+        </svg>
+      </button>
 
       {/* Spacer */}
       <div className="flex-1" />
@@ -127,6 +145,28 @@ export default function Header({ activeTab = "home" }: HeaderProps) {
         >
           ログイン
         </Link>
+      )}
+      {/* モバイルナビゲーション */}
+      {mobileNavOpen && (
+        <>
+          <div className="fixed inset-0 top-[52px] z-40 bg-black/30 md:hidden" onClick={() => setMobileNavOpen(false)} />
+          <nav className="absolute left-0 right-0 top-[52px] bg-bg-dark border-t border-border-light z-50 md:hidden">
+            {navItems.map((item) => (
+              <Link
+                key={item.key}
+                href={item.href}
+                onClick={() => setMobileNavOpen(false)}
+                className={`block px-6 py-3.5 text-[14px] font-medium border-l-3 transition-all no-underline ${
+                  activeTab === item.key
+                    ? "text-accent-gold border-l-accent-gold bg-white/5"
+                    : "text-text-muted border-l-transparent hover:text-[#D5CFC7]"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </>
       )}
     </header>
   );

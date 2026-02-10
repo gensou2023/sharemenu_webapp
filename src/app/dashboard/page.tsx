@@ -153,7 +153,7 @@ export default function DashboardPage() {
           </div>
 
           {/* 統計カード */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-9">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5 mb-9">
             {statsCards.map((stat) => (
               <div
                 key={stat.label}

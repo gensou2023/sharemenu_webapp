@@ -48,9 +48,9 @@ export default function UseCasesSection() {
         {useCases.map((uc, i) => (
           <div
             key={i}
-            className="flex gap-4 p-6 rounded-[20px] bg-bg-primary border border-border-light transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(26,23,20,.06)]"
+            className="flex gap-3 sm:gap-4 p-4 sm:p-6 rounded-[20px] bg-bg-primary border border-border-light transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(26,23,20,.06)]"
           >
-            <div className="w-12 h-12 rounded-[12px] bg-accent-warm/10 flex items-center justify-center text-2xl flex-shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[12px] bg-accent-warm/10 flex items-center justify-center text-xl sm:text-2xl flex-shrink-0">
               {uc.icon}
             </div>
             <div>
