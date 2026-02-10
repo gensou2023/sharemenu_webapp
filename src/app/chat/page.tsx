@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Header from "@/components/landing/Header";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
@@ -8,7 +9,26 @@ import PreviewPanel from "@/components/chat/PreviewPanel";
 import Link from "next/link";
 import { useChatSession } from "@/hooks/useChatSession";
 
+// useSearchParamsを使うコンポーネントをSuspenseでラップ
 export default function ChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-screen bg-bg-primary">
+        <div className="text-center">
+          <div className="text-4xl mb-3">🍽</div>
+          <div className="text-sm text-text-muted">読み込み中...</div>
+        </div>
+      </div>
+    }>
+      <ChatPageInner />
+    </Suspense>
+  );
+}
+
+function ChatPageInner() {
+  const searchParams = useSearchParams();
+  const restoreSessionId = searchParams.get("session");
+
   const {
     messages,
     isTyping,
@@ -16,12 +36,14 @@ export default function ChatPage() {
     generatedImage,
     currentProposal,
     currentStep,
+    isRestoring,
+    restoredShopName,
     handleSend,
     handleQuickReply,
     handleApproveProposal,
     handleReviseProposal,
     handleRegenerate,
-  } = useChatSession();
+  } = useChatSession({ restoreSessionId });
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -60,7 +82,9 @@ export default function ChatPage() {
               <div className="w-2 h-2 rounded-full bg-accent-olive animate-pulse" />
               <div>
                 <div className="font-semibold text-sm md:text-[15px]">
-                  メニューデザイン - 新規作成
+                  {restoredShopName
+                    ? `メニューデザイン - ${restoredShopName}`
+                    : "メニューデザイン - 新規作成"}
                 </div>
                 <div className="text-xs text-text-muted hidden sm:block">
                   AIアシスタントとチャット
@@ -92,7 +116,15 @@ export default function ChatPage() {
 
           {/* メッセージ一覧 */}
           <div className="flex-1 overflow-y-auto px-4 md:px-7 py-5 md:py-7 flex flex-col gap-4 md:gap-5">
-            {messages.map((msg) => (
+            {isRestoring ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-4xl mb-3 animate-bounce">🍽</div>
+                  <div className="text-sm text-text-muted">会話履歴を復元中...</div>
+                </div>
+              </div>
+            ) : null}
+            {!isRestoring && messages.map((msg) => (
               <ChatMessage
                 key={msg.id}
                 msg={msg}
@@ -103,7 +135,7 @@ export default function ChatPage() {
               />
             ))}
 
-            {/* タイピングインジケーター */}
+            {/* タイピングインジケーター（復元中は非表示） */}
             {isTyping && (
               <div className="flex gap-3 max-w-[720px] self-start animate-[msgIn_0.4s_ease-out]">
                 <div className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-base bg-gradient-to-br from-avatar-ai-from to-avatar-ai-to border border-avatar-ai-border">
@@ -123,7 +155,7 @@ export default function ChatPage() {
           </div>
 
           {/* 入力エリア */}
-          <ChatInput onSend={handleSend} disabled={isTyping || isGeneratingImage} />
+          <ChatInput onSend={handleSend} disabled={isTyping || isGeneratingImage || isRestoring} />
         </div>
 
         {/* プレビューパネル */}
