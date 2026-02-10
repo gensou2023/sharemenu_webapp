@@ -69,10 +69,19 @@ export async function GET() {
         .getPublicUrl(firstImage.storage_path);
       thumbnailUrl = urlData.publicUrl;
     }
+    // 全画像の公開URLリストを生成
+    const imageUrls = images.map((img) => {
+      const { data: urlData } = supabase.storage
+        .from("generated")
+        .getPublicUrl(img.storage_path);
+      return urlData.publicUrl;
+    });
+
     return {
       ...s,
       imageCount: images.length,
       thumbnailUrl,
+      imageUrls,
     };
   });
 

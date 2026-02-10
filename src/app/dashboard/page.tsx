@@ -15,6 +15,7 @@ type SessionData = {
   updated_at: string;
   imageCount: number;
   thumbnailUrl: string | null;
+  imageUrls: string[];
 };
 
 type StatsData = {
@@ -46,10 +47,33 @@ const gradients = [
   "linear-gradient(135deg, #4A3040, #7A5068)",
 ];
 
+// 画像を一括ダウンロード
+async function downloadImages(urls: string[], shopName: string | null) {
+  for (let i = 0; i < urls.length; i++) {
+    try {
+      const res = await fetch(urls[i]);
+      const blob = await res.blob();
+      const ext = blob.type.includes("png") ? "png" : "jpg";
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${shopName || "menucraft"}-${i + 1}.${ext}`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      // 連続ダウンロードの間隔を少し空ける
+      if (i < urls.length - 1) {
+        await new Promise((r) => setTimeout(r, 300));
+      }
+    } catch {
+      // 個別のダウンロード失敗は無視
+    }
+  }
+}
+
 export default function DashboardPage() {
   const [sessions, setSessions] = useState<SessionData[]>([]);
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -213,8 +237,39 @@ export default function DashboardPage() {
 
                     {/* 情報 */}
                     <div className="p-4">
-                      <div className="font-semibold text-[15px] mb-1">
-                        {item.shop_name || item.title}
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="font-semibold text-[15px]">
+                          {item.shop_name || item.title}
+                        </div>
+                        {item.imageCount > 0 && (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setDownloading(item.id);
+                              downloadImages(item.imageUrls, item.shop_name).finally(() =>
+                                setDownloading(null)
+                              );
+                            }}
+                            disabled={downloading === item.id}
+                            title="画像を一括ダウンロード"
+                            className="w-8 h-8 rounded-[8px] border border-border-light bg-bg-primary cursor-pointer flex items-center justify-center transition-all duration-300 text-text-secondary hover:bg-accent-warm hover:text-white hover:border-accent-warm flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            {downloading === item.id ? (
+                              <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                                <path
+                                  d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2M8 2v9m0 0L5 8m3 3l3-3"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                        )}
                       </div>
                       <div className="text-xs text-text-muted flex gap-3">
                         <span>{item.category || "—"}</span>
