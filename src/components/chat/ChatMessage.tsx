@@ -1,19 +1,24 @@
-import { Message, Proposal } from "@/lib/types";
+import DOMPurify from "dompurify";
+import { Message } from "@/lib/types";
 
 // 後方互換のためエイリアスをエクスポート
 export type MessageType = Message;
 
-// 許可するHTMLタグのみ残し、それ以外を除去するサニタイズ関数
+// DOMPurifyで安全にHTMLサニタイズ（許可タグ: br, strong, em のみ）
+// SSR時はフォールバックとして正規表現ベースのサニタイズを使用
 function sanitizeHTML(html: string): string {
-  // まず全てのHTMLタグを除去
-  const stripped = html.replace(/<[^>]*>/g, (match) => {
-    // 許可するタグ: <br>, <br/>, <strong>, </strong>, <em>, </em>
+  if (typeof window !== "undefined") {
+    return DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: ["br", "strong", "em"],
+      ALLOWED_ATTR: [],
+    });
+  }
+  // SSRフォールバック: 許可タグ以外をエスケープ
+  return html.replace(/<[^>]*>/g, (match) => {
     if (/^<br\s*\/?>$/i.test(match)) return match;
     if (/^<\/?(strong|em)>$/i.test(match)) return match;
-    // それ以外のタグはエスケープ
     return match.replace(/</g, "&lt;").replace(/>/g, "&gt;");
   });
-  return stripped;
 }
 
 // Proposal型はprops内のMessageType経由で利用
