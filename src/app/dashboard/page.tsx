@@ -173,7 +173,7 @@ export default function DashboardPage() {
                 {sessions.map((item, idx) => (
                   <Link
                     key={item.id}
-                    href="/chat"
+                    href={`/chat?session=${item.id}`}
                     className="group bg-bg-secondary rounded-[20px] border border-border-light overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_4px_24px_rgba(26,23,20,.10)] no-underline text-text-primary"
                   >
                     {/* サムネイル */}
