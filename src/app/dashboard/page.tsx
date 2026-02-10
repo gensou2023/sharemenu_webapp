@@ -1,9 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/landing/Header";
 import AdPlaceholder from "@/components/AdPlaceholder";
+import PlanLimitModal from "@/components/PlanLimitModal";
 import Link from "next/link";
+
+const FREE_SESSION_LIMIT = 3;
 
 type SessionData = {
   id: string;
@@ -74,6 +78,8 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchData() {
@@ -129,15 +135,21 @@ export default function DashboardPage() {
                 生成履歴と統計
               </p>
             </div>
-            <Link
-              href="/chat"
-              className="inline-flex items-center gap-2 px-7 py-3.5 bg-bg-dark text-text-inverse rounded-[28px] text-sm font-semibold shadow-[0_4px_24px_rgba(26,23,20,.10)] hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(26,23,20,.14)] transition-all duration-300 no-underline"
+            <button
+              onClick={() => {
+                if (sessions.length >= FREE_SESSION_LIMIT) {
+                  setShowLimitModal(true);
+                } else {
+                  router.push("/chat");
+                }
+              }}
+              className="inline-flex items-center gap-2 px-7 py-3.5 bg-bg-dark text-text-inverse rounded-[28px] text-sm font-semibold shadow-[0_4px_24px_rgba(26,23,20,.10)] hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(26,23,20,.14)] transition-all duration-300 cursor-pointer border-none"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
               新しいメニューを作成
-            </Link>
+            </button>
           </div>
 
           {/* 統計カード */}
@@ -284,6 +296,13 @@ export default function DashboardPage() {
           </section>
         </div>
       </main>
+
+      {/* プラン制限モーダル */}
+      <PlanLimitModal
+        isOpen={showLimitModal}
+        onClose={() => setShowLimitModal(false)}
+        sessionCount={sessions.length}
+      />
     </>
   );
 }
