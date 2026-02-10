@@ -256,7 +256,7 @@ export function useChatSession(
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages }),
+        body: JSON.stringify({ messages: apiMessages, sessionId }),
       });
 
       const data = await res.json();
@@ -320,7 +320,7 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
       const res = await fetch("/api/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, aspectRatio }),
+        body: JSON.stringify({ prompt, aspectRatio, sessionId }),
       });
 
       const data = await res.json();

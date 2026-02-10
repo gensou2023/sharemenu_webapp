@@ -61,8 +61,8 @@ insert into public.prompt_templates (name, content, version, is_active)
 values (
   'image_gen',
   'A professional food photography for a restaurant menu.
-Restaurant: {{shopName}}
-Design style: {{designDirection}}
+Restaurant: {shopName}
+Design style: {designDirection}
 Mood: appetizing, warm lighting, high-quality food photo
 IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or captions in the image. Generate ONLY the food photograph with no text overlay whatsoever.',
   1,
