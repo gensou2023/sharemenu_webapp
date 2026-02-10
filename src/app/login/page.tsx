@@ -65,8 +65,8 @@ export default function LoginPage() {
           <div className="mb-6 p-3 rounded-[8px] bg-[rgba(123,138,100,.1)] border border-[rgba(123,138,100,.2)]">
             <div className="text-xs font-semibold text-accent-olive mb-1">デモアカウント</div>
             <div className="text-xs text-text-secondary">
-              Email: <code className="bg-[#EDE8E0] px-1 rounded">demo@menucraft.jp</code><br/>
-              Pass: <code className="bg-[#EDE8E0] px-1 rounded">demo1234</code>
+              Email: <code className="bg-bg-tag px-1 rounded">demo@menucraft.jp</code><br/>
+              Pass: <code className="bg-bg-tag px-1 rounded">demo1234</code>
             </div>
           </div>
 
@@ -126,26 +126,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* 区切り線 */}
-          <div className="flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-border-light" />
-            <span className="text-xs text-text-muted">または</span>
-            <div className="flex-1 h-px bg-border-light" />
-          </div>
-
-          {/* Googleログイン（未実装） */}
-          <button
-            disabled
-            className="w-full py-3 rounded-[28px] border border-border-medium bg-transparent text-text-muted text-sm font-medium flex items-center justify-center gap-2 cursor-not-allowed opacity-50"
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84a4.14 4.14 0 01-1.8 2.71v2.26h2.92A8.78 8.78 0 0017.64 9.2z" fill="#4285F4"/>
-              <path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.83.86-3.04.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33A8.99 8.99 0 009 18z" fill="#34A853"/>
-              <path d="M3.96 10.71A5.41 5.41 0 013.68 9c0-.59.1-1.17.28-1.71V4.96H.96A8.99 8.99 0 000 9c0 1.45.35 2.82.96 4.04l3-2.33z" fill="#FBBC05"/>
-              <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A8.99 8.99 0 00.96 4.96l3 2.33C4.67 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/>
-            </svg>
-            Googleでログイン（準備中）
-          </button>
+          {/* OAuth連携（Google等）はPhase 3で実装予定 */}
         </div>
 
         {/* サインアップリンク */}

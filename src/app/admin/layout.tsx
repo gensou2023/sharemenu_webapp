@@ -16,7 +16,7 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-bg-primary">
       {/* 管理画面ヘッダー */}
-      <header className="fixed top-0 left-0 right-0 h-[52px] bg-[#1A1714] text-white flex items-center px-6 z-50">
+      <header className="fixed top-0 left-0 right-0 h-[52px] bg-bg-dark text-white flex items-center px-6 z-50">
         <Link href="/admin" className="font-semibold text-sm no-underline text-white flex items-center gap-2">
           <span className="text-accent-warm">MenuCraft</span>
           <span className="text-xs px-2 py-0.5 rounded bg-accent-warm text-white font-bold">ADMIN</span>

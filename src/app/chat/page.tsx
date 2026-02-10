@@ -439,7 +439,7 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
             {/* タイピングインジケーター */}
             {isTyping && (
               <div className="flex gap-3 max-w-[720px] self-start animate-[msgIn_0.4s_ease-out]">
-                <div className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-base bg-gradient-to-br from-[#FFF0D6] to-[#FDDCAB] border border-[#EDD5B3]">
+                <div className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-base bg-gradient-to-br from-avatar-ai-from to-avatar-ai-to border border-avatar-ai-border">
                   🍽
                 </div>
                 <div className="px-5 py-4 rounded-[20px] rounded-tl-[4px] bg-bg-secondary border border-border-light">

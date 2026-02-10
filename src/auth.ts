@@ -91,15 +91,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = (user as { role?: string }).role || "user";
+        token.id = user.id!;
+        token.role = user.role || "user";
       }
       return token;
     },
     session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        (session.user as { role?: string }).role = token.role as string;
+        session.user.id = token.id;
+        session.user.role = token.role;
       }
       return session;
     },
@@ -115,8 +115,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!isLoggedIn) {
           return Response.redirect(new URL("/login", nextUrl));
         }
-        const role = (auth?.user as { role?: string })?.role;
-        if (role !== "admin") {
+        if (auth?.user?.role !== "admin") {
           return Response.redirect(new URL("/dashboard", nextUrl));
         }
         return true;

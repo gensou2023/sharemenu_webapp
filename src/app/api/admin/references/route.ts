@@ -6,7 +6,7 @@ import sharp from "sharp";
 // 参考画像一覧取得
 export async function GET() {
   const session = await auth();
-  const role = (session?.user as { role?: string })?.role;
+  const role = session?.user?.role;
   if (role !== "admin") {
     return NextResponse.json({ error: "権限がありません" }, { status: 403 });
   }
@@ -35,7 +35,7 @@ export async function GET() {
 // 参考画像アップロード
 export async function POST(req: NextRequest) {
   const session = await auth();
-  const role = (session?.user as { role?: string })?.role;
+  const role = session?.user?.role;
   if (role !== "admin") {
     return NextResponse.json({ error: "権限がありません" }, { status: 403 });
   }
