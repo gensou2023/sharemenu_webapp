@@ -48,6 +48,7 @@ export interface UseChatSessionReturn {
   handleApproveProposal: () => void;
   handleReviseProposal: () => void;
   handleRegenerate: (aspectRatio: string) => void;
+  handleRetry: (retryPayload: string) => void;
 }
 
 export function useChatSession(
@@ -246,7 +247,22 @@ export function useChatSession(
 
   // --- API呼び出し ---
 
-  const callGeminiAPI = async (allMessages: MessageType[]) => {
+  interface ApiResult {
+    reply: string;
+    proposal?: MessageType["proposal"];
+    isError?: boolean;
+    retryAfterMs?: number;
+  }
+
+  const callGeminiAPI = async (allMessages: MessageType[]): Promise<ApiResult> => {
+    // オフラインチェック
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      return {
+        reply: "⚠️ インターネットに接続されていません。接続を確認してからもう一度お試しください。",
+        isError: true,
+      };
+    }
+
     try {
       const apiMessages = allMessages.map((m) => ({
         role: m.role,
@@ -258,6 +274,33 @@ export function useChatSession(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: apiMessages, sessionId }),
       });
+
+      // HTTPステータスコード別のエラーハンドリング
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ error: "" }));
+
+        if (res.status === 429) {
+          const retryAfter = res.headers.get("Retry-After");
+          const retryMs = retryAfter ? parseInt(retryAfter) * 1000 : 60000;
+          return {
+            reply: `⚠️ リクエストが多すぎます。${Math.ceil(retryMs / 1000)}秒後に再度お試しください。`,
+            isError: true,
+            retryAfterMs: retryMs,
+          };
+        }
+
+        if (res.status === 401) {
+          return {
+            reply: "⚠️ ログインセッションが切れました。ページを再読み込みして再度ログインしてください。",
+            isError: true,
+          };
+        }
+
+        return {
+          reply: `⚠️ ${data.error || "サーバーエラーが発生しました。しばらくしてからもう一度お試しください。"}`,
+          isError: true,
+        };
+      }
 
       const data = await res.json();
       let reply =
@@ -290,10 +333,19 @@ export function useChatSession(
 
       reply = reply.replace(/\n/g, "<br>");
       return { reply, proposal };
-    } catch {
+    } catch (err) {
+      // ネットワークエラー（fetch自体が失敗した場合）
+      const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
+      if (isOffline) {
+        return {
+          reply: "⚠️ インターネットに接続されていません。接続を確認してからもう一度お試しください。",
+          isError: true,
+        };
+      }
+      console.error("Chat API error:", err);
       return {
-        reply: "通信エラーが発生しました。もう一度お試しください。",
-        proposal: undefined,
+        reply: "⚠️ 通信エラーが発生しました。もう一度お試しください。",
+        isError: true,
       };
     }
   };
@@ -310,6 +362,21 @@ export function useChatSession(
     setGeneratedImage(undefined);
     setCurrentStep(5);
 
+    // オフラインチェック
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      const offlineMsg: MessageType = {
+        id: genId("ai-err"),
+        role: "ai",
+        content: "⚠️ インターネットに接続されていません。接続を確認してから再生成してください。",
+        time: getTimeStr(),
+        isError: true,
+      };
+      setMessages((prev) => [...prev, offlineMsg]);
+      setGeneratedImage(null);
+      setIsGeneratingImage(false);
+      return;
+    }
+
     try {
       const prompt = `A professional food photography for a restaurant menu.
 Restaurant: ${proposal.shopName}
@@ -323,14 +390,32 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
         body: JSON.stringify({ prompt, aspectRatio, sessionId }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({ error: "" }));
 
       if (!res.ok || data.error) {
+        // ステータスコード別のエラーメッセージ
+        let errorContent: string;
+        let retryAfterMs: number | undefined;
+
+        if (res.status === 429) {
+          const retryAfter = res.headers.get("Retry-After");
+          retryAfterMs = retryAfter ? parseInt(retryAfter) * 1000 : 60000;
+          errorContent = `⚠️ 画像生成のリクエストが多すぎます。${Math.ceil(retryAfterMs / 1000)}秒後に再度お試しください。`;
+        } else if (res.status === 401) {
+          errorContent = "⚠️ ログインセッションが切れました。ページを再読み込みしてください。";
+        } else if (res.status === 503) {
+          errorContent = "⚠️ 画像生成サービスが一時的に利用できません。しばらくしてから「再生成」ボタンをお試しください。";
+        } else {
+          errorContent = `⚠️ ${data.error || "画像の生成に失敗しました。プレビューパネルの「再生成」ボタンからもう一度お試しください。"}`;
+        }
+
         const errorMsg: MessageType = {
           id: genId("ai-err"),
           role: "ai",
-          content: `⚠️ ${data.error || "画像の生成に失敗しました。もう一度お試しください。"}`,
+          content: errorContent,
           time: getTimeStr(),
+          isError: true,
+          retryAfterMs,
         };
         setMessages((prev) => [...prev, errorMsg]);
         setGeneratedImage(null);
@@ -364,14 +449,18 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
           }).catch(() => {});
         }
       }
-    } catch {
+    } catch (err) {
+      const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
       const errorMsg: MessageType = {
         id: genId("ai-err"),
         role: "ai",
-        content:
-          "⚠️ 画像生成中に通信エラーが発生しました。もう一度お試しください。",
+        content: isOffline
+          ? "⚠️ インターネットに接続されていません。接続を確認してから再生成してください。"
+          : "⚠️ 画像生成中に通信エラーが発生しました。プレビューパネルの「再生成」ボタンからもう一度お試しください。",
         time: getTimeStr(),
+        isError: true,
       };
+      console.error("Image generation error:", err);
       setMessages((prev) => [...prev, errorMsg]);
       setGeneratedImage(null);
     } finally {
@@ -404,7 +493,7 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
     setMessages(updatedMessages);
     setIsTyping(true);
 
-    const { reply, proposal } = await callGeminiAPI(updatedMessages);
+    const { reply, proposal, isError, retryAfterMs } = await callGeminiAPI(updatedMessages);
 
     if (proposal) {
       setCurrentProposal(proposal);
@@ -417,65 +506,75 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
       content: reply,
       time: getTimeStr(),
       proposal,
+      // エラー時はリトライ情報を付与
+      isError,
+      retryPayload: isError ? text : undefined,
+      retryAfterMs,
     };
 
     const msgsWithAi = [...updatedMessages, aiMsg];
     setMessages(msgsWithAi);
 
-    saveMessages(sid, msgsWithAi, proposal?.shopName);
+    // エラーでない場合のみDB保存
+    if (!isError) {
+      saveMessages(sid, msgsWithAi, proposal?.shopName);
 
-    // セッションタイトルを店名で更新
-    if (proposal?.shopName && sid) {
-      fetch(`/api/sessions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: proposal.shopName }),
-      }).catch(() => {});
-    }
-
-    // ステップ自動進行
-    if (!proposal) {
-      const plain = reply.replace(/<[^>]*>/g, "");
-      if (currentStep === 1 && /デザイン|方向性|テイスト|雰囲気/.test(plain)) {
-        setCurrentStep(2);
-      } else if (
-        currentStep === 2 &&
-        /メニュー|料理|価格|写真/.test(plain)
-      ) {
-        setCurrentStep(3);
-      }
-    }
-
-    // 構成案の予告だけで終わった場合、自動フォローアップ
-    if (!proposal && isProposalPreview(reply)) {
-      const followUp: MessageType[] = [...updatedMessages, aiMsg];
-      const followUpUser: MessageType = {
-        id: genId("auto"),
-        role: "user",
-        content: "はい、お願いします！構成案をJSON形式で見せてください。",
-        time: getTimeStr(),
-      };
-      const allMsgs = [...followUp, followUpUser];
-      const { reply: reply2, proposal: proposal2 } =
-        await callGeminiAPI(allMsgs);
-
-      if (proposal2) {
-        setCurrentProposal(proposal2);
-        setCurrentStep(4);
+      // セッションタイトルを店名で更新
+      if (proposal?.shopName && sid) {
+        fetch(`/api/sessions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: proposal.shopName }),
+        }).catch(() => {});
       }
 
-      const aiMsg2: MessageType = {
-        id: genId("ai"),
-        role: "ai",
-        content: reply2,
-        time: getTimeStr(),
-        proposal: proposal2,
-      };
-      setMessages((prev) => {
-        const updated = [...prev, aiMsg2];
-        saveMessages(sid, updated, proposal2?.shopName);
-        return updated;
-      });
+      // ステップ自動進行
+      if (!proposal) {
+        const plain = reply.replace(/<[^>]*>/g, "");
+        if (currentStep === 1 && /デザイン|方向性|テイスト|雰囲気/.test(plain)) {
+          setCurrentStep(2);
+        } else if (
+          currentStep === 2 &&
+          /メニュー|料理|価格|写真/.test(plain)
+        ) {
+          setCurrentStep(3);
+        }
+      }
+
+      // 構成案の予告だけで終わった場合、自動フォローアップ
+      if (!proposal && isProposalPreview(reply)) {
+        const followUp: MessageType[] = [...updatedMessages, aiMsg];
+        const followUpUser: MessageType = {
+          id: genId("auto"),
+          role: "user",
+          content: "はい、お願いします！構成案をJSON形式で見せてください。",
+          time: getTimeStr(),
+        };
+        const allMsgs = [...followUp, followUpUser];
+        const { reply: reply2, proposal: proposal2, isError: isError2 } =
+          await callGeminiAPI(allMsgs);
+
+        if (proposal2) {
+          setCurrentProposal(proposal2);
+          setCurrentStep(4);
+        }
+
+        const aiMsg2: MessageType = {
+          id: genId("ai"),
+          role: "ai",
+          content: reply2,
+          time: getTimeStr(),
+          proposal: proposal2,
+          isError: isError2,
+        };
+        setMessages((prev) => {
+          const updated = [...prev, aiMsg2];
+          if (!isError2) {
+            saveMessages(sid, updated, proposal2?.shopName);
+          }
+          return updated;
+        });
+      }
     }
 
     setIsTyping(false);
@@ -519,6 +618,20 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
     }
   };
 
+  const handleRetry = (retryPayload: string) => {
+    if (isTyping || isGeneratingImage) return;
+    // エラーメッセージを削除してから再送
+    setMessages((prev) => {
+      const filtered = prev.filter((m) => {
+        // 直近のエラーメッセージとそのトリガーとなったユーザーメッセージを除去
+        if (m.isError && m.retryPayload === retryPayload) return false;
+        return true;
+      });
+      return filtered;
+    });
+    handleSend(retryPayload);
+  };
+
   return {
     // 状態
     messages,
@@ -537,5 +650,6 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
     handleApproveProposal,
     handleReviseProposal,
     handleRegenerate,
+    handleRetry,
   };
 }

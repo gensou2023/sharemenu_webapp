@@ -8,6 +8,7 @@ import ChatInput from "@/components/chat/ChatInput";
 import PreviewPanel from "@/components/chat/PreviewPanel";
 import Link from "next/link";
 import { useChatSession } from "@/hooks/useChatSession";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
 // useSearchParamsを使うコンポーネントをSuspenseでラップ
 export default function ChatPage() {
@@ -43,7 +44,10 @@ function ChatPageInner() {
     handleApproveProposal,
     handleReviseProposal,
     handleRegenerate,
+    handleRetry,
   } = useChatSession({ restoreSessionId });
+
+  const isOnline = useOnlineStatus();
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -114,6 +118,17 @@ function ChatPageInner() {
             </div>
           </div>
 
+          {/* オフラインバナー */}
+          {!isOnline && (
+            <div className="px-4 md:px-7 py-2 bg-amber-50 border-b border-amber-200 flex items-center gap-2 flex-shrink-0">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-amber-600 flex-shrink-0">
+                <path d="M8 1L1 14h14L8 1z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                <path d="M8 6v3M8 11.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+              <span className="text-xs text-amber-800">オフラインです。インターネット接続を確認してください。</span>
+            </div>
+          )}
+
           {/* メッセージ一覧 */}
           <div className="flex-1 overflow-y-auto px-4 md:px-7 py-5 md:py-7 flex flex-col gap-4 md:gap-5">
             {isRestoring ? (
@@ -131,6 +146,7 @@ function ChatPageInner() {
                 onQuickReply={handleQuickReply}
                 onApproveProposal={handleApproveProposal}
                 onReviseProposal={handleReviseProposal}
+                onRetry={handleRetry}
                 disabled={isTyping || isGeneratingImage}
               />
             ))}
@@ -155,7 +171,7 @@ function ChatPageInner() {
           </div>
 
           {/* 入力エリア */}
-          <ChatInput onSend={handleSend} disabled={isTyping || isGeneratingImage || isRestoring} />
+          <ChatInput onSend={handleSend} disabled={isTyping || isGeneratingImage || isRestoring || !isOnline} />
         </div>
 
         {/* プレビューパネル */}

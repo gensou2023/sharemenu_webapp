@@ -44,15 +44,18 @@ export default function ChatMessage({
   onQuickReply,
   onApproveProposal,
   onReviseProposal,
+  onRetry,
   disabled = false,
 }: {
   msg: MessageType;
   onQuickReply?: (reply: string) => void;
   onApproveProposal?: () => void;
   onReviseProposal?: () => void;
+  onRetry?: (retryPayload: string) => void;
   disabled?: boolean;
 }) {
   const isAI = msg.role === "ai";
+  const isError = msg.isError;
 
   return (
     <div
@@ -65,12 +68,35 @@ export default function ChatMessage({
         {/* バブル */}
         <div
           className={`px-5 py-4 rounded-[20px] text-sm leading-relaxed ${
-            isAI
+            isError
+              ? "bg-red-50 border border-red-200 rounded-tl-[4px] text-red-800"
+              : isAI
               ? "bg-bg-secondary border border-border-light rounded-tl-[4px]"
               : "bg-bg-dark-warm text-text-inverse rounded-tr-[4px]"
           }`}
           dangerouslySetInnerHTML={{ __html: isAI ? sanitizeHTML(msg.content) : msg.content.replace(/</g, "&lt;").replace(/>/g, "&gt;") }}
         />
+
+        {/* リトライボタン（エラー時のみ） */}
+        {isError && msg.retryPayload && onRetry && (
+          <div className="flex items-center gap-2 mt-2">
+            <button
+              onClick={() => onRetry(msg.retryPayload!)}
+              disabled={disabled}
+              className="px-4 py-2 rounded-[28px] text-[12px] font-semibold bg-accent-warm text-white border-none cursor-pointer flex items-center gap-1.5 transition-all duration-300 hover:bg-accent-warm-hover disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M2 8a6 6 0 0110.89-3.48M14 8a6 6 0 01-10.89 3.48M2 4.5V2m0 2.5H4.5M14 11.5V14m0-2.5H11.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              もう一度送信
+            </button>
+            {msg.retryAfterMs && (
+              <span className="text-[11px] text-red-500">
+                {Math.ceil(msg.retryAfterMs / 1000)}秒後に再試行できます
+              </span>
+            )}
+          </div>
+        )}
 
         {/* 画像アップロード */}
         {msg.image && (

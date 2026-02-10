@@ -31,6 +31,10 @@ export interface Message {
   image?: MessageImage;
   quickReplies?: string[];
   proposal?: Proposal;
+  // エラーハンドリング用
+  isError?: boolean;
+  retryPayload?: string; // リトライ時に再送する元テキスト
+  retryAfterMs?: number; // 429時の待機時間(ms)
 }
 
 // --- セッション ---
