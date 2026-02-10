@@ -9,16 +9,21 @@ MenuCraft AI は、飲食店オーナー向けのAIメニュー画像生成サ�
 
 ### 主な機能
 - **チャットでヒアリング** - 店名・業態・メニュー・価格をAIが5ステップで自然にヒアリング
+- **デザイン方向性の選択** - ナチュラル・和モダン・ポップなど6つの方向性からワンタップ選択
 - **5サイズ画像生成** - Instagram フィード / ストーリー / X投稿 / ポートレート / スタンダード
-- **即ダウンロード** - 生成された画像をワンクリックでダウンロード
+- **即ダウンロード** - 生成された画像をワンクリック・一括ダウンロード
+- **セッション管理** - 過去のセッション復元・削除・履歴閲覧
 - **管理画面** - プロンプト管理・セッション閲覧・参考画像・APIログ
-- **ダッシュボード** - 過去のセッション履歴・統計表示
+- **ダッシュボード** - セッション履歴・統計・画像一括DL
+- **アカウント設定** - プロフィール編集・プラン情報・セキュリティ
+- **無料プラン制限** - 月3セッション制限（古いセッション削除で続行可能）
+- **モバイル対応** - ハンバーガーメニュー・レスポンシブUI
 
 ### 料金プラン（デモ段階）
 | プラン | 料金 | 内容 |
 |--------|------|------|
-| Free | 無料 | 1:1のみ、1日3回まで |
-| Pro | ¥700/月 | 全サイズ、生成無制限 |
+| Free | 無料 | 月3セッション、基本テンプレート、広告あり |
+| Pro | ¥700/月 | 無制限セッション、全テンプレート、広告なし |
 
 ---
 
@@ -26,7 +31,7 @@ MenuCraft AI は、飲食店オーナー向けのAIメニュー画像生成サ�
 
 | 技術 | バージョン | 用途 |
 |------|-----------|------|
-| [Next.js](https://nextjs.org) | 15.5.x | フレームワーク（App Router） |
+| [Next.js](https://nextjs.org) | 15.x | フレームワーク（App Router） |
 | [React](https://react.dev) | 19.x | UIライブラリ |
 | [TypeScript](https://www.typescriptlang.org) | 5.x | 型安全 |
 | [Tailwind CSS](https://tailwindcss.com) | 4.x | スタイリング（@theme inline） |
@@ -34,6 +39,7 @@ MenuCraft AI は、飲食店オーナー向けのAIメニュー画像生成サ�
 | [Google Gemini](https://ai.google.dev) | 2.0 Flash | AIチャット・画像生成 |
 | [Supabase](https://supabase.com) | - | DB（PostgreSQL）・Storage・認証連携 |
 | [sharp](https://sharp.pixelplumbing.com) | 0.34.x | 画像リサイズ・圧縮 |
+| [DOMPurify](https://github.com/cure53/DOMPurify) | 3.x | HTMLサニタイズ |
 
 ### フォント
 - **Playfair Display** - 見出し・ブランドロゴ
@@ -93,9 +99,10 @@ menucraft-web/
 │   │   ├── layout.tsx               # ルートレイアウト（フォント・メタ）
 │   │   ├── page.tsx                 # ランディングページ
 │   │   ├── chat/page.tsx            # AIチャット + 画像生成
-│   │   ├── dashboard/page.tsx       # ダッシュボード
+│   │   ├── dashboard/page.tsx       # ダッシュボード（履歴・統計・削除）
+│   │   ├── settings/page.tsx        # アカウント設定
 │   │   ├── login/page.tsx           # ログイン
-│   │   ├── signup/page.tsx          # サインアップ（デモ無効化）
+│   │   ├── signup/page.tsx          # ユーザー登録
 │   │   ├── admin/                   # 管理画面
 │   │   │   ├── page.tsx             # 管理ダッシュボード
 │   │   │   ├── sessions/page.tsx    # セッション管理
@@ -103,17 +110,34 @@ menucraft-web/
 │   │   │   ├── references/page.tsx  # 参考画像管理
 │   │   │   └── api-logs/page.tsx    # APIログ閲覧
 │   │   └── api/
+│   │       ├── auth/                # NextAuth 認証
+│   │       ├── account/route.ts     # アカウント情報 (GET/PATCH)
 │   │       ├── chat/route.ts        # Gemini チャットAPI
-│   │       ├── generate-image/route.ts # Gemini 画像生成API
-│   │       ├── upload-image/route.ts   # 画像アップロード
-│   │       ├── sessions/             # セッションCRUD
-│   │       ├── dashboard/route.ts     # ダッシュボードデータ
-│   │       ├── images/route.ts        # 画像保存
-│   │       └── admin/                 # 管理API群
+│   │       ├── generate-image/      # Gemini 画像生成API
+│   │       ├── upload-image/        # 画像アップロード
+│   │       ├── sessions/            # セッションCRUD + DELETE
+│   │       ├── dashboard/route.ts   # ダッシュボードデータ
+│   │       ├── images/route.ts      # 画像保存
+│   │       └── admin/               # 管理API群
 │   ├── components/
 │   │   ├── landing/                 # LP コンポーネント
+│   │   │   ├── Header.tsx           # ヘッダー（ハンバーガーメニュー対応）
+│   │   │   ├── HeroSection.tsx      # ヒーローセクション
+│   │   │   ├── HowItWorksSection.tsx # 使い方3ステップ
+│   │   │   ├── CasesSection.tsx     # 導入事例
+│   │   │   ├── UseCasesSection.tsx   # 活用シーン
+│   │   │   ├── PricingSection.tsx   # 料金プラン
+│   │   │   └── FooterSection.tsx    # フッター
 │   │   ├── chat/                    # チャットUI
-│   │   └── dashboard/               # ダッシュボードUI
+│   │   │   ├── ChatInput.tsx        # 入力欄（Enter送信）
+│   │   │   ├── ChatMessage.tsx      # メッセージ（quickReply対応）
+│   │   │   └── PreviewPanel.tsx     # プレビューパネル
+│   │   ├── AdPlaceholder.tsx        # 広告プレースホルダー
+│   │   ├── PlanLimitModal.tsx       # プラン制限モーダル
+│   │   └── DeleteConfirmModal.tsx   # 削除確認モーダル
+│   ├── hooks/
+│   │   ├── useChatSession.ts        # チャットロジック（カスタムフック）
+│   │   └── useOnlineStatus.ts       # オフライン検知
 │   ├── lib/
 │   │   ├── supabase.ts              # Supabase クライアント
 │   │   └── database.types.ts        # DB型定義
@@ -170,12 +194,56 @@ menucraft-web/
 
 ---
 
+## API Endpoints（16個）
+
+| エンドポイント | メソッド | 機能 |
+|---------------|---------|------|
+| `/api/auth/[...nextauth]` | ALL | 認証 |
+| `/api/signup` | POST | ユーザー登録 |
+| `/api/account` | GET/PATCH | アカウント情報 |
+| `/api/chat` | POST | AIチャット |
+| `/api/generate-image` | POST | 画像生成 |
+| `/api/upload-image` | POST | 画像アップロード |
+| `/api/sessions` | GET/POST | セッション一覧・作成 |
+| `/api/sessions/[id]` | PATCH/DELETE | セッション更新・削除 |
+| `/api/sessions/[id]/messages` | GET/POST | メッセージ取得・保存 |
+| `/api/dashboard` | GET | ダッシュボード統計 |
+| `/api/images` | POST | 画像Storage保存 |
+| `/api/admin/stats` | GET | 管理統計 |
+| `/api/admin/sessions` | GET | セッション一覧（管理用） |
+| `/api/admin/prompts` | GET/POST | プロンプト管理 |
+| `/api/admin/references` | GET/POST | 参考画像管理 |
+| `/api/admin/api-logs` | GET | APIログ閲覧 |
+
+---
+
 ## Demo Accounts
 
 | メール | パスワード | ロール |
 |--------|-----------|--------|
 | `demo@menucraft.jp` | `demo1234` | user |
 | `admin@menucraft.jp` | `admin1234` | admin |
+
+---
+
+## Pages（14ページ）
+
+| パス | ページ | 認証 |
+|------|-------|------|
+| `/` | ランディングページ | 不要 |
+| `/login` | ログイン | 不要 |
+| `/signup` | ユーザー登録 | 不要 |
+| `/forgot-password` | パスワードリセット | 不要 |
+| `/chat` | AIチャット + 画像生成 | 必要 |
+| `/dashboard` | ダッシュボード | 必要 |
+| `/settings` | アカウント設定 | 必要 |
+| `/admin` | 管理ダッシュボード | admin |
+| `/admin/sessions` | セッション管理 | admin |
+| `/admin/prompts` | プロンプト管理 | admin |
+| `/admin/references` | 参考画像管理 | admin |
+| `/admin/api-logs` | APIログ | admin |
+| `/terms` | 利用規約 | 不要 |
+| `/privacy` | プライバシーポリシー | 不要 |
 
 ---
 
@@ -190,24 +258,18 @@ menucraft-web/
 
 ---
 
-## MVP Roadmap
+## Development Status
 
-### 実装済み
-- [x] ランディングページ（ホーム画面）
-- [x] ダッシュボード画面
-- [x] チャット + プレビュー画面（5ステップヒアリング）
-- [x] 認証機能（ログイン / デモアカウント）
-- [x] Google Gemini API 統合（チャット + 画像生成）
-- [x] Supabase DB統合（7テーブル + Storage）
-- [x] 管理画面（統計・セッション・プロンプト・参考画像・APIログ）
-- [x] 画像アップロード（sharpリサイズ・圧縮）
+### GitHub Issues: 全30件クローズ済み ✅
 
-### MVP残タスク（優先順）
-- [ ] セッション履歴の復元（過去セッションの再開）
-- [ ] API使用ログの記録実装
-- [ ] プロンプトテンプレートのDB読み込み
-- [ ] エラーハンドリング強化
-- [ ] レート制限の実装
+| カテゴリ | Issue番号 | 状態 |
+|---------|----------|------|
+| MVP機能 | #1〜#8 | ✅ 完了 |
+| リファクタリング | #9〜#16 | ✅ 完了 |
+| 管理・連携 | #20〜#21 | ✅ 完了 |
+| バグ修正・UX改善 | #22〜#24 | ✅ 完了 |
+| 新機能追加 | #25〜#29 | ✅ 完了 |
+| デザイン改善 | #30 | ✅ 完了 |
 
 ---
 

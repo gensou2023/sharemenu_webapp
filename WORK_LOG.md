@@ -253,10 +253,186 @@ Supabase（PostgreSQL）によるデータベース統合、管理画面の実�
 
 ---
 
-## MVP残タスク（優先順）
+## ~~MVP残タスク~~ → 全件完了 ✅
 
-1. **セッション履歴の復元** - 過去セッションをクリックして再開できるようにする
-2. **API使用ログの記録実装** - api_usage_logsテーブルへの書き込みロジック
-3. **プロンプトテンプレートのDB読み込み** - ハードコードからDB参照に変更
-4. **エラーハンドリング強化** - リトライUI・エラー通知の改善
-5. **APIレート制限の実装** - chat/generate-image エンドポイントの保護
+1. ~~セッション履歴の復元~~ → #1 完了
+2. ~~API使用ログの記録実装~~ → #2 完了
+3. ~~プロンプトテンプレートのDB読み込み~~ → #3 完了
+4. ~~エラーハンドリング強化~~ → #4 完了
+5. ~~APIレート制限の実装~~ → #5 完了
+
+---
+
+## 2026-02-10 セッション3: リファクタリング + MVP残タスク完了（午前）
+
+### 概要
+GitHub Issues #1〜#16, #20, #21 をすべて解決。MVP残タスク（セッション復元・APIログ・プロンプトDB読込・エラーハンドリング・レート制限）に加え、コード品質改善（型安全・DOMPurify・デザイントークン統一等）を実施。
+
+### 解決した Issue 一覧
+
+| Issue | 内容 | 主な変更 |
+|-------|------|---------|
+| #1 | セッション履歴の復元 | chat/page.tsxでURL paramsからセッション読込 |
+| #2 | API使用ログの記録 | chat/generate-image APIにログ書込追加 |
+| #3 | プロンプトテンプレートのDB読み込み | ハードコード → Supabase DBから取得 |
+| #4 | エラーハンドリング強化 | リトライUI・429表示・オフライン検知 |
+| #5 | APIレート制限 | 1分5回/1日50回制限ミドルウェア |
+| #6 | セッションステータス管理 | active → completed 遷移ロジック |
+| #7 | 参考画像の画像生成連携 | 管理者参考画像をGeminiに送信 |
+| #8 | ユーザー登録フロー完成 | /signup + /api/signup 実装 |
+| #9 | useChatSessionフック抽出 | チャットロジックをカスタムフックに分離 |
+| #10 | Proposal型定義の統一 | types.tsに集約 |
+| #11 | NextAuth型拡張 | `as`キャスト解消、module augmentation |
+| #12 | DOMPurify導入 | HTML出力のサニタイズ強化 |
+| #13 | デザイントークン統一 | ハードコード色・フォントサイズを変数化 |
+| #14 | デモアカウント環境分離 | 環境変数でデモ認証情報を管理 |
+| #15 | 未実装UI非表示化 | Googleログインボタン等を削除 |
+| #16 | API使用ログ・レート制限統合設計 | ミドルウェアパターン統一 |
+| #20 | sessionIdをAPI送信に追加 | クライアント→APIのセッションID連携 |
+| #21 | prompt_templatesシードデータ | SQLのプレースホルダー修正 |
+
+---
+
+## 2026-02-10 セッション4: UX改善 + 新機能実装（午後 〜15:00）
+
+### 概要
+ユーザーフィードバックに基づき、GitHub Issues #22〜#30 を作成・実装。バグ修正、UX改善、新機能追加、モバイル対応を一気に実施。さらに追加要件としてセッション削除機能も実装。
+
+### 解決した Issue 一覧
+
+| Issue | 優先度 | 内容 | 主な変更 |
+|-------|--------|------|---------|
+| #22 | P0 | プレビュー画像表示バグ | flex-shrink-0 で aspect-ratio 圧縮を防止（3回修正） |
+| #23 | P1 | Enter送信/Shift+Enter改行 | ChatInput.tsxのキーボード操作変更 |
+| #24 | P1 | デザイン方向性ボタン | 6選択肢のquickReply表示 |
+| #25 | P2 | 広告プレースホルダー | AdPlaceholder.tsx新規作成、3ページに配置 |
+| #26 | P2 | LP使い方・活用シーン追加 | HowItWorksSection + UseCasesSection新規作成 |
+| #27 | P2 | アカウント設定ページ | /settings + /api/account 新規作成 |
+| #28 | P2 | 画像一括ダウンロード | ダッシュボードにDLボタン追加 |
+| #29 | P2 | 無料プラン3件制限通知 | PlanLimitModal新規作成 |
+| #30 | P3 | モバイルデザイン改善 | ハンバーガーメニュー、レスポンシブ調整 |
+| — | — | セッション削除機能 | DELETE API + DeleteConfirmModal + ダッシュボード削除ボタン |
+| — | — | 古いセッション削除して続行 | PlanLimitModalに削除→新規作成オプション追加 |
+| — | — | 送信後カーソルフォーカス | ChatInput.tsxにtextareaRef.focus()追加 |
+
+### #22 バグの詳細（デバッグ経緯）
+
+画像生成後にプレビューパネルに画像が表示されないバグ。3回の修正を経て解決。
+
+| 修正 | アプローチ | 結果 |
+|------|-----------|------|
+| 1回目 | absolute positioning で子要素を配置 | ❌ 高さ0になり表示されず |
+| 2回目 | inline style={{ aspectRatio }} をimg要素に直接適用 | ❌ 同じ問題が継続 |
+| 3回目 | Chrome MCP でDOM計算値を調査 → `flex-shrink` が原因と特定 | ✅ `flex-shrink-0` で解決 |
+
+**根本原因**: 親要素が `flex flex-col` + 固定高さ（464px）のため、CSS `aspect-ratio: 1/1` のコンテナが `flex-shrink` のデフォルト値（1）により圧縮され、幅379pxに対して高さが181.5pxになっていた。
+
+### 新規作成ファイル
+
+| ファイル | 用途 |
+|---------|------|
+| `src/components/AdPlaceholder.tsx` | 広告プレースホルダー（3バリアント） |
+| `src/components/PlanLimitModal.tsx` | 無料プラン制限モーダル（削除オプション付き） |
+| `src/components/DeleteConfirmModal.tsx` | セッション削除確認モーダル |
+| `src/components/landing/HowItWorksSection.tsx` | LP「使い方」3ステップ |
+| `src/components/landing/UseCasesSection.tsx` | LP「活用シーン」4ケース |
+| `src/app/settings/page.tsx` | アカウント設定ページ |
+| `src/app/api/account/route.ts` | アカウント情報API (GET/PATCH) |
+
+### 修正ファイル
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `src/components/chat/PreviewPanel.tsx` | flex-shrink-0 で画像表示バグ修正 |
+| `src/components/chat/ChatInput.tsx` | Enter送信・カーソルフォーカス・モバイルボタンサイズ |
+| `src/components/chat/ChatMessage.tsx` | quickReplyグリッド (1col→2col) |
+| `src/hooks/useChatSession.ts` | デザイン方向性quickReply生成ロジック |
+| `src/app/page.tsx` | HowItWorks + UseCases + Ad配置 |
+| `src/app/dashboard/page.tsx` | 削除ボタン・DLボタン・プラン制限 |
+| `src/app/chat/page.tsx` | インラインAd追加 |
+| `src/app/api/dashboard/route.ts` | imageUrls配列追加 |
+| `src/app/api/sessions/[id]/route.ts` | DELETE メソッド追加 |
+| `src/components/landing/Header.tsx` | ハンバーガーメニュー・設定リンク |
+| `src/auth.ts` | /settings を protectedPaths に追加 |
+
+### 数値サマリー
+
+| 項目 | 数値 |
+|------|------|
+| 解決Issue | 12件（#22〜#30 + 追加3件） |
+| 新規ファイル | 7ファイル |
+| 修正ファイル | 11ファイル |
+| コミット数 | 12コミット |
+| 全Issueステータス | 30/30 クローズ ✅ |
+
+---
+
+## プロジェクト全体の状況（2026-02-10 15:00時点）
+
+### GitHub Issues: 全30件クローズ済み ✅
+
+| カテゴリ | Issue番号 | 状態 |
+|---------|----------|------|
+| MVP機能 | #1〜#8 | ✅ 全完了 |
+| リファクタリング | #9〜#16 | ✅ 全完了 |
+| 管理・連携 | #20〜#21 | ✅ 全完了 |
+| UX改善・バグ修正 | #22〜#24 | ✅ 全完了 |
+| 新機能 | #25〜#29 | ✅ 全完了 |
+| デザイン改善 | #30 | ✅ 全完了 |
+
+### 技術スタック最終構成
+
+| レイヤー | 技術 |
+|---------|------|
+| フレームワーク | Next.js 15 (App Router) |
+| 言語 | TypeScript 5.x |
+| UI | React 19 + Tailwind CSS v4 |
+| 認証 | NextAuth.js 5 (Credentials) |
+| DB | Supabase PostgreSQL (7テーブル) |
+| ストレージ | Supabase Storage (3バケット) |
+| AI | Google Gemini 2.0 Flash (チャット + 画像生成) |
+| 画像処理 | sharp 0.34.x |
+| デプロイ | Vercel (Hobby) |
+
+### ページ構成（全14ページ）
+
+| パス | ページ | 認証 |
+|------|-------|------|
+| `/` | ランディングページ | 不要 |
+| `/login` | ログイン | 不要 |
+| `/signup` | ユーザー登録 | 不要 |
+| `/forgot-password` | パスワードリセット | 不要 |
+| `/chat` | AIチャット + 画像生成 | 必要 |
+| `/dashboard` | ダッシュボード | 必要 |
+| `/settings` | アカウント設定 | 必要 |
+| `/admin` | 管理ダッシュボード | admin |
+| `/admin/sessions` | セッション管理 | admin |
+| `/admin/prompts` | プロンプト管理 | admin |
+| `/admin/references` | 参考画像管理 | admin |
+| `/admin/api-logs` | APIログ | admin |
+| `/terms` | 利用規約 | 不要 |
+| `/privacy` | プライバシーポリシー | 不要 |
+
+### API エンドポイント（16個）
+
+| エンドポイント | メソッド | 機能 |
+|---------------|---------|------|
+| `/api/auth/[...nextauth]` | ALL | 認証 |
+| `/api/signup` | POST | ユーザー登録 |
+| `/api/account` | GET/PATCH | アカウント情報 |
+| `/api/chat` | POST | AIチャット |
+| `/api/generate-image` | POST | 画像生成 |
+| `/api/upload-image` | POST | 画像アップロード |
+| `/api/sessions` | GET/POST | セッションCRUD |
+| `/api/sessions/[id]` | PATCH/DELETE | セッション更新・削除 |
+| `/api/sessions/[id]/messages` | GET/POST | メッセージ |
+| `/api/dashboard` | GET | ダッシュボード統計 |
+| `/api/images` | POST | 画像保存 |
+| `/api/admin/stats` | GET | 管理統計 |
+| `/api/admin/sessions` | GET | セッション一覧 |
+| `/api/admin/prompts` | GET/POST | プロンプト管理 |
+| `/api/admin/references` | GET/POST | 参考画像管理 |
+| `/api/admin/api-logs` | GET | APIログ |
+
+### 残作業
+- **QA テスト**: ユーザーが本日の最後にVercel上で全機能の動作確認を予定
