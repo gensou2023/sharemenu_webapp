@@ -123,9 +123,11 @@ menucraft-web/
 │   │   ├── landing/                 # LP コンポーネント
 │   │   │   ├── Header.tsx           # ヘッダー（ハンバーガーメニュー対応）
 │   │   │   ├── HeroSection.tsx      # ヒーローセクション
+│   │   │   ├── FeaturesSection.tsx  # 特徴3カード
 │   │   │   ├── HowItWorksSection.tsx # 使い方3ステップ
 │   │   │   ├── CasesSection.tsx     # 導入事例
 │   │   │   ├── UseCasesSection.tsx   # 活用シーン
+│   │   │   ├── CTABannerSection.tsx  # CTA中間バナー
 │   │   │   ├── PricingSection.tsx   # 料金プラン
 │   │   │   └── FooterSection.tsx    # フッター
 │   │   ├── chat/                    # チャットUI
@@ -184,13 +186,28 @@ menucraft-web/
 
 ### Color Palette
 
-| 名前 | 値 | 用途 |
-|------|-----|------|
-| Cream | `#FAF7F2` | メイン背景 |
-| Dark | `#1A1714` | ヘッダー・フッター |
-| Warm Brown | `#C4713B` | CTA・アクセント |
-| Gold | `#D4A853` | ロゴ・ハイライト |
-| Olive | `#7B8A64` | バッジ・タグ |
+| トークン | 値 | 用途 |
+|---------|-----|------|
+| `bg-primary` | `#FAFAF8` | メイン背景 |
+| `bg-secondary` | `#FFFFFF` | カード・パネル背景 |
+| `bg-tertiary` | `#F5F3F0` | セクション背景 |
+| `bg-dark` | `#1A1A1A` | ヘッダー・フッター |
+| `bg-dark-warm` | `#2C2520` | ダーク系カード・バブル |
+| `accent-warm` | `#E8713A` | CTA・プライマリアクセント |
+| `accent-gold` | `#D4A853` | ロゴ・セカンダリアクセント |
+| `accent-olive` | `#7B8A64` | バッジ・ステータス |
+
+### ビジュアルパターン（Phase A〜C で確立）
+
+| パターン | 説明 |
+|---------|------|
+| 背景ブラー装飾 | accent-warm/gold/olive の円形ブラー（LP: .05-.08, Dashboard: .04-.05, Chat: .03） |
+| 英語ラベル | セクション上部に `uppercase tracking-[2px]` の英語サブタイトル |
+| 装飾ライン | `line-dot-line` パターン（LP各セクション） |
+| トップアクセントバー | カード上部の `h-[2-3px]` カラーライン |
+| ドットパターン | `radial-gradient` による背景テクスチャ |
+| ホバーエフェクト | `translateY + shadow + border-color` の3層ホバー |
+| ボタンスタイル | `rounded-full bg-accent-warm` 統一 |
 
 ---
 
@@ -270,6 +287,15 @@ menucraft-web/
 | バグ修正・UX改善 | #22〜#24 | ✅ 完了 |
 | 新機能追加 | #25〜#29 | ✅ 完了 |
 | デザイン改善 | #30 | ✅ 完了 |
+
+### デザインリフレッシュ: 全4フェーズ完了 ✅
+
+| フェーズ | 対象 | 内容 |
+|---------|------|------|
+| Phase A | LP全体 | カラーパレット刷新・レイアウト再設計・デザイントークン統一 |
+| Phase A+ | LP全セクション | 背景ブラー・装飾ライン・ホバーエフェクト・3色アクセント |
+| Phase B | ダッシュボード | 統計カードリッチ化・クイックアクション・セッションカード強化 |
+| Phase C | チャット画面 | ヘッダー・入力欄・プレビューパネル・ボタン統一（控えめ強度） |
 
 ---
 

@@ -2,7 +2,7 @@
 
 **プロジェクト名（仮）**: MenuCraft AI
 **作成日**: 2025-02-09
-**ステータス**: v1.3（2026-02-10 15:00 更新）
+**ステータス**: v1.4（2026-02-10 17:00 更新）
 
 ---
 
@@ -431,6 +431,33 @@ AIがステップバイステップで以下の情報を収集する。
 
 **デザイン改善 (Issue #30):**
 - [x] モバイル対応 — ハンバーガーメニュー・レスポンシブgrid・タッチターゲット最適化
+
+### Phase 2.5: デザインリフレッシュ — 完了済み
+
+**Phase A: LP全面リデザイン**
+- [x] カラーパレット刷新（bg-primary #FAFAF8, accent-warm #E8713A）
+- [x] Header/Hero/Footer 全面リデザイン
+- [x] FeaturesSection, CTABannerSection 新規作成
+- [x] デザイントークン13個追加・更新（globals.css）
+
+**Phase A+: LP全セクション ビジュアルリッチ化**
+- [x] 背景ブラー装飾（全8セクション）
+- [x] 装飾ライン（line-dot-line）パターン
+- [x] 3色アクセントシステム（warm/gold/olive）
+- [x] ホバーエフェクト（translateY + shadow + border-color）
+- [x] ドットパターン・フローティング絵文字
+
+**Phase B: ダッシュボード デザインリフレッシュ**
+- [x] 統計カードリッチ化（SVGアイコン・3色アクセント・トップバー）
+- [x] クイックアクションバー新設
+- [x] セッションカード・空状態のリッチ化
+- [x] fadeInUpアニメーション追加
+
+**Phase C: チャット画面 デザインリフレッシュ**
+- [x] 背景ブラー（opacity .03 — ツール画面のため最小）
+- [x] ChatInput/PreviewPanel ボタンスタイル統一
+- [x] プレビューパネル タブ・カード装飾
+- [x] ChatMessage ボタンrounded-full化・ドットパターン
 
 ### Phase 3: 本番化 — 需要検証後
 - [ ] OAuth認証（Google, LINE）
