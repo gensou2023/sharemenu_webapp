@@ -7,6 +7,7 @@ import ChatMessage from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
 import PreviewPanel from "@/components/chat/PreviewPanel";
 import Link from "next/link";
+import AdPlaceholder from "@/components/AdPlaceholder";
 import { useChatSession } from "@/hooks/useChatSession";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
@@ -168,6 +169,11 @@ function ChatPageInner() {
             )}
 
             <div ref={messagesEndRef} />
+          </div>
+
+          {/* 広告プレースホルダー */}
+          <div className="px-4 md:px-7 flex-shrink-0">
+            <AdPlaceholder variant="inline" />
           </div>
 
           {/* 入力エリア */}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Header from "@/components/landing/Header";
+import AdPlaceholder from "@/components/AdPlaceholder";
 import Link from "next/link";
 
 type SessionData = {
@@ -137,6 +138,11 @@ export default function DashboardPage() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* 広告プレースホルダー */}
+          <div className="mb-9">
+            <AdPlaceholder variant="banner" />
           </div>
 
           {/* 生成履歴 */}
