@@ -105,7 +105,8 @@ export default function ChatInput({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      if (e.shiftKey) return;
+      // IME変換中・Shift+Enterは無視
+      if (e.shiftKey || e.nativeEvent.isComposing) return;
       e.preventDefault();
       handleSubmit();
     }
