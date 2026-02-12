@@ -40,6 +40,13 @@ export default function ChatInput({
     adjustHeight();
   }, [value, adjustHeight]);
 
+  // disabled解除時（AI応答完了後）にテキストエリアへ自動フォーカス
+  useEffect(() => {
+    if (!disabled) {
+      textareaRef.current?.focus();
+    }
+  }, [disabled]);
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
