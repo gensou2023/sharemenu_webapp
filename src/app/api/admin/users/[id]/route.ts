@@ -1,18 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { NextResponse } from "next/server";
+import { withAdmin } from "@/lib/admin-auth";
 import { createAdminClient } from "@/lib/supabase";
 
 // ユーザー詳細（管理者用）
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (session?.user?.role !== "admin") {
-    return NextResponse.json({ error: "権限がありません" }, { status: 403 });
-  }
-
-  const { id: userId } = await params;
+export const GET = withAdmin(async (_req, _session, context) => {
+  const { id: userId } = await context.params;
   const supabase = createAdminClient();
 
   // ユーザー基本情報
@@ -137,19 +129,11 @@ export async function GET(
       recentImages,
     },
   });
-}
+});
 
 // アカウント停止/復元（管理者用）
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (session?.user?.role !== "admin") {
-    return NextResponse.json({ error: "権限がありません" }, { status: 403 });
-  }
-
-  const { id: userId } = await params;
+export const POST = withAdmin(async (req, session, context) => {
+  const { id: userId } = await context.params;
   const supabase = createAdminClient();
   const body = await req.json();
   const { action } = body;
@@ -234,4 +218,4 @@ export async function POST(
     { error: "不明なアクションです。" },
     { status: 400 }
   );
-}
+});
