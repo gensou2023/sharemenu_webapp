@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Header from "@/components/landing/Header";
+import CommonFooter from "@/components/CommonFooter";
 import GalleryCard from "@/components/gallery/GalleryCard";
 import type { GalleryItem } from "@/lib/types";
 
@@ -258,6 +259,8 @@ export default function GalleryPage() {
             </div>
           )}
         </div>
+
+        <CommonFooter />
       </main>
     </>
   );

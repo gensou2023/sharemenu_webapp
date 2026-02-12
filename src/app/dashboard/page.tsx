@@ -12,6 +12,7 @@ import SessionGrid from "@/components/dashboard/SessionGrid";
 import GalleryStatsSection from "@/components/dashboard/GalleryStatsSection";
 import OnboardingTour from "@/components/onboarding/OnboardingTour";
 import ShareModal from "@/components/gallery/ShareModal";
+import CommonFooter from "@/components/CommonFooter";
 import { useDashboardData, type SessionData } from "@/hooks/useDashboardData";
 import { useSessionActions } from "@/hooks/useSessionActions";
 
@@ -104,6 +105,9 @@ export default function DashboardPage() {
             onShare={setShareTarget}
           />
         </div>
+
+        {/* FAQ + フッター */}
+        <CommonFooter showFaq />
       </main>
 
       {/* プラン制限モーダル */}

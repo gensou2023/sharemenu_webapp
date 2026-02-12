@@ -5,11 +5,16 @@ import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 
 type HeaderProps = {
-  activeTab?: "home" | "dashboard" | "chat" | "gallery" | "settings";
+  activeTab?: "home" | "dashboard" | "chat" | "gallery" | "settings" | "pricing";
 };
 
-const navItems = [
+const guestNavItems = [
   { key: "home", label: "ホーム", href: "/" },
+  { key: "gallery", label: "ギャラリー", href: "/gallery" },
+  { key: "pricing", label: "料金プラン", href: "/#pricing" },
+] as const;
+
+const authNavItems = [
   { key: "dashboard", label: "ダッシュボード", href: "/dashboard" },
   { key: "chat", label: "チャット", href: "/chat" },
   { key: "gallery", label: "ギャラリー", href: "/gallery" },
@@ -20,6 +25,8 @@ export default function Header({ activeTab = "home" }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
+  const isLoggedIn = !!session?.user;
+  const navItems = isLoggedIn ? authNavItems : guestNavItems;
   const userName = session?.user?.name || "ゲスト";
   const userInitial = userName.charAt(0);
 
