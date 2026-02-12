@@ -23,6 +23,9 @@ export function useChatSession(
     MessageType["proposal"] | null
   >(null);
   const [currentStep, setCurrentStep] = useState<FlowStep>(1);
+  const [referenceImages, setReferenceImages] = useState<
+    Array<{ base64: string; mimeType: string; fileName: string }>
+  >([]);
 
   // --- セッション復元 ---
   const {
@@ -74,6 +77,7 @@ export function useChatSession(
       onMessagesAdd,
       onStepChange,
       saveImage,
+      referenceImages,
     });
 
   // --- チャットフロー ---
@@ -86,7 +90,15 @@ export function useChatSession(
 
   // --- ハンドラー ---
 
-  const handleSend = async (text: string, image?: { base64: string; mimeType: string; fileName: string }) => {
+  const handleSend = async (text: string, image?: { base64: string; mimeType: string; fileName: string; imageType?: "shop_photo" | "reference" }) => {
+    // 参考イメージの場合、referenceImagesに蓄積
+    if (image && image.imageType === "reference") {
+      setReferenceImages((prev) => [
+        ...prev,
+        { base64: image.base64, mimeType: image.mimeType, fileName: image.fileName },
+      ]);
+    }
+
     const sid = await ensureSession();
     await sendMessage(text, messages, sid, {
       setMessages,

@@ -124,7 +124,7 @@ export function useChatFlow({
       setIsTyping: (v: boolean) => void;
       setCurrentProposal: (p: MessageType["proposal"] | null) => void;
     },
-    image?: { base64: string; mimeType: string; fileName: string }
+    image?: { base64: string; mimeType: string; fileName: string; imageType?: "shop_photo" | "reference" }
   ) => {
     const { setMessages, setIsTyping, setCurrentProposal } = callbacks;
 
@@ -151,14 +151,16 @@ export function useChatFlow({
           const publicUrl = `${supabaseUrl}/storage/v1/object/public/uploads/${uploadData.storagePath}`;
 
           const fileSizeKB = Math.round((uploadData.compressedSize || image.base64.length * 0.75) / 1024);
+          const isReference = image.imageType === "reference";
           imageData = {
-            emoji: "📷",
+            emoji: isReference ? "🎨" : "📷",
             fileName: image.fileName,
             fileSize: `${fileSizeKB}KB`,
-            bgColor: "#F5F3F0",
+            bgColor: isReference ? "#FFF8E7" : "#F5F3F0",
             storagePath: uploadData.storagePath,
             publicUrl,
             mimeType: uploadData.mimeType || image.mimeType,
+            imageType: image.imageType,
           };
           imageBase64ForApi = image.base64;
           imageMimeTypeForApi = image.mimeType;

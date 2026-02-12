@@ -2,6 +2,9 @@
 // MenuCraft AI - 共通型定義
 // ========================================
 
+// --- 画像タイプ ---
+export type ImageType = "shop_photo" | "reference";
+
 // --- Proposal（構成案）---
 export interface Proposal {
   shopName: string;
@@ -24,6 +27,7 @@ export interface MessageImage {
   storagePath?: string;
   publicUrl?: string;
   mimeType?: string;
+  imageType?: ImageType;
 }
 
 export interface Message {

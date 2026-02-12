@@ -2,10 +2,13 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 
+export type ImageType = "shop_photo" | "reference";
+
 export interface ImageAttachment {
   base64: string;
   mimeType: string;
   fileName: string;
+  imageType?: ImageType;
 }
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -22,6 +25,7 @@ export default function ChatInput({
     dataUrl: string;
     attachment: ImageAttachment;
   } | null>(null);
+  const [imageType, setImageType] = useState<ImageType>("shop_photo");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -72,6 +76,7 @@ export default function ChatInput({
 
   const clearImage = () => {
     setImagePreview(null);
+    setImageType("shop_photo");
   };
 
   const handleSubmit = () => {
@@ -79,9 +84,13 @@ export default function ChatInput({
     const trimmed = value.trim();
     if (!trimmed && !imagePreview) return;
 
-    onSend(trimmed || "(画像を送信しました)", imagePreview?.attachment);
+    const attachment = imagePreview?.attachment
+      ? { ...imagePreview.attachment, imageType }
+      : undefined;
+    onSend(trimmed || "(画像を送信しました)", attachment);
     setValue("");
     setImagePreview(null);
+    setImageType("shop_photo");
     setTimeout(() => {
       textareaRef.current?.focus();
     }, 0);
@@ -99,23 +108,50 @@ export default function ChatInput({
     <div className="px-4 md:px-7 py-3 md:py-4 border-t border-border-light bg-bg-secondary flex-shrink-0">
       {/* 画像プレビュー */}
       {imagePreview && (
-        <div className="mb-2 flex items-center gap-2">
-          <div className="relative inline-block">
-            <img
-              src={imagePreview.dataUrl}
-              alt={imagePreview.attachment.fileName}
-              className="h-16 w-16 object-cover rounded-[8px] border border-border-light"
-            />
+        <div className="mb-2">
+          <div className="flex items-center gap-2">
+            <div className="relative inline-block">
+              <img
+                src={imagePreview.dataUrl}
+                alt={imagePreview.attachment.fileName}
+                className="h-16 w-16 object-cover rounded-[8px] border border-border-light"
+              />
+              <button
+                onClick={clearImage}
+                className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-bg-dark text-white text-xs flex items-center justify-center cursor-pointer border-none hover:bg-red-500 transition-colors"
+              >
+                ×
+              </button>
+            </div>
+            <span className="text-xs text-text-muted truncate max-w-[200px]">
+              {imagePreview.attachment.fileName}
+            </span>
+          </div>
+          {/* 画像タイプ選択チップ */}
+          <div className="flex gap-2 mt-2">
             <button
-              onClick={clearImage}
-              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-bg-dark text-white text-xs flex items-center justify-center cursor-pointer border-none hover:bg-red-500 transition-colors"
+              type="button"
+              onClick={() => setImageType("shop_photo")}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 border ${
+                imageType === "shop_photo"
+                  ? "bg-accent-warm text-white border-accent-warm"
+                  : "bg-transparent text-text-secondary border-border-medium hover:border-accent-warm/40"
+              }`}
             >
-              ×
+              🏪 自分の店の写真
+            </button>
+            <button
+              type="button"
+              onClick={() => setImageType("reference")}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 border ${
+                imageType === "reference"
+                  ? "bg-accent-gold text-white border-accent-gold"
+                  : "bg-transparent text-text-secondary border-border-medium hover:border-accent-gold/40"
+              }`}
+            >
+              🎨 参考イメージ
             </button>
           </div>
-          <span className="text-xs text-text-muted truncate max-w-[200px]">
-            {imagePreview.attachment.fileName}
-          </span>
         </div>
       )}
 

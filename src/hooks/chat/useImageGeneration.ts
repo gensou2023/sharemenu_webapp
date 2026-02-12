@@ -9,6 +9,7 @@ export function useImageGeneration({
   onMessagesAdd,
   onStepChange,
   saveImage,
+  referenceImages,
 }: {
   sessionId: string | null;
   onMessagesAdd: (msg: MessageType) => void;
@@ -21,6 +22,7 @@ export function useImageGeneration({
     aspectRatio: string,
     proposalJson: unknown
   ) => Promise<void>;
+  referenceImages?: Array<{ base64: string; mimeType: string; fileName: string }>;
 }) {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<
@@ -61,10 +63,22 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
 
       const category = inferCategory(proposal);
 
+      // 最新3枚の参考画像を送信（ペイロードサイズ対策）
+      const userReferenceImages = (referenceImages || []).slice(-3).map((img) => ({
+        base64: img.base64,
+        mimeType: img.mimeType,
+      }));
+
       const res = await fetch("/api/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, aspectRatio, sessionId, category }),
+        body: JSON.stringify({
+          prompt,
+          aspectRatio,
+          sessionId,
+          category,
+          ...(userReferenceImages.length > 0 ? { userReferenceImages } : {}),
+        }),
       });
 
       const data = await res.json().catch(() => ({ error: "" }));
