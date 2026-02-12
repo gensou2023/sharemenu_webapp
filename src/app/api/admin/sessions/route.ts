@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { createAdminClient } from "@/lib/supabase";
+import { withAdmin } from "@/lib/admin-auth";
 
 // 全セッション一覧（管理者用）
-export async function GET(req: NextRequest) {
-  const session = await auth();
-  const role = session?.user?.role;
-  if (role !== "admin") {
-    return NextResponse.json({ error: "権限がありません" }, { status: 403 });
-  }
-
+export const GET = withAdmin(async (req: NextRequest) => {
   const supabase = createAdminClient();
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get("page") || "1");
@@ -49,4 +43,4 @@ export async function GET(req: NextRequest) {
     page,
     totalPages: Math.ceil((count || 0) / limit),
   });
-}
+});
