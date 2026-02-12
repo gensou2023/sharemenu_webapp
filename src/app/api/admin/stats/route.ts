@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { createAdminClient } from "@/lib/supabase";
+import { withAdmin } from "@/lib/admin-auth";
 
 // --- 型定義 ---
 
@@ -79,13 +79,7 @@ function getSparkline(dailyMap: Map<string, number>): number[] {
 
 // --- メインハンドラー ---
 
-export async function GET() {
-  const session = await auth();
-  const role = session?.user?.role;
-  if (role !== "admin") {
-    return NextResponse.json({ error: "権限がありません" }, { status: 403 });
-  }
-
+export const GET = withAdmin(async () => {
   const supabase = createAdminClient();
   const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
@@ -309,4 +303,4 @@ export async function GET() {
   };
 
   return NextResponse.json(stats);
-}
+});

@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { createAdminClient } from "@/lib/supabase";
 import { clearPromptCache } from "@/lib/prompt-loader";
+import { withAdmin } from "@/lib/admin-auth";
 
 // プロンプト一覧取得
-export async function GET() {
-  const session = await auth();
-  const role = session?.user?.role;
-  if (role !== "admin") {
-    return NextResponse.json({ error: "権限がありません" }, { status: 403 });
-  }
-
+export const GET = withAdmin(async () => {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("prompt_templates")
@@ -23,16 +17,10 @@ export async function GET() {
   }
 
   return NextResponse.json({ prompts: data });
-}
+});
 
 // プロンプト更新（新しいバージョンとして保存）
-export async function POST(req: NextRequest) {
-  const session = await auth();
-  const role = session?.user?.role;
-  if (role !== "admin") {
-    return NextResponse.json({ error: "権限がありません" }, { status: 403 });
-  }
-
+export const POST = withAdmin(async (req: NextRequest, session) => {
   const supabase = createAdminClient();
   const body = await req.json();
   const { name, content } = body;
@@ -67,7 +55,7 @@ export async function POST(req: NextRequest) {
       content,
       version: newVersion,
       is_active: true,
-      updated_by: session!.user!.id,
+      updated_by: session.user.id,
     })
     .select()
     .single();
@@ -80,4 +68,4 @@ export async function POST(req: NextRequest) {
   clearPromptCache();
 
   return NextResponse.json({ prompt: data });
-}
+});

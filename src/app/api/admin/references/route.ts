@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
 import { createAdminClient } from "@/lib/supabase";
 import sharp from "sharp";
+import { withAdmin } from "@/lib/admin-auth";
 
 // 参考画像一覧取得
-export async function GET() {
-  const session = await auth();
-  const role = session?.user?.role;
-  if (role !== "admin") {
-    return NextResponse.json({ error: "権限がありません" }, { status: 403 });
-  }
-
+export const GET = withAdmin(async () => {
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("reference_images")
@@ -30,19 +24,13 @@ export async function GET() {
   });
 
   return NextResponse.json({ images });
-}
+});
 
 // 参考画像アップロード
-export async function POST(req: NextRequest) {
-  const session = await auth();
-  const role = session?.user?.role;
-  if (role !== "admin") {
-    return NextResponse.json({ error: "権限がありません" }, { status: 403 });
-  }
-
+export const POST = withAdmin(async (req: NextRequest, session) => {
   const supabase = createAdminClient();
   const body = await req.json();
-  const { imageBase64, mimeType, label, category } = body;
+  const { imageBase64, label, category } = body;
 
   if (!imageBase64 || !label) {
     return NextResponse.json({ error: "画像とラベルは必須です" }, { status: 400 });
@@ -76,7 +64,7 @@ export async function POST(req: NextRequest) {
       storage_path: fileName,
       label,
       category: category || "general",
-      uploaded_by: session!.user!.id!,
+      uploaded_by: session.user.id,
     })
     .select()
     .single();
@@ -86,4 +74,4 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ image: data });
-}
+});
