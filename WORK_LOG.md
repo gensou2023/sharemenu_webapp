@@ -575,3 +575,127 @@ LPパターンをダッシュボードに適用（中程度の強度）。
 - SEO/OGP対応
 - カスタムドメイン設定
 - エラー監視（Sentry等）導入
+
+---
+
+## 2026-02-12 セッション: Admin ユーザー管理画面 + 退会機能
+
+### 概要
+管理者によるユーザー一覧・詳細閲覧・アカウント停止と、ユーザー自身による退会機能を実装。データはソフトデリート（`deleted_at` フラグ）方式で保持し、退会/停止済みユーザーのログインを拒否する。
+
+### ブランチ
+- `feature/admin-users-and-withdrawal` → develop にマージ済み ✅
+
+### 変更ファイル一覧（11ファイル）
+
+| # | ファイル | 区分 | 変更概要 |
+|---|---------|------|---------|
+| 1 | `supabase/003_add_deleted_at.sql` | 新規 | users テーブルに `deleted_at` カラム + 部分インデックス追加 |
+| 2 | `src/lib/types.ts` | 修正 | `AdminUserSummary`, `AdminUserDetail` 型追加 |
+| 3 | `src/auth.ts` | 修正 | ログイン時 `deleted_at` チェック追加（退会済みユーザーのログイン拒否） |
+| 4 | `src/app/api/admin/users/route.ts` | 新規 | ユーザー一覧API（検索・ページネーション 20件/ページ） |
+| 5 | `src/app/api/admin/users/[id]/route.ts` | 新規 | ユーザー詳細API (GET) + アカウント停止/復元API (POST) |
+| 6 | `src/app/api/account/route.ts` | 修正 | DELETE メソッド追加（自己退会）+ GET に `deleted_at` チェック追加 |
+| 7 | `src/app/admin/layout.tsx` | 修正 | サイドバーに「ユーザー管理」ナビ追加 |
+| 8 | `src/app/admin/users/page.tsx` | 新規 | ユーザー一覧ページ（検索バー・テーブル・ページネーション） |
+| 9 | `src/app/admin/users/[id]/page.tsx` | 新規 | ユーザー詳細ページ（統計・セッション履歴・画像ギャラリー・停止/復元） |
+| 10 | `src/app/settings/page.tsx` | 修正 | 退会セクション + 確認モーダル追加 |
+| 11 | `src/middleware.ts` | 修正 | matcher に `/settings/:path*` 追加 |
+
+### DBマイグレーション
+
+```sql
+-- supabase/003_add_deleted_at.sql
+ALTER TABLE public.users ADD COLUMN deleted_at timestamptz DEFAULT NULL;
+CREATE INDEX idx_users_deleted_at ON public.users(deleted_at) WHERE deleted_at IS NULL;
+```
+
+- `NULL` = アクティブ、非NULL = 退会/停止済み
+- 部分インデックスでアクティブユーザー検索を高速化
+
+### 新規APIエンドポイント
+
+| エンドポイント | メソッド | 機能 |
+|---------------|---------|------|
+| `/api/admin/users` | GET | ユーザー一覧（名前・メール検索、ページネーション） |
+| `/api/admin/users/[id]` | GET | ユーザー詳細 + 統計（セッション数・画像数・完了率・API呼出数・最終アクティビティ） |
+| `/api/admin/users/[id]` | POST | アカウント停止 `{action:"suspend"}` / 復元 `{action:"restore"}` |
+| `/api/account` | DELETE | 自己退会（ソフトデリート） |
+
+### ユーザー詳細ページ構成
+
+1. パンくず（← ユーザー管理に戻る）
+2. プロフィールカード（名前・メール・ロール・登録日・最終アクティビティ・ステータス）
+3. 統計カード4枚（セッション数・画像数・完了率・API呼出数）
+4. セッション履歴テーブル（直近10件）
+5. 生成画像ギャラリー（直近12枚グリッド表示）
+6. 停止/復元ボタン（確認モーダル付き、admin/自分自身は非表示）
+
+### 退会フロー
+
+1. `/settings` → 退会セクション（赤ボーダーカード）
+2. 「退会する」ボタン → 確認モーダル表示
+3. 確認 → `DELETE /api/account` → `deleted_at = now()` でソフトデリート
+4. 成功後 `signOut({ callbackUrl: "/login" })` でログアウト+リダイレクト
+5. 再ログイン試行 → `auth.ts` で `deleted_at` チェック → 拒否
+
+### アカウント停止のガード
+
+- 自分自身の停止を拒否
+- admin ロールの停止を拒否
+- 既に停止済みの場合エラー
+
+### 技術的な判断
+
+1. **`withAdmin` ラッパー未使用（[id]ルート）**: 既存の `withAdmin` は route params を転送しないため、`[id]/route.ts` では直接 `auth()` でロールチェックし、Next.js 15 の `Promise<{ id: string }>` パターンで params を取得
+2. **ソフトデリート方式**: CASCADE 削除ではなくデータ保持。将来の復元やデータ分析に対応
+3. **middleware matcher 追加**: `/settings` を認証対象に含め、`authorized` コールバックを適用
+
+### ダミーデータ投入用シードファイル
+
+`supabase/004_seed_dummy_users.sql` を追加し、管理画面の動作確認を可能にした。
+
+| ユーザー | メール | 状態 | セッション | 画像 | APIログ |
+|---------|--------|------|-----------|------|---------|
+| 佐藤花子 | sato@example.com | 有効 | 2件 (1完了+1進行中) | 2枚 | 8件 |
+| 鈴木太郎 | suzuki@example.com | 有効 | 1件 (完了) | 1枚 | 4件 |
+| 高橋美咲 | takahashi@example.com | 有効 | 1件 (進行中) | 1枚 | 3件 |
+| 山田健一 | yamada@example.com | **停止** | 1件 | 1枚 | 3件 |
+| 伊藤めぐみ | ito@example.com | 有効 | 4件 (3完了+1進行中) | 6枚 | 18件 |
+
+- パスワードは全員 `test1234`
+- メッセージ合計: 30件、生成画像: 11枚、APIログ: 36件
+
+### 数値サマリー
+
+| 項目 | 数値 |
+|------|------|
+| 新規ファイル | 6ファイル |
+| 修正ファイル | 6ファイル |
+| 追加行数 | 約1,210行 |
+| 新規APIエンドポイント | 3個（+ 既存1個にDELETE追加） |
+| 新規ページ | 2ページ |
+| コミット | 2コミット |
+| ビルド結果 | 成功（エラーなし） |
+
+### コミット履歴
+
+| コミット | メッセージ |
+|---------|-----------|
+| `c54d9ce` | feat: Admin ユーザー管理画面 + 退会機能を実装 |
+| `5200802` | feat: ユーザー管理動作確認用ダミーデータを追加 |
+
+### ページ構成（更新後: 全16ページ）
+
+| パス | ページ | 認証 | 備考 |
+|------|-------|------|------|
+| `/admin/users` | ユーザー一覧 | admin | **今回追加** |
+| `/admin/users/[id]` | ユーザー詳細 | admin | **今回追加** |
+
+### APIエンドポイント（更新後: 19個）
+
+| エンドポイント | メソッド | 機能 | 備考 |
+|---------------|---------|------|------|
+| `/api/admin/users` | GET | ユーザー一覧 | **今回追加** |
+| `/api/admin/users/[id]` | GET/POST | ユーザー詳細/停止・復元 | **今回追加** |
+| `/api/account` | GET/PATCH/DELETE | アカウント情報/更新/退会 | **DELETE追加** |
