@@ -69,14 +69,31 @@ export default function SettingsPage() {
   return (
     <>
       <Header activeTab="settings" />
-      <main className="mt-[56px] min-h-[calc(100vh-56px)] bg-bg-primary">
-        <div className="max-w-[640px] mx-auto px-6 sm:px-10 py-10">
-          <h1 className="font-[family-name:var(--font-playfair)] text-[28px] font-bold mb-2">
-            アカウント設定
-          </h1>
-          <p className="text-text-secondary text-sm mb-8">
-            プロフィールとプランの管理
-          </p>
+      <main className="mt-[56px] min-h-[calc(100vh-56px)] bg-bg-primary relative overflow-hidden">
+        {/* 背景ブラーサークル */}
+        <div className="absolute top-[5%] left-[3%] w-72 h-72 bg-accent-warm/[.04] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-[40%] right-[5%] w-56 h-56 bg-accent-gold/[.05] rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-[10%] left-[12%] w-48 h-48 bg-accent-olive/[.04] rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-[640px] mx-auto px-6 sm:px-10 py-10 relative z-10">
+          {/* ヘッダー */}
+          <div className="mb-8 animate-fade-in-up">
+            <span className="inline-block text-xs font-semibold text-accent-warm uppercase tracking-[2px] mb-2">
+              Account Settings
+            </span>
+            <h1 className="font-[family-name:var(--font-playfair)] text-[28px] font-bold mb-2">
+              アカウント設定
+            </h1>
+            <p className="text-text-secondary text-sm">
+              プロフィールとプランの管理
+            </p>
+            {/* 装飾ライン */}
+            <div className="flex items-center gap-2 mt-3">
+              <div className="w-8 h-[2px] bg-accent-warm/30 rounded-full" />
+              <div className="w-2 h-2 rounded-full bg-accent-warm/40" />
+              <div className="w-8 h-[2px] bg-accent-warm/30 rounded-full" />
+            </div>
+          </div>
 
           {loading ? (
             <div className="space-y-4">
@@ -86,28 +103,26 @@ export default function SettingsPage() {
             </div>
           ) : (
             <div className="space-y-6">
-              {/* 成功メッセージ */}
               {message && (
-                <div className="p-3 rounded-[8px] bg-accent-olive/10 border border-accent-olive/20 text-accent-olive text-sm">
+                <div className="p-3 rounded-[8px] bg-accent-olive/10 border border-accent-olive/20 text-accent-olive text-sm animate-fade-in-up">
                   {message}
                 </div>
               )}
 
-              {/* エラーメッセージ */}
               {error && (
-                <div className="p-3 rounded-[8px] bg-red-50 border border-red-200 text-red-600 text-sm">
+                <div className="p-3 rounded-[8px] bg-red-50 border border-red-200 text-red-600 text-sm animate-fade-in-up">
                   {error}
                 </div>
               )}
 
               {/* プロフィール情報 */}
-              <div className="bg-bg-secondary rounded-[20px] border border-border-light p-6">
+              <div className="bg-bg-secondary rounded-[20px] border border-border-light p-6 relative overflow-hidden animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-accent-warm via-accent-gold to-transparent" />
                 <h2 className="text-[11px] font-semibold text-accent-warm uppercase tracking-[1px] mb-5">
                   プロフィール
                 </h2>
 
                 <div className="space-y-4">
-                  {/* 店舗名 */}
                   <div>
                     <label className="block text-xs font-medium text-text-secondary mb-1.5">
                       店舗名 / ユーザー名
@@ -120,7 +135,6 @@ export default function SettingsPage() {
                     />
                   </div>
 
-                  {/* メールアドレス（読み取り専用） */}
                   <div>
                     <label className="block text-xs font-medium text-text-secondary mb-1.5">
                       メールアドレス
@@ -136,7 +150,6 @@ export default function SettingsPage() {
                     </p>
                   </div>
 
-                  {/* 登録日 */}
                   <div>
                     <label className="block text-xs font-medium text-text-secondary mb-1.5">
                       登録日
@@ -153,7 +166,6 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                {/* 保存ボタン */}
                 <button
                   onClick={handleSave}
                   disabled={saving || name === user?.name}
@@ -164,7 +176,8 @@ export default function SettingsPage() {
               </div>
 
               {/* プラン情報 */}
-              <div className="bg-bg-secondary rounded-[20px] border border-border-light p-6">
+              <div className="bg-bg-secondary rounded-[20px] border border-border-light p-6 relative overflow-hidden animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-accent-gold via-accent-olive to-transparent" />
                 <h2 className="text-[11px] font-semibold text-accent-warm uppercase tracking-[1px] mb-5">
                   プラン
                 </h2>
@@ -188,7 +201,8 @@ export default function SettingsPage() {
               </div>
 
               {/* パスワード変更 */}
-              <div className="bg-bg-secondary rounded-[20px] border border-border-light p-6">
+              <div className="bg-bg-secondary rounded-[20px] border border-border-light p-6 relative overflow-hidden animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-accent-olive via-accent-warm to-transparent" />
                 <h2 className="text-[11px] font-semibold text-accent-warm uppercase tracking-[1px] mb-5">
                   セキュリティ
                 </h2>
