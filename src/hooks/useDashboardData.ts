@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import type { Achievement } from "@/lib/types";
 
 type SessionData = {
   id: string;
@@ -40,7 +41,18 @@ type GalleryStatsData = {
   }>;
 };
 
-export type { SessionData, StatsData, GalleryStatsData };
+type AchievementData = {
+  visible: Achievement[];
+  hidden: Achievement[];
+  totalHidden: number;
+};
+
+type NewAchievement = {
+  icon: string;
+  name: string;
+};
+
+export type { SessionData, StatsData, GalleryStatsData, AchievementData };
 
 export function useDashboardData() {
   const [sessions, setSessions] = useState<SessionData[]>([]);
@@ -48,13 +60,16 @@ export function useDashboardData() {
   const [galleryStats, setGalleryStats] = useState<GalleryStatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
+  const [achievements, setAchievements] = useState<AchievementData | null>(null);
+  const [newBadges, setNewBadges] = useState<NewAchievement[]>([]);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [dashRes, accountRes] = await Promise.all([
+        const [dashRes, accountRes, achieveRes] = await Promise.all([
           fetch("/api/dashboard"),
           fetch("/api/account"),
+          fetch("/api/achievements"),
         ]);
         if (dashRes.ok) {
           const data = await dashRes.json();
@@ -66,6 +81,26 @@ export function useDashboardData() {
           const accountData = await accountRes.json();
           setOnboardingCompleted(!!accountData.user?.onboarding_completed_at);
         }
+        if (achieveRes.ok) {
+          const achieveData = await achieveRes.json();
+          setAchievements({
+            visible: achieveData.visible || [],
+            hidden: achieveData.hidden || [],
+            totalHidden: achieveData.totalHidden || 0,
+          });
+
+          // 未通知のバッジをトースト表示用に収集
+          const unnotified = [
+            ...(achieveData.visible || []),
+            ...(achieveData.hidden || []),
+          ].filter((a: Achievement) => a.unlocked_at && !a.notified);
+
+          if (unnotified.length > 0) {
+            setNewBadges(unnotified.map((a: Achievement) => ({ icon: a.icon, name: a.name })));
+            // 通知済みマーク
+            fetch("/api/achievements", { method: "PATCH" }).catch(() => {});
+          }
+        }
       } catch {
         // API失敗時はフォールバック表示
       } finally {
@@ -73,6 +108,10 @@ export function useDashboardData() {
       }
     }
     fetchData();
+  }, []);
+
+  const dismissBadge = useCallback(() => {
+    setNewBadges((prev) => prev.slice(1));
   }, []);
 
   const completeOnboarding = async () => {
@@ -91,5 +130,5 @@ export function useDashboardData() {
     }
   };
 
-  return { sessions, setSessions, stats, setStats, galleryStats, loading, onboardingCompleted, completeOnboarding };
+  return { sessions, setSessions, stats, setStats, galleryStats, loading, onboardingCompleted, completeOnboarding, achievements, newBadges, dismissBadge };
 }

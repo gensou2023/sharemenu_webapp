@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createAdminClient } from "@/lib/supabase";
+import { checkAchievements } from "@/lib/achievement-checker";
 
 const PAGE_SIZE = 12;
 
@@ -194,6 +195,9 @@ export async function POST(req: NextRequest) {
       console.error("Gallery share error:", error);
       return NextResponse.json({ error: "共有に失敗しました。" }, { status: 500 });
     }
+
+    // バッジ判定（非ブロッキング）
+    checkAchievements(session.user.id).catch(() => {});
 
     return NextResponse.json({ shared_image: shared });
   } catch {

@@ -5,6 +5,7 @@ import { logApiUsage } from "@/lib/api-logger";
 import { getActivePrompt } from "@/lib/prompt-loader";
 import { checkRateLimit } from "@/lib/rate-limiter";
 import { createAdminClient } from "@/lib/supabase";
+import { checkAchievements } from "@/lib/achievement-checker";
 
 const IMAGE_MODEL = "gemini-2.0-flash-exp-image-generation";
 
@@ -244,6 +245,9 @@ export async function POST(req: NextRequest) {
       tokensIn,
       tokensOut,
     });
+
+    // バッジ判定（非ブロッキング）
+    checkAchievements(userId).catch(() => {});
 
     return NextResponse.json({
       image: imageData,

@@ -10,6 +10,8 @@ import StatsSection from "@/components/dashboard/StatsSection";
 import QuickActions from "@/components/dashboard/QuickActions";
 import SessionGrid from "@/components/dashboard/SessionGrid";
 import GalleryStatsSection from "@/components/dashboard/GalleryStatsSection";
+import AchievementSection from "@/components/dashboard/AchievementSection";
+import AchievementToast from "@/components/AchievementToast";
 import OnboardingTour from "@/components/onboarding/OnboardingTour";
 import ShareModal from "@/components/gallery/ShareModal";
 import CommonFooter from "@/components/CommonFooter";
@@ -17,7 +19,7 @@ import { useDashboardData, type SessionData } from "@/hooks/useDashboardData";
 import { useSessionActions } from "@/hooks/useSessionActions";
 
 export default function DashboardPage() {
-  const { sessions, setSessions, stats, setStats, galleryStats, loading, onboardingCompleted, completeOnboarding } = useDashboardData();
+  const { sessions, setSessions, stats, setStats, galleryStats, loading, onboardingCompleted, completeOnboarding, achievements, newBadges, dismissBadge } = useDashboardData();
   const {
     downloading,
     showLimitModal,
@@ -91,6 +93,14 @@ export default function DashboardPage() {
           {/* ギャラリー成績 */}
           <GalleryStatsSection data={galleryStats} loading={loading} />
 
+          {/* アチーブメント */}
+          <AchievementSection
+            visible={achievements?.visible || []}
+            hidden={achievements?.hidden || []}
+            totalHidden={achievements?.totalHidden || 0}
+            loading={loading}
+          />
+
           {/* 広告プレースホルダー */}
           <div className="mb-9">
             <AdPlaceholder variant="banner" />
@@ -129,6 +139,15 @@ export default function DashboardPage() {
           shopName={shareTarget.shop_name || undefined}
           onClose={() => setShareTarget(null)}
           onShared={() => setShareTarget(null)}
+        />
+      )}
+
+      {/* バッジ獲得トースト */}
+      {newBadges.length > 0 && (
+        <AchievementToast
+          icon={newBadges[0].icon}
+          name={newBadges[0].name}
+          onClose={dismissBadge}
         />
       )}
 

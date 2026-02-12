@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { logApiUsage } from "@/lib/api-logger";
 import { getActivePrompt } from "@/lib/prompt-loader";
 import { checkRateLimit } from "@/lib/rate-limiter";
+import { checkAchievements } from "@/lib/achievement-checker";
 
 const CHAT_MODEL = "gemini-2.0-flash";
 
@@ -118,6 +119,9 @@ export async function POST(req: NextRequest) {
       tokensIn,
       tokensOut,
     });
+
+    // バッジ判定（非ブロッキング）
+    checkAchievements(userId).catch(() => {});
 
     return NextResponse.json({ reply });
   } catch (error) {

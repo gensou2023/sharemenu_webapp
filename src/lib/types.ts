@@ -112,3 +112,15 @@ export type GalleryItem = {
   is_liked: boolean;
   is_saved: boolean;
 };
+
+// --- アチーブメント ---
+export type Achievement = {
+  id: string;
+  key: string;
+  name: string;
+  description: string;
+  icon: string;
+  is_hidden: boolean;
+  unlocked_at: string | null;
+  notified: boolean;
+};
