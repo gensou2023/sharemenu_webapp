@@ -68,13 +68,16 @@ export async function checkAchievements(userId: string): Promise<NewAchievement[
 
   const userCreatedAt = userResult.data?.created_at ? new Date(userResult.data.created_at) : null;
 
+  // thresholdからタイプを抽出するヘルパー
+  const getThresholdType = (t: Record<string, number | string>) => Object.keys(t)[0];
+
   // いいね関連（遅延取得 — 必要な場合のみ）
   let totalLikesReceived: number | null = null;
   let singleImageMaxLikes: number | null = null;
 
   const needsLikes = unchecked.some((a) => {
-    const t = a.threshold as Record<string, number | string>;
-    return t.type === "total_likes_received" || t.type === "single_image_likes";
+    const type = getThresholdType(a.threshold as Record<string, number | string>);
+    return type === "total_likes_received" || type === "single_image_likes";
   });
 
   if (needsLikes) {
@@ -104,7 +107,7 @@ export async function checkAchievements(userId: string): Promise<NewAchievement[
 
   // カテゴリ数（遅延取得）
   let categoryCount: number | null = null;
-  const needsCategory = unchecked.some((a) => (a.threshold as Record<string, number | string>).type === "category_count");
+  const needsCategory = unchecked.some((a) => getThresholdType(a.threshold as Record<string, number | string>) === "category_count");
   if (needsCategory) {
     const { data: sessions } = await supabase
       .from("chat_sessions")
@@ -120,56 +123,58 @@ export async function checkAchievements(userId: string): Promise<NewAchievement[
 
   for (const achievement of unchecked) {
     const t = achievement.threshold as Record<string, number | string>;
+    const type = getThresholdType(t);
+    const value = t[type];
     let unlocked = false;
 
-    switch (t.type) {
+    switch (type) {
       case "image_count":
-        unlocked = imageCount >= Number(t.value);
+        unlocked = imageCount >= Number(value);
         break;
       case "message_count":
-        unlocked = messageCount >= Number(t.value);
+        unlocked = messageCount >= Number(value);
         break;
       case "session_completed":
-        unlocked = sessionCompleted >= Number(t.value);
+        unlocked = sessionCompleted >= Number(value);
         break;
       case "share_count":
-        unlocked = shareCount >= Number(t.value);
+        unlocked = shareCount >= Number(value);
         break;
       case "save_count":
-        unlocked = saveCount >= Number(t.value);
+        unlocked = saveCount >= Number(value);
         break;
       case "login_days":
-        unlocked = loginDays >= Number(t.value);
+        unlocked = loginDays >= Number(value);
         break;
       case "total_likes_received":
-        unlocked = (totalLikesReceived ?? 0) >= Number(t.value);
+        unlocked = (totalLikesReceived ?? 0) >= Number(value);
         break;
       case "single_image_likes":
-        unlocked = (singleImageMaxLikes ?? 0) >= Number(t.value);
+        unlocked = (singleImageMaxLikes ?? 0) >= Number(value);
         break;
       case "category_count":
-        unlocked = (categoryCount ?? 0) >= Number(t.value);
+        unlocked = (categoryCount ?? 0) >= Number(value);
         break;
       case "hour_before":
-        // 直近の画像生成時刻をチェック
-        unlocked = await checkHourCondition(supabase, userId, "before", Number(t.value));
+        unlocked = await checkHourCondition(supabase, userId, "before", Number(value));
         break;
       case "hour_after":
-        unlocked = await checkHourCondition(supabase, userId, "after", Number(t.value));
+        unlocked = await checkHourCondition(supabase, userId, "after", Number(value));
         break;
-      case "signup_hours_images":
+      case "signup_hours_images": {
+        // 値は "24:3" 形式（hours:images）
         if (userCreatedAt) {
-          const hoursLimit = Number(t.hours);
-          const imagesNeeded = Number(t.images);
-          const cutoff = new Date(userCreatedAt.getTime() + hoursLimit * 60 * 60 * 1000);
+          const [hours, images] = String(value).split(":").map(Number);
+          const cutoff = new Date(userCreatedAt.getTime() + hours * 60 * 60 * 1000);
           const { count } = await supabase
             .from("generated_images")
             .select("id", { count: "exact", head: true })
             .eq("user_id", userId)
             .lte("created_at", cutoff.toISOString());
-          unlocked = (count || 0) >= imagesNeeded;
+          unlocked = (count || 0) >= images;
         }
         break;
+      }
       case "session_messages_lte": {
         const { data: completedSessions } = await supabase
           .from("chat_sessions")
@@ -184,7 +189,7 @@ export async function checkAchievements(userId: string): Promise<NewAchievement[
               .select("id", { count: "exact", head: true })
               .eq("session_id", sess.id)
               .eq("role", "user");
-            if ((msgCount || 0) <= Number(t.value)) {
+            if ((msgCount || 0) <= Number(value)) {
               unlocked = true;
               break;
             }
@@ -199,7 +204,7 @@ export async function checkAchievements(userId: string): Promise<NewAchievement[
           .eq("user_id", userId);
         for (const sess of sessionsWithImages || []) {
           const imgs = sess.generated_images as unknown as { id: string }[];
-          if (imgs && imgs.length >= Number(t.value)) {
+          if (imgs && imgs.length >= Number(value)) {
             unlocked = true;
             break;
           }
