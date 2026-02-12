@@ -74,26 +74,32 @@ main        ← 本番安定ブランチ
 ```
 src/
 ├── app/
-│   ├── api/              # 16 API エンドポイント
-│   ├── admin/            # 管理画面（5ページ）
+│   ├── api/              # 27 API エンドポイント
+│   ├── admin/            # 管理画面（7ページ）
 │   ├── chat/             # チャット画面
 │   ├── dashboard/        # ダッシュボード
+│   ├── gallery/          # ギャラリー
 │   ├── settings/         # アカウント設定
 │   ├── login/ signup/    # 認証ページ
 │   ├── globals.css       # デザイントークン定義
 │   ├── layout.tsx        # ルートレイアウト
 │   └── page.tsx          # LP（ランディングページ）
+├── __tests__/            # Vitest テスト
+│   └── lib/              # ユーティリティテスト
 ├── components/
-│   ├── landing/          # LP セクション（8コンポーネント）
-│   ├── chat/             # ChatInput, ChatMessage, PreviewPanel
-│   ├── dashboard/        # StatsSection, HistorySection
+│   ├── landing/          # LP セクション（9コンポーネント）
+│   ├── chat/             # ChatInput, ChatMessage, PreviewPanel, PromptMode, SavePromptModal
+│   ├── dashboard/        # StatsSection, SessionGrid, AchievementSection, etc.
+│   ├── gallery/          # GalleryCard, ShareModal
 │   └── admin/            # KpiCard, TrendChart, etc.
 ├── hooks/
-│   ├── useChatSession.ts # チャットフロー管理（要リファクタリング）
+│   ├── chat/             # チャットフロー分割済みフック群（6ファイル）
+│   ├── useChatSession.ts # チャットオーケストレーター（177行）
 │   └── useOnlineStatus.ts
 ├── lib/
 │   ├── supabase.ts       # Supabase クライアント
 │   ├── types.ts          # 型定義
+│   ├── admin-auth.ts     # admin認証ミドルウェア（withAdmin）
 │   ├── rate-limiter.ts   # レート制限
 │   ├── api-logger.ts     # APIログ
 │   └── prompt-loader.ts  # プロンプトテンプレート
@@ -139,15 +145,22 @@ src/
 
 | テーブル | 用途 |
 |---------|------|
-| `users` | ユーザー（email, role, password_hash） |
+| `users` | ユーザー（email, role, password_hash, onboarding, deleted_at） |
 | `chat_sessions` | チャットセッション |
 | `messages` | メッセージ履歴 |
 | `generated_images` | 生成画像メタデータ |
 | `prompt_templates` | AI プロンプト（バージョン管理） |
 | `reference_images` | 管理者参照画像 |
 | `api_usage_logs` | API 利用ログ |
+| `shared_images` | ギャラリー共有画像 |
+| `image_likes` | いいね |
+| `image_saves` | 保存 |
+| `image_reports` | 通報 |
+| `achievements` | バッジ定義 |
+| `user_achievements` | ユーザーバッジ獲得記録 |
+| `user_prompts` | ユーザー保存プロンプト（admin限定） |
 
-## API エンドポイント（16本）
+## API エンドポイント（27本）
 
 | パス | メソッド | 概要 |
 |------|---------|------|
@@ -159,9 +172,18 @@ src/
 | `/api/sessions/[id]/messages` | GET/POST | メッセージ取得・保存 |
 | `/api/dashboard` | GET | ダッシュボード統計 |
 | `/api/images` | POST | Storage 保存 |
-| `/api/account` | GET/PATCH | アカウント情報 |
+| `/api/account` | GET/PATCH/DELETE | アカウント情報・退会 |
 | `/api/signup` | POST | ユーザー登録 |
-| `/api/admin/*` | GET/POST | 管理系 API（stats, sessions, prompts, references, api-logs） |
+| `/api/gallery` | GET/POST | ギャラリー一覧・共有 |
+| `/api/gallery/[id]/like` | POST | いいね |
+| `/api/gallery/[id]/save` | POST | 保存 |
+| `/api/gallery/[id]/report` | POST | 通報 |
+| `/api/gallery/saves` | GET | 保存済み一覧 |
+| `/api/achievements` | GET/PATCH | バッジ一覧・既読 |
+| `/api/achievements/check` | POST | バッジ判定 |
+| `/api/prompts/mine` | GET/POST | マイプロンプト一覧・保存（admin限定） |
+| `/api/prompts/mine/[id]` | PATCH/DELETE | プロンプト編集・削除（admin限定） |
+| `/api/admin/*` | GET/POST | 管理系 API（stats, sessions, users, prompts, references, api-logs） |
 
 ## プラン制限
 
@@ -247,24 +269,27 @@ npm start        # 本番サーバー起動
 
 ## 次回セッションのタスク
 
-### Phase 1（MVP）
-1. **ダッシュボード 2カラム化** — サイドバー + メインエリアへのレイアウト変更
-2. **チャット右パネル改善** — 初回画像生成時の自動展開アニメーション、広告枠の配置変更
-3. **ウェルカムエリア実装** — 時間帯別挨拶 + キャラクターメッセージ
+### Tier 1（基盤 + 高インパクト）— 最優先
+1. **#36 ダッシュボード 2カラム化** — サイドバー + メインエリアへのレイアウト変更
+2. **#45 設定ページリデザイン** — Canva風サイドナビ + セクション分割
+3. **テストカバレッジ拡大** — API ルートのテスト追加（Vitest基盤は構築済み）
 
-### Phase 2（ウェット要素の強化）
-4. **動的Tips実装** — 利用状況に応じたTips出し分け
-5. **マイクロインタラクション** — ステッパーアニメーション、完成演出
-6. **インサイトカード実装** — 生成数/DL数/公開数 + 前週比表示
+### Tier 2（UX改善）
+4. **#37 ウェルカムエリア実装** — 時間帯別挨拶 + キャラクターメッセージ
+5. **#49 パスワード変更** — 現在「準備中」の実装
+6. **#39 +新規作成カード** — ダッシュボードのグリッドに追加
+7. **#38 広告枠配置変更** — チャット入力直上から移動
 
-### Phase 3（成長機能）
-7. **チャット左パネル** — セッション履歴 + テンプレート一覧（トグル式）
-8. **レスポンシブ対応** — タブレット・モバイル最適化
+### Tier 3（差別化・エンゲージメント）
+8. **#46 プロフィール拡充** — 業種カテゴリ・プロフィールアイコン
+9. **#48 通知センター** — アプリ内通知パネル + ギャラリーアクティビティ通知
+10. **#47 ダークモード** — テーマ切替（Light/Dark/System）
+11. **#41 インサイトカード** — DL数・公開数・前週比
 
-### 継続タスク
-9. **リファクタリング（HIGH）** — useChatSession分割、dashboard分割、admin認証ミドルウェア
-10. **テストコード追加** — API ルート + 統合テスト
-11. **SEO/OGP 対応** — meta タグ、OG 画像、構造化データ
+### Tier 4-5（余裕があれば / Backlog）
+12. **#40 動的Tips** / **#50 ギャラリープライバシー** / **#52 利用状況レポート**
+13. **#42-44 リリースノート** — ユーザー数に応じてスケジュール
+14. **SEO/OGP 対応** — meta タグ、OG 画像、構造化データ
 
 ## エージェント構成
 
