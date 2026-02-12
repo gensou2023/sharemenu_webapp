@@ -13,6 +13,7 @@ type SessionData = {
   imageCount: number;
   thumbnailUrl: string | null;
   imageUrls: string[];
+  imageIds: string[];
 };
 
 type StatsData = {

@@ -8,12 +8,14 @@ export default function SessionGrid({
   downloading,
   onDownload,
   onDelete,
+  onShare,
 }: {
   sessions: SessionData[];
   loading: boolean;
   downloading: string | null;
   onDownload: (item: SessionData) => void;
   onDelete: (item: SessionData) => void;
+  onShare?: (item: SessionData) => void;
 }) {
   return (
     <section>
@@ -85,6 +87,7 @@ export default function SessionGrid({
               downloading={downloading}
               onDownload={onDownload}
               onDelete={onDelete}
+              onShare={onShare}
             />
           ))}
         </div>

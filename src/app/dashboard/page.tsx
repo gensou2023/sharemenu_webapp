@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Header from "@/components/landing/Header";
 import AdPlaceholder from "@/components/AdPlaceholder";
 import PlanLimitModal from "@/components/PlanLimitModal";
@@ -9,7 +10,8 @@ import StatsSection from "@/components/dashboard/StatsSection";
 import QuickActions from "@/components/dashboard/QuickActions";
 import SessionGrid from "@/components/dashboard/SessionGrid";
 import OnboardingTour from "@/components/onboarding/OnboardingTour";
-import { useDashboardData } from "@/hooks/useDashboardData";
+import ShareModal from "@/components/gallery/ShareModal";
+import { useDashboardData, type SessionData } from "@/hooks/useDashboardData";
 import { useSessionActions } from "@/hooks/useSessionActions";
 
 export default function DashboardPage() {
@@ -28,6 +30,8 @@ export default function DashboardPage() {
     handleDeleteConfirm,
     handleDeleteOldestAndCreate,
   } = useSessionActions(sessions, setSessions, stats, setStats);
+
+  const [shareTarget, setShareTarget] = useState<SessionData | null>(null);
 
   const statsCards = [
     {
@@ -93,6 +97,7 @@ export default function DashboardPage() {
             downloading={downloading}
             onDownload={handleDownload}
             onDelete={setDeleteTarget}
+            onShare={setShareTarget}
           />
         </div>
       </main>
@@ -106,6 +111,18 @@ export default function DashboardPage() {
         deleting={deletingOldest}
         oldestSessionName={oldestSession?.shop_name || oldestSession?.title}
       />
+
+      {/* ギャラリー共有モーダル */}
+      {shareTarget && shareTarget.imageIds?.[0] && (
+        <ShareModal
+          imageId={shareTarget.imageIds[0]}
+          imageUrl={shareTarget.thumbnailUrl || undefined}
+          sessionCategory={shareTarget.category || undefined}
+          shopName={shareTarget.shop_name || undefined}
+          onClose={() => setShareTarget(null)}
+          onShared={() => setShareTarget(null)}
+        />
+      )}
 
       {/* オンボーディングツアー */}
       {onboardingCompleted === false && (

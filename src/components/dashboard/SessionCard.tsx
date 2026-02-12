@@ -28,12 +28,14 @@ export default function SessionCard({
   downloading,
   onDownload,
   onDelete,
+  onShare,
 }: {
   item: SessionData;
   index: number;
   downloading: string | null;
   onDownload: (item: SessionData) => void;
   onDelete: (item: SessionData) => void;
+  onShare?: (item: SessionData) => void;
 }) {
   return (
     <Link
@@ -82,6 +84,22 @@ export default function SessionCard({
             {item.shop_name || item.title}
           </div>
           <div className="flex items-center gap-1.5 flex-shrink-0">
+            {/* 共有ボタン */}
+            {item.imageCount > 0 && onShare && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onShare(item);
+                }}
+                title="ギャラリーに共有"
+                className="w-8 h-8 rounded-[8px] border border-border-light bg-bg-primary cursor-pointer flex items-center justify-center transition-all duration-300 text-text-secondary hover:bg-accent-gold hover:text-white hover:border-accent-gold flex-shrink-0"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" />
+                </svg>
+              </button>
+            )}
             {/* ダウンロードボタン */}
             {item.imageCount > 0 && (
               <button

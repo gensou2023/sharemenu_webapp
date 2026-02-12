@@ -96,3 +96,19 @@ export type AdminUserDetail = AdminUserSummary & {
     created_at: string;
   }>;
 };
+
+// --- ギャラリー ---
+export type GalleryItem = {
+  id: string;
+  image_url: string;
+  prompt: string;
+  category: string;
+  shop_name: string | null;
+  show_shop_name: boolean;
+  user_name: string;
+  created_at: string;
+  like_count: number;
+  save_count: number;
+  is_liked: boolean;
+  is_saved: boolean;
+};

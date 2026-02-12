@@ -82,6 +82,7 @@ export async function GET() {
       imageCount: images.length,
       thumbnailUrl,
       imageUrls,
+      imageIds: images.map((img) => img.id),
     };
   });
 

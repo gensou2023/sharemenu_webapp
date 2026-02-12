@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { GeneratedImage, FlowStep, Proposal } from "@/lib/types";
+import ShareModal from "@/components/gallery/ShareModal";
 
 // 後方互換のためエクスポート
 export type { GeneratedImage, FlowStep };
@@ -81,6 +82,10 @@ export default function PreviewPanel({
   onRegenerate,
   proposal,
   currentStep = 1,
+  generatedImageId,
+  generatedImageUrl,
+  sessionCategory,
+  shopName,
 }: {
   isOpen: boolean;
   onToggle: () => void;
@@ -89,8 +94,14 @@ export default function PreviewPanel({
   onRegenerate?: (aspectRatio: string) => void;
   proposal?: Partial<Proposal> | null;
   currentStep?: FlowStep;
+  generatedImageId?: string | null;
+  generatedImageUrl?: string | null;
+  sessionCategory?: string;
+  shopName?: string;
 }) {
   const [activeRatio, setActiveRatio] = useState<RatioKey>("1-1");
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shared, setShared] = useState(false);
 
   if (!isOpen) return null;
 
@@ -262,6 +273,22 @@ export default function PreviewPanel({
             </svg>
             この画像をダウンロード
           </button>
+          {generatedImage && generatedImageId && !shared && (
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="w-full py-3 rounded-full text-[13px] font-semibold bg-transparent text-accent-gold border border-accent-gold/30 cursor-pointer flex items-center justify-center gap-2 transition-all duration-300 hover:bg-accent-gold/10 hover:border-accent-gold/50"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" />
+              </svg>
+              ギャラリーに共有
+            </button>
+          )}
+          {shared && (
+            <div className="w-full py-3 rounded-full text-[13px] font-semibold text-accent-olive text-center">
+              ギャラリーに共有しました
+            </div>
+          )}
           {onRegenerate && (
             <button
               onClick={() => {
@@ -285,6 +312,20 @@ export default function PreviewPanel({
           )}
         </div>
       </div>
+
+      {showShareModal && generatedImageId && (
+        <ShareModal
+          imageId={generatedImageId}
+          imageUrl={generatedImageUrl || undefined}
+          sessionCategory={sessionCategory}
+          shopName={shopName}
+          onClose={() => setShowShareModal(false)}
+          onShared={() => {
+            setShowShareModal(false);
+            setShared(true);
+          }}
+        />
+      )}
     </>
   );
 }

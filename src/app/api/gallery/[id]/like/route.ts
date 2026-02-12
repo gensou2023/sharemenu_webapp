@@ -1,0 +1,55 @@
+import { NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { createAdminClient } from "@/lib/supabase";
+
+export async function POST(
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "認証が必要です。" }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  try {
+    const supabase = createAdminClient();
+
+    // 既にいいね済みか確認
+    const { data: existing } = await supabase
+      .from("image_likes")
+      .select("id")
+      .eq("shared_image_id", id)
+      .eq("user_id", session.user.id)
+      .single();
+
+    if (existing) {
+      // いいね解除
+      await supabase.from("image_likes").delete().eq("id", existing.id);
+    } else {
+      // いいね追加
+      const { error } = await supabase.from("image_likes").insert({
+        shared_image_id: id,
+        user_id: session.user.id,
+      });
+      if (error) {
+        console.error("Like error:", error);
+        return NextResponse.json({ error: "いいねに失敗しました。" }, { status: 500 });
+      }
+    }
+
+    // 最新のいいね数を取得
+    const { count } = await supabase
+      .from("image_likes")
+      .select("id", { count: "exact", head: true })
+      .eq("shared_image_id", id);
+
+    return NextResponse.json({
+      liked: !existing,
+      like_count: count || 0,
+    });
+  } catch {
+    return NextResponse.json({ error: "サーバーエラーが発生しました。" }, { status: 500 });
+  }
+}

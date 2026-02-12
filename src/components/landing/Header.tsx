@@ -5,13 +5,14 @@ import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 
 type HeaderProps = {
-  activeTab?: "home" | "dashboard" | "chat" | "settings";
+  activeTab?: "home" | "dashboard" | "chat" | "gallery" | "settings";
 };
 
 const navItems = [
   { key: "home", label: "ホーム", href: "/" },
   { key: "dashboard", label: "ダッシュボード", href: "/dashboard" },
   { key: "chat", label: "チャット", href: "/chat" },
+  { key: "gallery", label: "ギャラリー", href: "/gallery" },
 ] as const;
 
 export default function Header({ activeTab = "home" }: HeaderProps) {
