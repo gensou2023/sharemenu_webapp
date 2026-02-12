@@ -13,7 +13,7 @@ export async function GET() {
     const supabase = createAdminClient();
     const { data: user, error } = await supabase
       .from("users")
-      .select("id, email, name, role, created_at, deleted_at")
+      .select("id, email, name, role, created_at, deleted_at, onboarding_completed_at")
       .eq("id", session.user.id)
       .single();
 
@@ -82,7 +82,7 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name } = body;
+    const { name, onboarding_completed_at } = body;
 
     // バリデーション
     if (name !== undefined) {
@@ -104,6 +104,7 @@ export async function PATCH(req: NextRequest) {
 
     const updateData: Record<string, string> = {};
     if (name !== undefined) updateData.name = name.trim();
+    if (onboarding_completed_at !== undefined) updateData.onboarding_completed_at = new Date().toISOString();
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(

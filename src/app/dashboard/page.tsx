@@ -8,11 +8,12 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsSection from "@/components/dashboard/StatsSection";
 import QuickActions from "@/components/dashboard/QuickActions";
 import SessionGrid from "@/components/dashboard/SessionGrid";
+import OnboardingTour from "@/components/onboarding/OnboardingTour";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useSessionActions } from "@/hooks/useSessionActions";
 
 export default function DashboardPage() {
-  const { sessions, setSessions, stats, setStats, loading } = useDashboardData();
+  const { sessions, setSessions, stats, setStats, loading, onboardingCompleted, completeOnboarding } = useDashboardData();
   const {
     downloading,
     showLimitModal,
@@ -105,6 +106,11 @@ export default function DashboardPage() {
         deleting={deletingOldest}
         oldestSessionName={oldestSession?.shop_name || oldestSession?.title}
       />
+
+      {/* オンボーディングツアー */}
+      {onboardingCompleted === false && (
+        <OnboardingTour onComplete={completeOnboarding} />
+      )}
 
       {/* 削除確認モーダル */}
       <DeleteConfirmModal

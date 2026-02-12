@@ -27,15 +27,23 @@ export function useDashboardData() {
   const [sessions, setSessions] = useState<SessionData[]>([]);
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch("/api/dashboard");
-        if (res.ok) {
-          const data = await res.json();
+        const [dashRes, accountRes] = await Promise.all([
+          fetch("/api/dashboard"),
+          fetch("/api/account"),
+        ]);
+        if (dashRes.ok) {
+          const data = await dashRes.json();
           setSessions(data.sessions || []);
           setStats(data.stats || null);
+        }
+        if (accountRes.ok) {
+          const accountData = await accountRes.json();
+          setOnboardingCompleted(!!accountData.user?.onboarding_completed_at);
         }
       } catch {
         // API失敗時はフォールバック表示
@@ -46,5 +54,21 @@ export function useDashboardData() {
     fetchData();
   }, []);
 
-  return { sessions, setSessions, stats, setStats, loading };
+  const completeOnboarding = async () => {
+    try {
+      const res = await fetch("/api/account", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ onboarding_completed_at: true }),
+      });
+      if (res.ok) {
+        setOnboardingCompleted(true);
+      }
+    } catch {
+      // エラー時もUIは閉じる
+      setOnboardingCompleted(true);
+    }
+  };
+
+  return { sessions, setSessions, stats, setStats, loading, onboardingCompleted, completeOnboarding };
 }
