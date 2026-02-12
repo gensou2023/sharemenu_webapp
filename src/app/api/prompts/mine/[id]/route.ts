@@ -11,6 +11,9 @@ export async function PATCH(
   if (!session?.user?.id) {
     return NextResponse.json({ error: "認証が必要です。" }, { status: 401 });
   }
+  if (session.user.role !== "admin") {
+    return NextResponse.json({ error: "この機能はAdmin限定です。" }, { status: 403 });
+  }
 
   const { id } = await params;
 
@@ -76,6 +79,9 @@ export async function DELETE(
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "認証が必要です。" }, { status: 401 });
+  }
+  if (session.user.role !== "admin") {
+    return NextResponse.json({ error: "この機能はAdmin限定です。" }, { status: 403 });
   }
 
   const { id } = await params;

@@ -8,6 +8,9 @@ export async function GET() {
   if (!session?.user?.id) {
     return NextResponse.json({ error: "認証が必要です。" }, { status: 401 });
   }
+  if (session.user.role !== "admin") {
+    return NextResponse.json({ error: "この機能はAdmin限定です。" }, { status: 403 });
+  }
 
   try {
     const supabase = createAdminClient();
@@ -34,6 +37,9 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "認証が必要です。" }, { status: 401 });
+  }
+  if (session.user.role !== "admin") {
+    return NextResponse.json({ error: "この機能はAdmin限定です。" }, { status: 403 });
   }
 
   try {

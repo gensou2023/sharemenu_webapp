@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Header from "@/components/landing/Header";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
@@ -53,6 +54,8 @@ function ChatPageInner() {
     handleRetry,
   } = useChatSession({ restoreSessionId });
 
+  const { data: authSession } = useSession();
+  const isAdmin = authSession?.user?.role === "admin";
   const isOnline = useOnlineStatus();
 
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -155,18 +158,20 @@ function ChatPageInner() {
               </div>
             </div>
             <div className="flex gap-2">
-              {/* プロンプトモード切替 */}
-              <button
-                onClick={() => setPromptMode(!promptMode)}
-                title="プロンプトモード切替"
-                className={`h-9 px-3 rounded-full border text-xs font-semibold cursor-pointer flex items-center justify-center gap-1.5 transition-all duration-300 ${
-                  promptMode
-                    ? "bg-accent-warm text-white border-accent-warm shadow-[0_2px_8px_rgba(232,113,58,.2)]"
-                    : "bg-bg-secondary text-text-secondary border-border-light hover:bg-accent-warm/10 hover:text-accent-warm hover:border-accent-warm/30"
-                }`}
-              >
-                ⚡ プロンプト
-              </button>
+              {/* プロンプトモード切替（admin限定） */}
+              {isAdmin && (
+                <button
+                  onClick={() => setPromptMode(!promptMode)}
+                  title="プロンプトモード切替"
+                  className={`h-9 px-3 rounded-full border text-xs font-semibold cursor-pointer flex items-center justify-center gap-1.5 transition-all duration-300 ${
+                    promptMode
+                      ? "bg-accent-warm text-white border-accent-warm shadow-[0_2px_8px_rgba(232,113,58,.2)]"
+                      : "bg-bg-secondary text-text-secondary border-border-light hover:bg-accent-warm/10 hover:text-accent-warm hover:border-accent-warm/30"
+                  }`}
+                >
+                  ⚡ プロンプト
+                </button>
+              )}
               <button
                 onClick={() => setPreviewOpen(!previewOpen)}
                 title="プレビュー切替"
