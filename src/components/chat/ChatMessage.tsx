@@ -101,12 +101,20 @@ export default function ChatMessage({
         {/* 画像アップロード */}
         {msg.image && (
           <div className="mt-2.5 rounded-[12px] overflow-hidden border border-border-light max-w-[240px]">
-            <div
-              className="h-[140px] flex items-center justify-center text-6xl"
-              style={{ background: msg.image.bgColor }}
-            >
-              {msg.image.emoji}
-            </div>
+            {msg.image.publicUrl ? (
+              <img
+                src={msg.image.publicUrl}
+                alt={msg.image.fileName}
+                className="max-w-[240px] max-h-[200px] object-cover"
+              />
+            ) : (
+              <div
+                className="h-[140px] flex items-center justify-center text-6xl"
+                style={{ background: msg.image.bgColor }}
+              >
+                {msg.image.emoji}
+              </div>
+            )}
             <div className="px-3 py-2 bg-bg-primary text-[11px] text-text-muted flex justify-between">
               <span>{msg.image.fileName}</span>
               <span>{msg.image.fileSize}</span>

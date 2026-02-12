@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { messages, sessionId } = body;
+    const { messages, sessionId, imageBase64, imageMimeType } = body;
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
@@ -87,7 +87,19 @@ export async function POST(req: NextRequest) {
     const userContent = typeof lastMessage.content === "string"
       ? lastMessage.content.slice(0, 1000)
       : "";
-    const response = await chat.sendMessage({ message: userContent });
+
+    // 画像付きメッセージの場合、inlineDataとして送信
+    let response;
+    if (imageBase64 && imageMimeType) {
+      response = await chat.sendMessage({
+        message: [
+          { text: userContent },
+          { inlineData: { mimeType: imageMimeType, data: imageBase64 } },
+        ],
+      });
+    } else {
+      response = await chat.sendMessage({ message: userContent });
+    }
     const durationMs = Date.now() - startTime;
     const reply = response.text ?? "";
 

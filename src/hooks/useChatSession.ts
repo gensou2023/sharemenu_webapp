@@ -86,13 +86,13 @@ export function useChatSession(
 
   // --- ハンドラー ---
 
-  const handleSend = async (text: string) => {
+  const handleSend = async (text: string, image?: { base64: string; mimeType: string; fileName: string }) => {
     const sid = await ensureSession();
     await sendMessage(text, messages, sid, {
       setMessages,
       setIsTyping,
       setCurrentProposal,
-    });
+    }, image);
   };
 
   const handleQuickReply = (reply: string) => {

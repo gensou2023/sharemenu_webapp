@@ -21,6 +21,9 @@ export interface MessageImage {
   fileName: string;
   fileSize: string;
   bgColor: string;
+  storagePath?: string;
+  publicUrl?: string;
+  mimeType?: string;
 }
 
 export interface Message {
