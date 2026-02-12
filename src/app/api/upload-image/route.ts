@@ -46,6 +46,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: uploadError.message }, { status: 500 });
   }
 
+  // 署名付きURLを生成（7日間有効）
+  const { data: signedUrlData } = await supabase.storage
+    .from("uploads")
+    .createSignedUrl(fileName, 60 * 60 * 24 * 7);
+
   // 元サイズと圧縮後サイズをログ
   const originalSize = inputBuffer.length;
   const compressedSize = resized.length;
@@ -53,6 +58,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     storagePath: fileName,
+    signedUrl: signedUrlData?.signedUrl || null,
     originalSize,
     compressedSize,
     compressionRatio: `${ratio}%`,

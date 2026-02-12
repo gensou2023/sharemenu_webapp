@@ -147,8 +147,8 @@ export function useChatFlow({
 
         if (uploadRes.ok) {
           const uploadData = await uploadRes.json();
-          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-          const publicUrl = `${supabaseUrl}/storage/v1/object/public/uploads/${uploadData.storagePath}`;
+          const publicUrl = uploadData.signedUrl
+            || `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/uploads/${uploadData.storagePath}`;
 
           const fileSizeKB = Math.round((uploadData.compressedSize || image.base64.length * 0.75) / 1024);
           const isReference = image.imageType === "reference";
