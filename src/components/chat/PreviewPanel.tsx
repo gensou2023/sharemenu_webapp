@@ -86,6 +86,8 @@ export default function PreviewPanel({
   generatedImageUrl,
   sessionCategory,
   shopName,
+  lastUsedPrompt,
+  onSavePrompt,
 }: {
   isOpen: boolean;
   onToggle: () => void;
@@ -98,6 +100,8 @@ export default function PreviewPanel({
   generatedImageUrl?: string | null;
   sessionCategory?: string;
   shopName?: string;
+  lastUsedPrompt?: string | null;
+  onSavePrompt?: () => void;
 }) {
   const [activeRatio, setActiveRatio] = useState<RatioKey>("1-1");
   const [showShareModal, setShowShareModal] = useState(false);
@@ -273,6 +277,14 @@ export default function PreviewPanel({
             </svg>
             この画像をダウンロード
           </button>
+          {generatedImage && lastUsedPrompt && onSavePrompt && (
+            <button
+              onClick={onSavePrompt}
+              className="w-full py-3 rounded-full text-[13px] font-semibold bg-transparent text-accent-gold border border-accent-gold/30 cursor-pointer flex items-center justify-center gap-2 transition-all duration-300 hover:bg-accent-gold/10 hover:border-accent-gold/50"
+            >
+              📝 プロンプトを保存
+            </button>
+          )}
           {generatedImage && generatedImageId && !shared && (
             <button
               onClick={() => setShowShareModal(true)}

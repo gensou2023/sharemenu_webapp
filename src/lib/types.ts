@@ -124,3 +124,14 @@ export type Achievement = {
   unlocked_at: string | null;
   notified: boolean;
 };
+
+// --- ユーザープロンプト ---
+export type UserPrompt = {
+  id: string;
+  name: string;
+  prompt_text: string;
+  category: string | null;
+  usage_count: number;
+  created_at: string;
+  updated_at: string;
+};

@@ -71,7 +71,7 @@ export function useChatSession(
 
   const onStepChange = useCallback((step: FlowStep) => setCurrentStep(step), []);
 
-  const { isGeneratingImage, generatedImage, generateImage } =
+  const { isGeneratingImage, generatedImage, generateImage, lastUsedPrompt } =
     useImageGeneration({
       sessionId,
       onMessagesAdd,
@@ -164,6 +164,7 @@ export function useChatSession(
     sessionId,
     isRestoring,
     restoredShopName,
+    lastUsedPrompt,
 
     // ハンドラー
     handleSend,

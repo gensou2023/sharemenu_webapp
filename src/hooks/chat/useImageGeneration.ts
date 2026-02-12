@@ -28,6 +28,7 @@ export function useImageGeneration({
   const [generatedImage, setGeneratedImage] = useState<
     GeneratedImage | null | undefined
   >(undefined);
+  const [lastUsedPrompt, setLastUsedPrompt] = useState<string | null>(null);
 
   const generateImage = async (
     proposal: MessageType["proposal"],
@@ -60,6 +61,8 @@ Restaurant: ${proposal.shopName}
 Design style: ${proposal.designDirection || "natural, warm"}
 Mood: appetizing, warm lighting, high-quality food photo
 IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or captions in the image. Generate ONLY the food photograph with no text overlay whatsoever.`;
+
+      setLastUsedPrompt(prompt);
 
       const category = inferCategory(proposal);
 
@@ -151,5 +154,5 @@ IMPORTANT: Do NOT include any text, letters, words, numbers, watermarks, or capt
     }
   };
 
-  return { isGeneratingImage, generatedImage, generateImage };
+  return { isGeneratingImage, generatedImage, generateImage, lastUsedPrompt };
 }
