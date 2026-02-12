@@ -101,23 +101,42 @@ export default function ChatMessage({
         {/* 画像アップロード */}
         {msg.image && (
           <div className="mt-2.5 rounded-[12px] overflow-hidden border border-border-light max-w-[240px]">
-            {msg.image.publicUrl ? (
+            {msg.image.publicUrl && (
               <img
                 src={msg.image.publicUrl}
                 alt={msg.image.fileName}
                 className="max-w-[240px] max-h-[200px] object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                  const fallback = e.currentTarget.nextElementSibling;
+                  if (fallback instanceof HTMLElement) fallback.style.display = "flex";
+                }}
               />
-            ) : (
-              <div
-                className="h-[140px] flex items-center justify-center text-6xl"
-                style={{ background: msg.image.bgColor }}
-              >
-                {msg.image.emoji}
-              </div>
             )}
-            <div className="px-3 py-2 bg-bg-primary text-[11px] text-text-muted flex justify-between">
+            <div
+              className="h-[140px] items-center justify-center text-6xl"
+              style={{
+                background: msg.image.bgColor,
+                display: msg.image.publicUrl ? "none" : "flex",
+              }}
+            >
+              {msg.image.emoji}
+            </div>
+            <div className="px-3 py-2 bg-bg-primary text-[11px] text-text-muted flex justify-between items-center">
               <span>{msg.image.fileName}</span>
-              <span>{msg.image.fileSize}</span>
+              <div className="flex items-center gap-1.5">
+                {msg.image.imageType === "shop_photo" && (
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-accent-warm/10 text-accent-warm">
+                    🏪 店舗
+                  </span>
+                )}
+                {msg.image.imageType === "reference" && (
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-accent-gold/15 text-accent-gold">
+                    🎨 参考
+                  </span>
+                )}
+                <span>{msg.image.fileSize}</span>
+              </div>
             </div>
           </div>
         )}

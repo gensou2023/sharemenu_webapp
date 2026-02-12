@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { prompt, aspectRatio = "1:1", sessionId, shopName, designDirection, category } = await req.json();
+    const { prompt, aspectRatio = "1:1", sessionId, shopName, designDirection, category, userReferenceImages } = await req.json();
 
     // DBテンプレートを使った動的プロンプト生成 or クライアント直送プロンプト
     let finalPrompt: string;
@@ -123,6 +123,36 @@ export async function POST(req: NextRequest) {
       }
     } catch {
       // 参考画像取得失敗は無視（テキストプロンプトのみで続行）
+    }
+
+    // --- ユーザー参考画像のマージ ---
+    if (Array.isArray(userReferenceImages) && userReferenceImages.length > 0) {
+      const userRefs = userReferenceImages.slice(0, 3);
+      // テキストパートがすでに追加されている場合、その前にユーザー参考画像を挿入
+      const textPartIndex = contentParts.findIndex((p) => "text" in p);
+      for (const ref of userRefs) {
+        if (ref.base64 && ref.mimeType) {
+          const part: ContentPart = {
+            inlineData: {
+              data: ref.base64,
+              mimeType: ref.mimeType,
+            },
+          };
+          if (textPartIndex >= 0) {
+            // テキストプロンプトの直前に挿入
+            contentParts.splice(contentParts.length - 1, 0, part);
+          } else {
+            contentParts.push(part);
+          }
+        }
+      }
+
+      // テキストパートがまだない場合（管理者参考画像がなかった場合）、テキストプロンプトを追加
+      if (!contentParts.some((p) => "text" in p) && contentParts.length > 0) {
+        contentParts.push({
+          text: `${sanitizedPrompt}\n\nUse the above reference image(s) as style/mood reference for the food photography. Match similar lighting, color palette, and composition style.${safeRatio !== "1:1" ? `\n\nアスペクト比: ${safeRatio} で生成してください。` : ""}`,
+        });
+      }
     }
 
     const ai = new GoogleGenAI({ apiKey });
