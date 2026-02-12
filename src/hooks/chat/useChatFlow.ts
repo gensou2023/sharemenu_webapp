@@ -19,7 +19,7 @@ export function useChatFlow({
     category?: string
   ) => Promise<void>;
 }) {
-  const callGeminiAPI = async (allMessages: MessageType[]): Promise<ApiResult> => {
+  const callGeminiAPI = async (allMessages: MessageType[], imageBase64?: string, imageMimeType?: string): Promise<ApiResult> => {
     // オフラインチェック
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       return {
@@ -37,7 +37,11 @@ export function useChatFlow({
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: apiMessages, sessionId }),
+        body: JSON.stringify({
+          messages: apiMessages,
+          sessionId,
+          ...(imageBase64 && imageMimeType ? { imageBase64, imageMimeType } : {}),
+        }),
       });
 
       if (!res.ok) {
@@ -119,22 +123,64 @@ export function useChatFlow({
       setMessages: React.Dispatch<React.SetStateAction<MessageType[]>>;
       setIsTyping: (v: boolean) => void;
       setCurrentProposal: (p: MessageType["proposal"] | null) => void;
-    }
+    },
+    image?: { base64: string; mimeType: string; fileName: string }
   ) => {
     const { setMessages, setIsTyping, setCurrentProposal } = callbacks;
+
+    // 画像アップロード処理
+    let imageData: MessageType["image"] | undefined;
+    let imageBase64ForApi: string | undefined;
+    let imageMimeTypeForApi: string | undefined;
+
+    if (image) {
+      try {
+        const uploadRes = await fetch("/api/upload-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            imageBase64: image.base64,
+            mimeType: image.mimeType,
+            sessionId: sid,
+          }),
+        });
+
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+          const publicUrl = `${supabaseUrl}/storage/v1/object/public/uploads/${uploadData.storagePath}`;
+
+          const fileSizeKB = Math.round((uploadData.compressedSize || image.base64.length * 0.75) / 1024);
+          imageData = {
+            emoji: "📷",
+            fileName: image.fileName,
+            fileSize: `${fileSizeKB}KB`,
+            bgColor: "#F5F3F0",
+            storagePath: uploadData.storagePath,
+            publicUrl,
+            mimeType: uploadData.mimeType || image.mimeType,
+          };
+          imageBase64ForApi = image.base64;
+          imageMimeTypeForApi = image.mimeType;
+        }
+      } catch {
+        // アップロード失敗時はテキストのみで続行
+      }
+    }
 
     const userMsg: MessageType = {
       id: genId("user"),
       role: "user",
       content: text,
       time: getTimeStr(),
+      image: imageData,
     };
 
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     setIsTyping(true);
 
-    const { reply, proposal, isError, retryAfterMs } = await callGeminiAPI(updatedMessages);
+    const { reply, proposal, isError, retryAfterMs } = await callGeminiAPI(updatedMessages, imageBase64ForApi, imageMimeTypeForApi);
 
     if (proposal) {
       setCurrentProposal(proposal);

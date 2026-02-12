@@ -20,7 +20,7 @@ export interface UseChatSessionReturn {
   restoredShopName: string | null;
 
   // ハンドラー
-  handleSend: (text: string) => Promise<void>;
+  handleSend: (text: string, image?: { base64: string; mimeType: string; fileName: string }) => Promise<void>;
   handleQuickReply: (reply: string) => void;
   handleApproveProposal: () => void;
   handleReviseProposal: () => void;

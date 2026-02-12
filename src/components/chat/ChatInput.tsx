@@ -2,16 +2,28 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 
+export interface ImageAttachment {
+  base64: string;
+  mimeType: string;
+  fileName: string;
+}
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
 export default function ChatInput({
   onSend,
   disabled = false,
 }: {
-  onSend: (message: string) => void;
+  onSend: (message: string, image?: ImageAttachment) => void;
   disabled?: boolean;
 }) {
   const [value, setValue] = useState("");
-  const [showAttachNotice, setShowAttachNotice] = useState(false);
+  const [imagePreview, setImagePreview] = useState<{
+    dataUrl: string;
+    attachment: ImageAttachment;
+  } | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const adjustHeight = useCallback(() => {
     const ta = textareaRef.current;
@@ -24,13 +36,52 @@ export default function ChatInput({
     adjustHeight();
   }, [value, adjustHeight]);
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > MAX_FILE_SIZE) {
+      alert("画像サイズは10MB以下にしてください");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      alert("画像ファイルを選択してください");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // data:image/jpeg;base64,xxxx → base64部分を取得
+      const base64 = result.split(",")[1];
+      setImagePreview({
+        dataUrl: result,
+        attachment: {
+          base64,
+          mimeType: file.type,
+          fileName: file.name,
+        },
+      });
+    };
+    reader.readAsDataURL(file);
+
+    // 同じファイルを再選択可能にするためリセット
+    e.target.value = "";
+  };
+
+  const clearImage = () => {
+    setImagePreview(null);
+  };
+
   const handleSubmit = () => {
     if (disabled) return;
     const trimmed = value.trim();
-    if (!trimmed) return;
-    onSend(trimmed);
+    if (!trimmed && !imagePreview) return;
+
+    onSend(trimmed || "(画像を送信しました)", imagePreview?.attachment);
     setValue("");
-    // 送信後にテキストエリアにフォーカスを戻す
+    setImagePreview(null);
     setTimeout(() => {
       textareaRef.current?.focus();
     }, 0);
@@ -38,11 +89,7 @@ export default function ChatInput({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      if (e.shiftKey) {
-        // Shift+Enter で改行（デフォルト動作のまま）
-        return;
-      }
-      // Enter のみで送信
+      if (e.shiftKey) return;
       e.preventDefault();
       handleSubmit();
     }
@@ -50,16 +97,47 @@ export default function ChatInput({
 
   return (
     <div className="px-4 md:px-7 py-3 md:py-4 border-t border-border-light bg-bg-secondary flex-shrink-0">
+      {/* 画像プレビュー */}
+      {imagePreview && (
+        <div className="mb-2 flex items-center gap-2">
+          <div className="relative inline-block">
+            <img
+              src={imagePreview.dataUrl}
+              alt={imagePreview.attachment.fileName}
+              className="h-16 w-16 object-cover rounded-[8px] border border-border-light"
+            />
+            <button
+              onClick={clearImage}
+              className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-bg-dark text-white text-xs flex items-center justify-center cursor-pointer border-none hover:bg-red-500 transition-colors"
+            >
+              ×
+            </button>
+          </div>
+          <span className="text-xs text-text-muted truncate max-w-[200px]">
+            {imagePreview.attachment.fileName}
+          </span>
+        </div>
+      )}
+
       <div className="flex items-end gap-2 md:gap-3 bg-bg-primary border border-border-light rounded-full px-3 md:px-4 py-2 transition-all duration-300 focus-within:border-accent-warm focus-within:shadow-[0_0_0_3px_rgba(232,113,58,.1)]">
         {/* 添付ボタン */}
         <div className="relative flex-shrink-0">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
           <button
-            onClick={() => {
-              setShowAttachNotice(true);
-              setTimeout(() => setShowAttachNotice(false), 3000);
-            }}
+            onClick={() => fileInputRef.current?.click()}
+            disabled={disabled}
             title="写真を添付"
-            className="w-[34px] h-[34px] sm:w-[38px] sm:h-[38px] rounded-full border border-dashed border-border-medium bg-transparent cursor-pointer flex items-center justify-center transition-all duration-300 text-text-muted hover:border-accent-warm hover:text-accent-warm"
+            className={`w-[34px] h-[34px] sm:w-[38px] sm:h-[38px] rounded-full border border-dashed bg-transparent cursor-pointer flex items-center justify-center transition-all duration-300 ${
+              imagePreview
+                ? "border-accent-warm text-accent-warm"
+                : "border-border-medium text-text-muted hover:border-accent-warm hover:text-accent-warm"
+            } disabled:opacity-40 disabled:cursor-not-allowed`}
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path
@@ -71,12 +149,6 @@ export default function ChatInput({
               />
             </svg>
           </button>
-          {showAttachNotice && (
-            <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-bg-dark text-white text-xs rounded-lg whitespace-nowrap shadow-lg animate-[msgIn_0.3s_ease-out]">
-              📷 画像アップロード機能は準備中です
-              <div className="absolute top-full left-4 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-bg-dark" />
-            </div>
-          )}
         </div>
 
         {/* 入力フィールド（複数行対応） */}
@@ -94,7 +166,7 @@ export default function ChatInput({
         {/* 送信ボタン */}
         <button
           onClick={handleSubmit}
-          disabled={disabled || !value.trim()}
+          disabled={disabled || (!value.trim() && !imagePreview)}
           title="Enter で送信"
           className="w-[34px] h-[34px] sm:w-[38px] sm:h-[38px] rounded-full border-none bg-accent-warm text-white cursor-pointer flex items-center justify-center transition-all duration-300 hover:bg-accent-warm-hover hover:shadow-[0_2px_12px_rgba(232,113,58,.25)] flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed"
         >
