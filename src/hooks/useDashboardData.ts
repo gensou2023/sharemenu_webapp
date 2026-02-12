@@ -14,6 +14,9 @@ type SessionData = {
   thumbnailUrl: string | null;
   imageUrls: string[];
   imageIds: string[];
+  isShared: boolean;
+  totalLikes: number;
+  totalSaves: number;
 };
 
 type StatsData = {
@@ -22,11 +25,27 @@ type StatsData = {
   recentSessions: number;
 };
 
-export type { SessionData, StatsData };
+type GalleryStatsData = {
+  sharedCount: number;
+  totalLikes: number;
+  totalSaves: number;
+  topImages: Array<{
+    id: string;
+    image_url: string;
+    prompt: string;
+    category: string;
+    like_count: number;
+    save_count: number;
+    created_at: string;
+  }>;
+};
+
+export type { SessionData, StatsData, GalleryStatsData };
 
 export function useDashboardData() {
   const [sessions, setSessions] = useState<SessionData[]>([]);
   const [stats, setStats] = useState<StatsData | null>(null);
+  const [galleryStats, setGalleryStats] = useState<GalleryStatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
 
@@ -41,6 +60,7 @@ export function useDashboardData() {
           const data = await dashRes.json();
           setSessions(data.sessions || []);
           setStats(data.stats || null);
+          setGalleryStats(data.galleryStats || null);
         }
         if (accountRes.ok) {
           const accountData = await accountRes.json();
@@ -71,5 +91,5 @@ export function useDashboardData() {
     }
   };
 
-  return { sessions, setSessions, stats, setStats, loading, onboardingCompleted, completeOnboarding };
+  return { sessions, setSessions, stats, setStats, galleryStats, loading, onboardingCompleted, completeOnboarding };
 }

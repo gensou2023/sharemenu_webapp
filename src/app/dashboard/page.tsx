@@ -9,13 +9,14 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsSection from "@/components/dashboard/StatsSection";
 import QuickActions from "@/components/dashboard/QuickActions";
 import SessionGrid from "@/components/dashboard/SessionGrid";
+import GalleryStatsSection from "@/components/dashboard/GalleryStatsSection";
 import OnboardingTour from "@/components/onboarding/OnboardingTour";
 import ShareModal from "@/components/gallery/ShareModal";
 import { useDashboardData, type SessionData } from "@/hooks/useDashboardData";
 import { useSessionActions } from "@/hooks/useSessionActions";
 
 export default function DashboardPage() {
-  const { sessions, setSessions, stats, setStats, loading, onboardingCompleted, completeOnboarding } = useDashboardData();
+  const { sessions, setSessions, stats, setStats, galleryStats, loading, onboardingCompleted, completeOnboarding } = useDashboardData();
   const {
     downloading,
     showLimitModal,
@@ -85,6 +86,9 @@ export default function DashboardPage() {
           <DashboardHeader onCreateNew={handleCreateNew} />
           <StatsSection cards={statsCards} loading={loading} />
           <QuickActions onCreateNew={handleCreateNew} />
+
+          {/* ギャラリー成績 */}
+          <GalleryStatsSection data={galleryStats} loading={loading} />
 
           {/* 広告プレースホルダー */}
           <div className="mb-9">

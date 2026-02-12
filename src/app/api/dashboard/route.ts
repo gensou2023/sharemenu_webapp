@@ -54,6 +54,63 @@ export async function GET() {
     .eq("user_id", userId)
     .gte("created_at", thirtyDaysAgo.toISOString());
 
+  // ギャラリー共有画像（自分の共有画像 + いいね/保存数）
+  const { data: sharedImages } = await supabase
+    .from("shared_images")
+    .select("id, image_id, category, created_at, generated_images!inner(storage_path, prompt)")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  // 共有画像ごとのいいね・保存数を取得
+  const sharedIds = (sharedImages || []).map((s) => s.id);
+  let sharedWithStats: Array<{
+    id: string;
+    image_id: string;
+    image_url: string;
+    prompt: string;
+    category: string;
+    like_count: number;
+    save_count: number;
+    created_at: string;
+  }> = [];
+
+  if (sharedIds.length > 0) {
+    const [likesResult, savesResult] = await Promise.all([
+      supabase.from("image_likes").select("shared_image_id").in("shared_image_id", sharedIds),
+      supabase.from("image_saves").select("shared_image_id").in("shared_image_id", sharedIds),
+    ]);
+
+    const likeCounts: Record<string, number> = {};
+    for (const l of likesResult.data || []) {
+      likeCounts[l.shared_image_id] = (likeCounts[l.shared_image_id] || 0) + 1;
+    }
+    const saveCounts: Record<string, number> = {};
+    for (const s of savesResult.data || []) {
+      saveCounts[s.shared_image_id] = (saveCounts[s.shared_image_id] || 0) + 1;
+    }
+
+    sharedWithStats = (sharedImages || []).map((s) => {
+      const gen = s.generated_images as unknown as { storage_path: string; prompt: string };
+      const { data: urlData } = supabase.storage.from("generated").getPublicUrl(gen.storage_path);
+      return {
+        id: s.id,
+        image_id: s.image_id,
+        image_url: urlData.publicUrl,
+        prompt: gen.prompt,
+        category: s.category,
+        like_count: likeCounts[s.id] || 0,
+        save_count: saveCounts[s.id] || 0,
+        created_at: s.created_at,
+      };
+    });
+  }
+
+  // セッションの画像IDに対する共有状態マップ
+  const sharedImageMap: Record<string, { like_count: number; save_count: number }> = {};
+  for (const s of sharedWithStats) {
+    sharedImageMap[s.image_id] = { like_count: s.like_count, save_count: s.save_count };
+  }
+
   const sessions = sessionsResult.data || [];
   const totalImages = statsResult.count || 0;
   const monthlyImages = monthlyResult.count || 0;
@@ -77,12 +134,27 @@ export async function GET() {
       return urlData.publicUrl;
     });
 
+    // セッション内の画像が共有されているかチェック
+    const shareInfo = images.reduce(
+      (acc, img) => {
+        const shared = sharedImageMap[img.id];
+        if (shared) {
+          acc.isShared = true;
+          acc.totalLikes += shared.like_count;
+          acc.totalSaves += shared.save_count;
+        }
+        return acc;
+      },
+      { isShared: false, totalLikes: 0, totalSaves: 0 }
+    );
+
     return {
       ...s,
       imageCount: images.length,
       thumbnailUrl,
       imageUrls,
       imageIds: images.map((img) => img.id),
+      ...shareInfo,
     };
   });
 
@@ -92,6 +164,14 @@ export async function GET() {
       totalImages,
       monthlyImages,
       recentSessions: recentSessionCount || 0,
+    },
+    galleryStats: {
+      sharedCount: sharedWithStats.length,
+      totalLikes: sharedWithStats.reduce((sum, s) => sum + s.like_count, 0),
+      totalSaves: sharedWithStats.reduce((sum, s) => sum + s.save_count, 0),
+      topImages: sharedWithStats
+        .sort((a, b) => (b.like_count + b.save_count) - (a.like_count + a.save_count))
+        .slice(0, 6),
     },
   });
 }

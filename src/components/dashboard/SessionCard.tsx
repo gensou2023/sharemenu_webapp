@@ -59,13 +59,20 @@ export default function SessionCard({
             backgroundSize: "20px 20px",
           }}
         />
-        <span
-          className={`absolute top-3 right-3 px-3 py-1 rounded-full text-[11px] font-semibold text-white z-10 ${
-            item.status === "completed" ? "bg-accent-olive" : "bg-accent-warm"
-          }`}
-        >
-          {item.status === "completed" ? "完了" : "進行中"}
-        </span>
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+          {item.isShared && (
+            <span className="px-2 py-1 rounded-full text-[11px] font-semibold text-white bg-accent-gold/90 backdrop-blur-sm">
+              共有中
+            </span>
+          )}
+          <span
+            className={`px-3 py-1 rounded-full text-[11px] font-semibold text-white ${
+              item.status === "completed" ? "bg-accent-olive" : "bg-accent-warm"
+            }`}
+          >
+            {item.status === "completed" ? "完了" : "進行中"}
+          </span>
+        </div>
         <div
           className="absolute bottom-0 left-0 right-0 h-[60px] z-[2]"
           style={{
@@ -149,10 +156,30 @@ export default function SessionCard({
             </button>
           </div>
         </div>
-        <div className="text-xs text-text-muted flex gap-3">
+        <div className="text-xs text-text-muted flex items-center gap-3">
           <span>{item.category || "—"}</span>
           <span>{new Date(item.created_at).toLocaleDateString("ja-JP")}</span>
           <span>画像 {item.imageCount}枚</span>
+          {item.isShared && (item.totalLikes > 0 || item.totalSaves > 0) && (
+            <span className="flex items-center gap-2 ml-auto text-text-secondary">
+              {item.totalLikes > 0 && (
+                <span className="flex items-center gap-0.5">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="#ef4444" stroke="none">
+                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                  </svg>
+                  {item.totalLikes}
+                </span>
+              )}
+              {item.totalSaves > 0 && (
+                <span className="flex items-center gap-0.5">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="#D4A853" stroke="none">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+                  </svg>
+                  {item.totalSaves}
+                </span>
+              )}
+            </span>
+          )}
         </div>
       </div>
     </Link>
