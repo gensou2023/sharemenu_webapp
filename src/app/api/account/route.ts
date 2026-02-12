@@ -13,7 +13,7 @@ export async function GET() {
     const supabase = createAdminClient();
     const { data: user, error } = await supabase
       .from("users")
-      .select("id, email, name, role, created_at")
+      .select("id, email, name, role, created_at, deleted_at")
       .eq("id", session.user.id)
       .single();
 
@@ -24,7 +24,47 @@ export async function GET() {
       );
     }
 
+    if (user.deleted_at) {
+      return NextResponse.json(
+        { error: "このアカウントは退会済みです。" },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.json({ user });
+  } catch {
+    return NextResponse.json(
+      { error: "サーバーエラーが発生しました。" },
+      { status: 500 }
+    );
+  }
+}
+
+// アカウント退会（ソフトデリート）
+export async function DELETE() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "認証が必要です。" }, { status: 401 });
+  }
+
+  try {
+    const supabase = createAdminClient();
+    const { error } = await supabase
+      .from("users")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", session.user.id);
+
+    if (error) {
+      console.error("Account withdrawal error:", error);
+      return NextResponse.json(
+        { error: "退会処理に失敗しました。" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      message: "退会処理が完了しました。",
+    });
   } catch {
     return NextResponse.json(
       { error: "サーバーエラーが発生しました。" },

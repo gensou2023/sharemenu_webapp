@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { signOut } from "next-auth/react";
 import Header from "@/components/landing/Header";
 import Link from "next/link";
 
@@ -19,6 +20,8 @@ export default function SettingsPage() {
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
 
   useEffect(() => {
     async function fetchAccount() {
@@ -61,6 +64,25 @@ export default function SettingsPage() {
       setError("通信エラーが発生しました。");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleWithdraw = async () => {
+    setWithdrawing(true);
+    try {
+      const res = await fetch("/api/account", { method: "DELETE" });
+      if (res.ok) {
+        await signOut({ callbackUrl: "/login" });
+      } else {
+        const data = await res.json();
+        setError(data.error || "退会処理に失敗しました。");
+        setShowWithdrawModal(false);
+      }
+    } catch {
+      setError("通信エラーが発生しました。");
+      setShowWithdrawModal(false);
+    } finally {
+      setWithdrawing(false);
     }
   };
 
@@ -221,6 +243,62 @@ export default function SettingsPage() {
                     className="px-5 py-2.5 rounded-[28px] border border-border-medium text-text-secondary text-[13px] font-semibold transition-all duration-300 cursor-not-allowed opacity-50"
                   >
                     準備中
+                  </button>
+                </div>
+              </div>
+
+              {/* 退会 */}
+              <div className="bg-bg-secondary rounded-[20px] border border-red-200 p-6 relative overflow-hidden animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
+                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-red-400 via-red-300 to-transparent" />
+                <h2 className="text-[11px] font-semibold text-red-500 uppercase tracking-[1px] mb-5">
+                  退会
+                </h2>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-semibold text-[15px] mb-1">
+                      アカウントを削除
+                    </div>
+                    <div className="text-xs text-text-secondary">
+                      退会すると、ログインできなくなります
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowWithdrawModal(true)}
+                    className="px-5 py-2.5 rounded-[28px] bg-red-500 text-white text-[13px] font-semibold transition-all duration-300 hover:bg-red-600 cursor-pointer"
+                  >
+                    退会する
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 退会確認モーダル */}
+          {showWithdrawModal && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <div className="bg-bg-secondary rounded-[16px] border border-border-light p-6 max-w-md w-full mx-4">
+                <h3 className="text-lg font-bold mb-2">退会の確認</h3>
+                <p className="text-sm text-text-secondary mb-1">
+                  本当に退会しますか？
+                </p>
+                <p className="text-sm text-red-500 mb-4">
+                  退会するとログインできなくなります。この操作は取り消せません。
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowWithdrawModal(false)}
+                    disabled={withdrawing}
+                    className="px-4 py-2 rounded-[8px] border border-border-light text-sm cursor-pointer hover:bg-bg-primary transition-colors disabled:opacity-50"
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    onClick={handleWithdraw}
+                    disabled={withdrawing}
+                    className="px-4 py-2 rounded-[8px] bg-red-500 text-white text-sm font-semibold cursor-pointer transition-colors hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {withdrawing ? "処理中..." : "退会する"}
                   </button>
                 </div>
               </div>

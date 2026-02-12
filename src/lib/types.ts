@@ -58,3 +58,41 @@ export type FlowStep = 1 | 2 | 3 | 4 | 5;
 
 // --- ユーザー ---
 export type UserRole = "user" | "admin";
+
+export type AdminUserSummary = {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  created_at: string;
+  deleted_at: string | null;
+  sessionCount: number;
+  imageCount: number;
+};
+
+export type AdminUserDetail = AdminUserSummary & {
+  updated_at: string;
+  stats: {
+    totalSessions: number;
+    totalImages: number;
+    completionRate: number;
+    totalApiCalls: number;
+    lastActiveAt: string | null;
+  };
+  recentSessions: Array<{
+    id: string;
+    title: string;
+    shop_name: string | null;
+    status: string;
+    created_at: string;
+    updated_at: string;
+    imageCount: number;
+    messageCount: number;
+  }>;
+  recentImages: Array<{
+    id: string;
+    storage_path: string;
+    prompt: string;
+    created_at: string;
+  }>;
+};

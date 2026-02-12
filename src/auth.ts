@@ -47,11 +47,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const supabase = createAdminClient();
           const { data: user, error } = await supabase
             .from("users")
-            .select("id, email, name, role, password_hash")
+            .select("id, email, name, role, password_hash, deleted_at")
             .eq("email", email)
             .single();
 
           if (!error && user) {
+            // 退会済みユーザーはログイン拒否
+            if (user.deleted_at) return null;
+
             // bcryptハッシュの場合
             if (user.password_hash.startsWith("$2")) {
               const valid = await bcrypt.compare(password, user.password_hash);
