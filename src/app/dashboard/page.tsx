@@ -101,7 +101,7 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* 右カラム: 統計・クイックアクション・ギャラリー・アチーブメント */}
+            {/* 右カラム: 統計・クイックアクション */}
             <div className="w-full lg:w-[320px] flex-shrink-0 space-y-6">
               <StatsSection cards={statsCards} loading={loading} />
               <QuickActions onCreateNew={handleCreateNew} />
@@ -109,16 +109,19 @@ export default function DashboardPage() {
               <div>
                 <AdPlaceholder variant="banner" />
               </div>
-
-              <GalleryStatsSection data={galleryStats} loading={loading} />
-
-              <AchievementSection
-                visible={achievements?.visible || []}
-                hidden={achievements?.hidden || []}
-                totalHidden={achievements?.totalHidden || 0}
-                loading={loading}
-              />
             </div>
+          </div>
+
+          {/* 2カラム外: ギャラリー・アチーブメント */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <GalleryStatsSection data={galleryStats} loading={loading} />
+
+            <AchievementSection
+              visible={achievements?.visible || []}
+              hidden={achievements?.hidden || []}
+              totalHidden={achievements?.totalHidden || 0}
+              loading={loading}
+            />
           </div>
         </div>
 
