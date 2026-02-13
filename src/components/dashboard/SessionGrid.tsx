@@ -2,24 +2,6 @@ import Link from "next/link";
 import type { SessionData } from "@/hooks/useDashboardData";
 import SessionCard from "./SessionCard";
 
-function NewSessionCard() {
-  return (
-    <Link
-      href="/chat"
-      className="group flex flex-col items-center justify-center gap-3 min-h-[220px] rounded-[20px] border-2 border-dashed border-border-light bg-transparent hover:border-accent-warm/40 hover:bg-accent-warm/[.03] transition-all duration-300 no-underline cursor-pointer"
-    >
-      <div className="w-12 h-12 rounded-full bg-accent-warm/10 flex items-center justify-center group-hover:bg-accent-warm/20 transition-colors duration-300">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-accent-warm">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-      </div>
-      <span className="text-sm font-semibold text-text-secondary group-hover:text-accent-warm transition-colors duration-300">
-        新しいメニューを作成
-      </span>
-    </Link>
-  );
-}
-
 export default function SessionGrid({
   sessions,
   loading,
@@ -97,7 +79,6 @@ export default function SessionGrid({
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <NewSessionCard />
           {sessions.map((item, idx) => (
             <SessionCard
               key={item.id}
