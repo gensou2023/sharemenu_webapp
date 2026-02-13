@@ -15,7 +15,7 @@ export async function GET() {
     const supabase = createAdminClient();
     const { data: user, error } = await supabase
       .from("users")
-      .select("id, email, name, role, created_at, deleted_at, onboarding_completed_at")
+      .select("id, email, name, role, created_at, deleted_at, onboarding_completed_at, avatar_url, business_type, shop_concept, brand_color_primary, brand_color_secondary, prefecture, website_url, sns_instagram, sns_x")
       .eq("id", session.user.id)
       .single();
 
@@ -84,7 +84,9 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, onboarding_completed_at, current_password, new_password } = body;
+    const { name, onboarding_completed_at, current_password, new_password,
+      business_type, shop_concept, brand_color_primary, brand_color_secondary,
+      prefecture, website_url, sns_instagram, sns_x } = body;
 
     // バリデーション
     if (name !== undefined) {
@@ -102,11 +104,34 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
+    if (shop_concept !== undefined && shop_concept !== null && typeof shop_concept === "string" && shop_concept.length > 200) {
+      return NextResponse.json(
+        { error: "店舗コンセプトは200文字以内で入力してください。" },
+        { status: 400 }
+      );
+    }
+
+    const validBusinessTypes = ["izakaya", "cafe", "french", "italian", "japanese", "chinese", "ramen", "yakiniku", "other"];
+    if (business_type !== undefined && business_type !== null && !validBusinessTypes.includes(business_type)) {
+      return NextResponse.json(
+        { error: "無効な業態が指定されました。" },
+        { status: 400 }
+      );
+    }
+
     const supabase = createAdminClient();
 
-    const updateData: Record<string, string> = {};
+    const updateData: Record<string, string | null> = {};
     if (name !== undefined) updateData.name = name.trim();
     if (onboarding_completed_at !== undefined) updateData.onboarding_completed_at = new Date().toISOString();
+
+    // プロフィール拡張フィールド
+    const profileFields = { business_type, shop_concept, brand_color_primary, brand_color_secondary, prefecture, website_url, sns_instagram, sns_x };
+    for (const [key, value] of Object.entries(profileFields)) {
+      if (value !== undefined) {
+        updateData[key] = typeof value === "string" ? value.trim() || null : value;
+      }
+    }
 
     // パスワード変更処理
     let passwordChanged = false;

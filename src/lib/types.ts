@@ -59,6 +59,27 @@ export type FlowStep = 1 | 2 | 3 | 4 | 5;
 // --- ユーザー ---
 export type UserRole = "user" | "admin";
 
+export type BusinessType =
+  | "izakaya" | "cafe" | "french" | "italian"
+  | "japanese" | "chinese" | "ramen" | "yakiniku" | "other";
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  avatar_url: string | null;
+  business_type: BusinessType | null;
+  shop_concept: string | null;
+  brand_color_primary: string | null;
+  brand_color_secondary: string | null;
+  prefecture: string | null;
+  website_url: string | null;
+  sns_instagram: string | null;
+  sns_x: string | null;
+  created_at: string;
+}
+
 export type AdminUserSummary = {
   id: string;
   email: string;
