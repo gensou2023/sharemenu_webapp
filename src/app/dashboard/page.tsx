@@ -109,6 +109,7 @@ export default function DashboardPage() {
             onDownload={handleDownload}
             onDelete={setDeleteTarget}
             onShare={setShareTarget}
+            onCreateNew={handleCreateNew}
           />
         </div>
 
