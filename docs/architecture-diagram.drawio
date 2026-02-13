@@ -1,0 +1,518 @@
+<mxfile host="app.diagrams.net" modified="2026-02-13" agent="Claude Code" version="24.0.0" type="device">
+  <diagram name="MenuCraft AI Architecture" id="menucraft-arch">
+    <mxGraphModel dx="1422" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ========== TITLE ========== -->
+        <mxCell id="title" value="MenuCraft AI — システム構成図" style="text;html=1;fontSize=24;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Helvetica;fontColor=#1A1A1A;" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="800" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Next.js 15 (App Router) + Supabase + Google Gemini AI" style="text;html=1;fontSize=13;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Helvetica;fontColor=#6B6560;" vertex="1" parent="1">
+          <mxGeometry x="400" y="55" width="800" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ========== LAYER 1: CLIENT ========== -->
+        <mxCell id="layer1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8F0;strokeColor=#E8713A;strokeWidth=2;arcSize=4;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="1520" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="layer1_label" value="CLIENT LAYER" style="text;html=1;fontSize=11;fontStyle=1;align=left;verticalAlign=top;whiteSpace=wrap;fontColor=#E8713A;fontFamily=Helvetica;letterSpacing=2;" vertex="1" parent="1">
+          <mxGeometry x="55" y="105" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Browser -->
+        <mxCell id="browser" value="&lt;b&gt;ブラウザ&lt;/b&gt;&lt;br&gt;React 19 + TypeScript" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#EEEBE6;fontSize=12;fontFamily=Helvetica;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="135" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Pages -->
+        <mxCell id="pages_group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#EEEBE6;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="125" width="590" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="pages_label" value="ページ (14 routes)" style="text;html=1;fontSize=10;fontStyle=1;align=left;verticalAlign=top;fontColor=#1A1A1A;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="260" y="128" width="200" height="18" as="geometry" />
+        </mxCell>
+
+        <!-- Public pages -->
+        <mxCell id="page_lp" value="/ LP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F4ED;strokeColor=#7B8A64;fontSize=10;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="265" y="150" width="65" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="page_login" value="/login" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F4ED;strokeColor=#7B8A64;fontSize=10;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="340" y="150" width="65" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="page_signup" value="/signup" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F4ED;strokeColor=#7B8A64;fontSize=10;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="415" y="150" width="65" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="page_gallery" value="/gallery" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F4ED;strokeColor=#7B8A64;fontSize=10;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="490" y="150" width="65" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="page_legal" value="/privacy&lt;br&gt;/terms" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F4ED;strokeColor=#7B8A64;fontSize=10;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="565" y="150" width="65" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Protected pages -->
+        <mxCell id="page_chat" value="/chat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3EB;strokeColor=#E8713A;fontSize=10;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="265" y="195" width="85" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="page_dashboard" value="/dashboard" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3EB;strokeColor=#E8713A;fontSize=10;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="360" y="195" width="85" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="page_settings" value="/settings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3EB;strokeColor=#E8713A;fontSize=10;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="455" y="195" width="85" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Admin pages -->
+        <mxCell id="page_admin" value="/admin/*&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;(6 pages)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDF6E3;strokeColor=#D4A853;fontSize=10;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="550" y="195" width="85" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="page_legend_public" value="● Public" style="text;html=1;fontSize=9;fontColor=#7B8A64;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="660" y="150" width="60" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="page_legend_protected" value="● Protected" style="text;html=1;fontSize=9;fontColor=#E8713A;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="660" y="168" width="80" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="page_legend_admin" value="● Admin" style="text;html=1;fontSize=9;fontColor=#D4A853;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="660" y="186" width="60" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- Components box -->
+        <mxCell id="components" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#EEEBE6;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="870" y="125" width="340" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_label" value="コンポーネント (42 total)" style="text;html=1;fontSize=10;fontStyle=1;align=left;verticalAlign=top;fontColor=#1A1A1A;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="880" y="128" width="200" height="18" as="geometry" />
+        </mxCell>
+
+        <mxCell id="comp_landing" value="landing/ (8)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="885" y="150" width="70" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_chat" value="chat/ (6)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3EB;strokeColor=#E8713A;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="965" y="150" width="70" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_dashboard" value="dashboard/ (8)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3EB;strokeColor=#E8713A;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1045" y="150" width="80" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_admin" value="admin/ (5)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDF6E3;strokeColor=#D4A853;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1135" y="150" width="65" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_settings" value="settings/ (2)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3EB;strokeColor=#E8713A;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="885" y="188" width="75" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_gallery" value="gallery/ (2)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="970" y="188" width="70" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="comp_shared" value="共通 (7)&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;AppLayout, Sidebar等&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="188" width="100" height="28" as="geometry" />
+        </mxCell>
+
+        <!-- Hooks & Libs -->
+        <mxCell id="hooks_libs" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#EEEBE6;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="125" width="300" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="hooks_label" value="Hooks &amp; Utilities" style="text;html=1;fontSize=10;fontStyle=1;align=left;verticalAlign=top;fontColor=#1A1A1A;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="128" width="200" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="hook_chat" value="useChatSession&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;(688行 · 要リファクタ)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF0E5;strokeColor=#E8713A;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1255" y="150" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="hook_chat_split" value="chat/ hooks (6)&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;分割済みフック群&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1385" y="150" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lib_supabase" value="supabase.ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1255" y="190" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lib_types" value="types.ts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1335" y="190" width="60" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lib_rate" value="rate-limiter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1405" y="190" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="lib_others" value="+ 7 more (api-logger, admin-auth, etc.)" style="text;html=1;fontSize=8;fontColor=#6B6560;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1255" y="220" width="200" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- ========== LAYER 2: MIDDLEWARE ========== -->
+        <mxCell id="layer2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDF6E3;strokeColor=#D4A853;strokeWidth=2;arcSize=8;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="280" width="1520" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="layer2_label" value="MIDDLEWARE &amp; AUTH" style="text;html=1;fontSize=11;fontStyle=1;align=left;verticalAlign=top;whiteSpace=wrap;fontColor=#D4A853;fontFamily=Helvetica;letterSpacing=2;" vertex="1" parent="1">
+          <mxGeometry x="55" y="285" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="nextauth" value="&lt;b&gt;NextAuth.js v5&lt;/b&gt;&lt;br&gt;Credentials Provider&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;JWT (id + role)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D4A853;fontSize=10;fontFamily=Helvetica;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="305" width="180" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="middleware" value="&lt;b&gt;middleware.ts&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Route Protection: /dashboard, /chat, /admin, /settings&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D4A853;fontSize=10;fontFamily=Helvetica;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="270" y="305" width="340" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="ratelimit" value="&lt;b&gt;Rate Limiter&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Chat: 5/min · Image: 3/日(Free) / 無制限(Pro)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D4A853;fontSize=10;fontFamily=Helvetica;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="305" width="300" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="plan_limits" value="&lt;b&gt;プラン制限&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;Free: 3セッション/月, 1:1のみ · Pro(¥700): 無制限&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D4A853;fontSize=10;fontFamily=Helvetica;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="970" y="305" width="310" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- ========== LAYER 3: API ========== -->
+        <mxCell id="layer3" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0F4ED;strokeColor=#7B8A64;strokeWidth=2;arcSize=4;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="370" width="1520" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="layer3_label" value="API LAYER — 27 endpoints" style="text;html=1;fontSize=11;fontStyle=1;align=left;verticalAlign=top;whiteSpace=wrap;fontColor=#7B8A64;fontFamily=Helvetica;letterSpacing=2;" vertex="1" parent="1">
+          <mxGeometry x="55" y="375" width="300" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Chat API group -->
+        <mxCell id="api_chat_group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7B8A64;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="400" width="240" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="api_chat_label" value="チャット &amp; セッション" style="text;html=1;fontSize=10;fontStyle=1;align=left;fontColor=#7B8A64;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="70" y="403" width="150" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="api_chat" value="POST /api/chat" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#7B8A64;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="70" y="425" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_sessions" value="GET|POST /api/sessions" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#7B8A64;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="70" y="450" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_session_id" value="PATCH|DEL /api/sessions/[id]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#7B8A64;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="70" y="475" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_messages" value="GET|POST /api/sessions/[id]/messages" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#7B8A64;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="70" y="500" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_prompts_mine" value="GET|POST|DEL /api/prompts/mine/*" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#7B8A64;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="70" y="525" width="220" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- Image API group -->
+        <mxCell id="api_image_group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7B8A64;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="400" width="240" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="api_image_label" value="画像生成 &amp; ストレージ" style="text;html=1;fontSize=10;fontStyle=1;align=left;fontColor=#7B8A64;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="330" y="403" width="180" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="api_generate" value="POST /api/generate-image" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#7B8A64;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="330" y="425" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_images" value="POST /api/images" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#7B8A64;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="330" y="450" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_upload" value="POST /api/upload-image" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#7B8A64;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="330" y="475" width="220" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- Gallery API group -->
+        <mxCell id="api_gallery_group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7B8A64;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="515" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="api_gallery" value="GET /api/gallery · like · save · report" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#7B8A64;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="330" y="520" width="220" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Account API group -->
+        <mxCell id="api_account_group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7B8A64;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="400" width="240" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="api_account_label" value="アカウント &amp; 認証" style="text;html=1;fontSize=10;fontStyle=1;align=left;fontColor=#7B8A64;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="590" y="403" width="150" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="api_account" value="GET|PATCH /api/account" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#7B8A64;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="590" y="425" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_account_del" value="DELETE /api/account (退会)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#EF4444;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="590" y="450" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_signup" value="POST /api/signup" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#7B8A64;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="590" y="475" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_dashboard" value="GET /api/dashboard" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#7B8A64;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="590" y="500" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_achievements" value="GET|POST /api/achievements/*" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#7B8A64;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="590" y="525" width="220" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- Admin API group -->
+        <mxCell id="api_admin_group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D4A853;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="840" y="400" width="240" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="api_admin_label" value="管理者 API" style="text;html=1;fontSize=10;fontStyle=1;align=left;fontColor=#D4A853;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="850" y="403" width="150" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="api_admin_stats" value="GET /api/admin/stats" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDF6E3;strokeColor=#D4A853;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="850" y="425" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_admin_users" value="GET /api/admin/users/[id]" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDF6E3;strokeColor=#D4A853;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="850" y="450" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_admin_sessions" value="GET /api/admin/sessions" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDF6E3;strokeColor=#D4A853;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="850" y="475" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_admin_prompts" value="GET /api/admin/prompts" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDF6E3;strokeColor=#D4A853;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="850" y="500" width="220" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="api_admin_refs" value="GET /api/admin/references · api-logs" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDF6E3;strokeColor=#D4A853;fontSize=9;fontFamily=monospace;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="850" y="525" width="220" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- Styling box -->
+        <mxCell id="styling_group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#EEEBE6;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="400" width="200" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="styling_label" value="デザインシステム" style="text;html=1;fontSize=10;fontStyle=1;align=left;fontColor=#1A1A1A;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="403" width="150" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="tailwind" value="&lt;b&gt;Tailwind CSS v4&lt;/b&gt;&lt;br&gt;@theme inline" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="425" width="100" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="fonts" value="&lt;b&gt;Fonts&lt;/b&gt;&lt;br&gt;Playfair Display&lt;br&gt;Noto Sans JP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="468" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="colors" value="&lt;b&gt;Colors&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#E8713A&quot;&gt;■&lt;/font&gt; warm #E8713A&lt;br&gt;&lt;font color=&quot;#D4A853&quot;&gt;■&lt;/font&gt; gold #D4A853&lt;br&gt;&lt;font color=&quot;#7B8A64&quot;&gt;■&lt;/font&gt; olive #7B8A64" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="516" width="100" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="patterns" value="blur circles&lt;br&gt;accent bars&lt;br&gt;fadeInUp&lt;br&gt;hover FX" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=8;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="425" width="70" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Tech Stack box -->
+        <mxCell id="tech_group" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#EEEBE6;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1320" y="400" width="220" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_label" value="技術スタック" style="text;html=1;fontSize=10;fontStyle=1;align=left;fontColor=#1A1A1A;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1330" y="403" width="150" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_next" value="Next.js 15&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;App Router&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#000000;fontColor=#FFFFFF;strokeColor=#333333;fontSize=10;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1330" y="425" width="95" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_react" value="React 19&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;TypeScript&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#61DAFB;fontColor=#1A1A1A;strokeColor=#4FC3F7;fontSize=10;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1435" y="425" width="95" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_sharp" value="sharp&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;画像処理&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#99CC33;fontColor=#FFFFFF;strokeColor=#7BA828;fontSize=10;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1330" y="470" width="95" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_recharts" value="recharts&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;チャート&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#8884D8;fontColor=#FFFFFF;strokeColor=#7B7BC4;fontSize=10;fontStyle=1;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1435" y="470" width="95" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_bcrypt" value="bcryptjs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1330" y="515" width="60" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_dompurify" value="dompurify" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="515" width="60" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="tech_vitest" value="vitest" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F3;strokeColor=#EEEBE6;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="515" width="60" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- ========== LAYER 4: EXTERNAL SERVICES ========== -->
+        <mxCell id="layer4" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDE7F6;strokeColor=#9575CD;strokeWidth=2;arcSize=4;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="590" width="760" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="layer4_label" value="EXTERNAL SERVICES" style="text;html=1;fontSize=11;fontStyle=1;align=left;verticalAlign=top;whiteSpace=wrap;fontColor=#9575CD;fontFamily=Helvetica;letterSpacing=2;" vertex="1" parent="1">
+          <mxGeometry x="55" y="595" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Gemini -->
+        <mxCell id="gemini" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#9575CD;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="618" width="370" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="gemini_label" value="&lt;b style=&quot;font-size:13px&quot;&gt;Google Gemini AI&lt;/b&gt;" style="text;html=1;fontSize=13;align=left;fontColor=#4285F4;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="75" y="622" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="gemini_chat" value="&lt;b&gt;gemini-2.0-flash&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;チャット / テキスト生成&lt;br&gt;マルチターン会話&lt;br&gt;画像分析（マルチモーダル）&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#9575CD;fontSize=10;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="75" y="645" width="170" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="gemini_image" value="&lt;b&gt;gemini-2.0-flash-exp&lt;br&gt;-image-generation&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;メニュー画像生成&lt;br&gt;1:1 / 9:16 / 16:9&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#9575CD;fontSize=10;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="255" y="645" width="160" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Vercel -->
+        <mxCell id="vercel" value="&lt;b style=&quot;font-size:12px&quot;&gt;Vercel&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;デプロイ &amp; ホスティング&lt;br&gt;Edge Runtime&lt;br&gt;sharemenu-webapp.vercel.app&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#000000;fontSize=10;fontFamily=Helvetica;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="618" width="200" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- GitHub -->
+        <mxCell id="github" value="&lt;b style=&quot;font-size:12px&quot;&gt;GitHub&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;gensou2023/sharemenu_webapp&lt;br&gt;main ← develop ← feature/*&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#24292E;fontSize=10;fontFamily=Helvetica;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="670" y="618" width="120" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- ========== LAYER 5: DATABASE ========== -->
+        <mxCell id="layer5" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#42A5F5;strokeWidth=2;arcSize=4;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="740" width="1520" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="layer5_label" value="DATA LAYER — Supabase" style="text;html=1;fontSize=11;fontStyle=1;align=left;verticalAlign=top;whiteSpace=wrap;fontColor=#42A5F5;fontFamily=Helvetica;letterSpacing=2;" vertex="1" parent="1">
+          <mxGeometry x="55" y="745" width="300" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- PostgreSQL -->
+        <mxCell id="postgres" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#42A5F5;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="770" width="1100" height="225" as="geometry" />
+        </mxCell>
+        <mxCell id="postgres_label" value="&lt;b style=&quot;font-size:12px&quot;&gt;PostgreSQL — 14 テーブル&lt;/b&gt;" style="text;html=1;fontSize=12;align=left;fontColor=#42A5F5;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="75" y="775" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Core tables -->
+        <mxCell id="core_label" value="Core (7)" style="text;html=1;fontSize=9;fontStyle=5;fontColor=#42A5F5;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="75" y="798" width="60" height="15" as="geometry" />
+        </mxCell>
+
+        <mxCell id="tb_users" value="&lt;b&gt;users&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;id, email, name, role&lt;br&gt;password_hash, created_at&lt;br&gt;deleted_at, onboarding_*&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;childLayout=tableLayout;rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#42A5F5;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="75" y="815" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tb_sessions" value="&lt;b&gt;chat_sessions&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;id, user_id, title&lt;br&gt;status, shop_name&lt;br&gt;category&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#42A5F5;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="225" y="815" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tb_messages" value="&lt;b&gt;messages&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;id, session_id&lt;br&gt;role, content&lt;br&gt;proposal_json&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#42A5F5;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="365" y="815" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tb_gen_images" value="&lt;b&gt;generated_images&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;id, session_id, user_id&lt;br&gt;storage_path, prompt&lt;br&gt;aspect_ratio&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#42A5F5;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="495" y="815" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tb_prompts" value="&lt;b&gt;prompt_templates&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;name, content&lt;br&gt;version, is_active&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#42A5F5;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="645" y="815" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tb_refs" value="&lt;b&gt;reference_images&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;storage_path, label&lt;br&gt;category&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#42A5F5;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="775" y="815" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tb_api_logs" value="&lt;b&gt;api_usage_logs&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;api_type, model&lt;br&gt;tokens_in/out&lt;br&gt;duration_ms, status&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#42A5F5;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="905" y="815" width="130" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Gallery tables -->
+        <mxCell id="gallery_label" value="Gallery (4)" style="text;html=1;fontSize=9;fontStyle=5;fontColor=#42A5F5;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="75" y="885" width="80" height="15" as="geometry" />
+        </mxCell>
+
+        <mxCell id="tb_shared" value="&lt;b&gt;shared_images&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;image_id, user_id&lt;br&gt;category, show_shop_name&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#66BB6A;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="75" y="903" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="tb_likes" value="&lt;b&gt;image_likes&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;shared_image_id&lt;br&gt;user_id (unique)&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#66BB6A;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="235" y="903" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="tb_saves" value="&lt;b&gt;image_saves&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;shared_image_id&lt;br&gt;user_id (unique)&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#66BB6A;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="365" y="903" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="tb_reports" value="&lt;b&gt;image_reports&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;shared_image_id&lt;br&gt;reason, detail&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;strokeColor=#66BB6A;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="495" y="903" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Achievement tables -->
+        <mxCell id="achieve_label" value="Achievement (2)" style="text;html=1;fontSize=9;fontStyle=5;fontColor=#42A5F5;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="640" y="885" width="100" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="tb_achievements" value="&lt;b&gt;achievements&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;key, name, icon&lt;br&gt;is_hidden, threshold&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#FFA726;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="640" y="903" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="tb_user_achieve" value="&lt;b&gt;user_achievements&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;user_id, achievement_id&lt;br&gt;notified, unlocked_at&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#FFA726;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="780" y="903" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- User Prompts table -->
+        <mxCell id="up_label" value="User Prompts (1)" style="text;html=1;fontSize=9;fontStyle=5;fontColor=#42A5F5;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="945" y="885" width="100" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="tb_user_prompts" value="&lt;b&gt;user_prompts&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:8px&quot;&gt;user_id, name&lt;br&gt;prompt_text, category&lt;br&gt;usage_count&lt;/font&gt;" style="shape=table;startSize=0;container=0;collapsible=0;rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#AB47BC;fontSize=9;fontFamily=Helvetica;align=left;spacingLeft=6;" vertex="1" parent="1">
+          <mxGeometry x="945" y="903" width="130" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Supabase Storage -->
+        <mxCell id="storage" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#42A5F5;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="770" width="360" height="225" as="geometry" />
+        </mxCell>
+        <mxCell id="storage_label" value="&lt;b style=&quot;font-size:12px&quot;&gt;Supabase Storage — 3 バケット&lt;/b&gt;" style="text;html=1;fontSize=12;align=left;fontColor=#42A5F5;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1195" y="775" width="300" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="bucket_generated" value="&lt;b&gt;generated&lt;/b&gt; (Public)&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;AI生成メニュー画像&lt;br&gt;user_id/session_id/image.png&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#BBDEFB;strokeColor=#42A5F5;fontSize=10;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="810" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="bucket_references" value="&lt;b&gt;references&lt;/b&gt; (Public)&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;管理者参照画像&lt;br&gt;スタイルガイド用&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#BBDEFB;strokeColor=#42A5F5;fontSize=10;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1370" y="810" width="150" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="bucket_uploads" value="&lt;b&gt;uploads&lt;/b&gt; (Private)&lt;br&gt;&lt;font style=&quot;font-size:9px&quot;&gt;ユーザーアップロード画像&lt;br&gt;チャット参照用（一時）&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=8;fillColor=#E1BEE7;strokeColor=#AB47BC;fontSize=10;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="900" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="storage_rls" value="&lt;font style=&quot;font-size:9px&quot;&gt;RLS: 全テーブル有効&lt;br&gt;Anon Key (Client)&lt;br&gt;Service Role Key (Server)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#FFA726;fontSize=9;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1370" y="910" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ========== ARROWS (Data Flow) ========== -->
+
+        <!-- Browser → Pages -->
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#6B6560;strokeWidth=1.5;" edge="1" parent="1" source="browser" target="pages_group">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Pages → API (main flow) -->
+        <mxCell id="arrow2" value="HTTP/REST" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;exitDx=0;exitDy=0;strokeColor=#7B8A64;strokeWidth=2;fontFamily=Helvetica;fontSize=9;fontColor=#7B8A64;labelBackgroundColor=#FAFAF8;" edge="1" parent="1" source="pages_group" target="layer3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="545" y="360" />
+              <mxPoint x="545" y="360" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- API → Gemini -->
+        <mxCell id="arrow3" value="API Key" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeColor=#9575CD;strokeWidth=2;fontFamily=Helvetica;fontSize=9;fontColor=#9575CD;labelBackgroundColor=#FAFAF8;" edge="1" parent="1" source="api_chat_group" target="gemini">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="180" y="580" />
+              <mxPoint x="180" y="580" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="arrow3b" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeColor=#9575CD;strokeWidth=2;dashed=1;" edge="1" parent="1" source="api_image_group" target="gemini">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="440" y="580" />
+              <mxPoint x="300" y="580" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- API → Database -->
+        <mxCell id="arrow4" value="SQL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeColor=#42A5F5;strokeWidth=2;fontFamily=Helvetica;fontSize=9;fontColor=#42A5F5;labelBackgroundColor=#FAFAF8;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="api_account_group" target="postgres">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="700" y="730" />
+              <mxPoint x="610" y="730" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- API → Storage -->
+        <mxCell id="arrow5" value="Storage API" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeColor=#42A5F5;strokeWidth=2;dashed=1;fontFamily=Helvetica;fontSize=9;fontColor=#42A5F5;labelBackgroundColor=#FAFAF8;" edge="1" parent="1" source="api_image_group" target="storage">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="440" y="720" />
+              <mxPoint x="1360" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Vercel → GitHub -->
+        <mxCell id="arrow6" value="CI/CD" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;strokeColor=#24292E;strokeWidth=1.5;fontFamily=Helvetica;fontSize=9;fontColor=#24292E;labelBackgroundColor=#EDE7F6;" edge="1" parent="1" source="github" target="vercel">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Migration count note -->
+        <mxCell id="migration_note" value="&lt;font style=&quot;font-size:9px&quot;&gt;マイグレーション: 001〜009 (9ファイル)&lt;/font&gt;" style="text;html=1;fontSize=9;fontColor=#42A5F5;fontFamily=Helvetica;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="75" y="963" width="220" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- Stats note -->
+        <mxCell id="stats_note" value="&lt;font style=&quot;font-size:10px&quot;&gt;&lt;b&gt;プロジェクト統計&lt;/b&gt;: 14ページ · 27 API · 42コンポーネント · 11フック · 14テーブル · 3バケット · ~8,200行&lt;/font&gt;" style="text;html=1;fontSize=10;align=center;fontColor=#6B6560;fontFamily=Helvetica;fillColor=#FAFAF8;rounded=1;strokeColor=#EEEBE6;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1030" width="1000" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="date_note" value="2026-02-13 · MenuCraft AI v0.1.0" style="text;html=1;fontSize=9;align=right;fontColor=#AEAAA5;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="1060" width="250" height="15" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
