@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Header from "@/components/landing/Header";
+import AppSidebar, { type NavItem } from "@/components/AppSidebar";
 import AdPlaceholder from "@/components/AdPlaceholder";
 import PlanLimitModal from "@/components/PlanLimitModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
@@ -17,6 +18,13 @@ import ShareModal from "@/components/gallery/ShareModal";
 import CommonFooter from "@/components/CommonFooter";
 import { useDashboardData, type SessionData } from "@/hooks/useDashboardData";
 import { useSessionActions } from "@/hooks/useSessionActions";
+
+const SIDEBAR_NAV: NavItem[] = [
+  { href: "/dashboard", label: "ダッシュボード", icon: "📊", matchExact: true },
+  { href: "/chat", label: "新規作成", icon: "✨" },
+  { href: "/gallery", label: "ギャラリー", icon: "🖼" },
+  { href: "/settings", label: "設定", icon: "⚙️" },
+];
 
 export default function DashboardPage() {
   const { sessions, setSessions, stats, setStats, galleryStats, loading, onboardingCompleted, completeOnboarding, achievements, newBadges, dismissBadge } = useDashboardData();
@@ -36,6 +44,7 @@ export default function DashboardPage() {
   } = useSessionActions(sessions, setSessions, stats, setStats);
 
   const [shareTarget, setShareTarget] = useState<SessionData | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const statsCards = [
     {
@@ -79,46 +88,64 @@ export default function DashboardPage() {
   return (
     <>
       <Header activeTab="dashboard" />
-      <main className="mt-[56px] min-h-[calc(100vh-56px)] bg-bg-primary relative overflow-hidden">
-        {/* Background blur decorations */}
-        <div className="absolute top-[5%] left-[3%] w-72 h-72 bg-accent-warm/[.04] rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-[30%] right-[5%] w-56 h-56 bg-accent-gold/[.05] rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-[15%] left-[10%] w-48 h-48 bg-accent-olive/[.04] rounded-full blur-3xl pointer-events-none" />
+      <div className="flex mt-[56px]">
+        <AppSidebar
+          items={SIDEBAR_NAV}
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
+        <main className="flex-1 min-w-0 min-h-[calc(100vh-56px)] bg-bg-primary relative overflow-hidden">
+          {/* モバイル用ハンバーガーボタン */}
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="xl:hidden fixed top-[62px] left-4 z-30 w-9 h-9 rounded-[8px] bg-bg-secondary border border-border-light flex items-center justify-center shadow-sm cursor-pointer hover:bg-bg-primary transition-colors"
+            aria-label="メニューを開く"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+          </button>
 
-        <div className="max-w-[1080px] mx-auto px-6 sm:px-10 py-10 relative z-10">
-          <DashboardHeader onCreateNew={handleCreateNew} />
-          <StatsSection cards={statsCards} loading={loading} />
-          <QuickActions onCreateNew={handleCreateNew} />
+          {/* Background blur decorations */}
+          <div className="absolute top-[5%] left-[3%] w-72 h-72 bg-accent-warm/[.04] rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-[30%] right-[5%] w-56 h-56 bg-accent-gold/[.05] rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-[15%] left-[10%] w-48 h-48 bg-accent-olive/[.04] rounded-full blur-3xl pointer-events-none" />
 
-          {/* ギャラリー成績 */}
-          <GalleryStatsSection data={galleryStats} loading={loading} />
+          <div className="max-w-[960px] mx-auto px-6 sm:px-10 py-10 relative z-10">
+            <DashboardHeader onCreateNew={handleCreateNew} />
+            <StatsSection cards={statsCards} loading={loading} />
+            <QuickActions onCreateNew={handleCreateNew} />
 
-          {/* アチーブメント */}
-          <AchievementSection
-            visible={achievements?.visible || []}
-            hidden={achievements?.hidden || []}
-            totalHidden={achievements?.totalHidden || 0}
-            loading={loading}
-          />
+            {/* ギャラリー成績 */}
+            <GalleryStatsSection data={galleryStats} loading={loading} />
 
-          {/* 広告プレースホルダー */}
-          <div className="mb-9">
-            <AdPlaceholder variant="banner" />
+            {/* アチーブメント */}
+            <AchievementSection
+              visible={achievements?.visible || []}
+              hidden={achievements?.hidden || []}
+              totalHidden={achievements?.totalHidden || 0}
+              loading={loading}
+            />
+
+            {/* 広告プレースホルダー */}
+            <div className="mb-9">
+              <AdPlaceholder variant="banner" />
+            </div>
+
+            <SessionGrid
+              sessions={sessions}
+              loading={loading}
+              downloading={downloading}
+              onDownload={handleDownload}
+              onDelete={setDeleteTarget}
+              onShare={setShareTarget}
+            />
           </div>
 
-          <SessionGrid
-            sessions={sessions}
-            loading={loading}
-            downloading={downloading}
-            onDownload={handleDownload}
-            onDelete={setDeleteTarget}
-            onShare={setShareTarget}
-          />
-        </div>
-
-        {/* FAQ + フッター */}
-        <CommonFooter showFaq />
-      </main>
+          {/* FAQ + フッター */}
+          <CommonFooter showFaq />
+        </main>
+      </div>
 
       {/* プラン制限モーダル */}
       <PlanLimitModal
