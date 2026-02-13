@@ -9,28 +9,17 @@ type Props = {
 
 export default function DashboardHeader({ onCreateNew, userName, stats }: Props) {
   const greeting = getGreeting();
-  const heading = userName
-    ? `${userName}さん、${greeting}`
-    : greeting;
-  const subtitle = stats
-    ? getStatsMessage(stats.monthlyImages, stats.recentSessions)
-    : "生成履歴と統計";
+  const heading = userName ? `${greeting}、${userName}さん` : greeting;
+  const subtitle = stats ? getStatsMessage(stats.monthlyImages) : "生成履歴と統計";
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 animate-fade-in-up">
+    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
       <div>
         <span className="inline-block text-xs font-semibold text-accent-warm uppercase tracking-[2px] mb-2">
           Dashboard
         </span>
-        <h1 className="text-[32px] font-bold leading-tight">
-          {userName ? (
-            <>
-              <span className="font-[family-name:var(--font-playfair)]">{userName}</span>
-              <span className="text-text-primary">さん、{greeting}</span>
-            </>
-          ) : (
-            <span className="font-[family-name:var(--font-playfair)]">{greeting}</span>
-          )}
+        <h1 className="font-[family-name:var(--font-playfair)] text-[32px] font-bold">
+          {heading}
         </h1>
         <p className="text-text-secondary text-sm mt-1.5">
           {subtitle}
