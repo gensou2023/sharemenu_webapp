@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createAdminClient } from "@/lib/supabase";
+import bcrypt from "bcryptjs";
+import { validatePassword } from "@/lib/password-validation";
 
 // アカウント情報取得
 export async function GET() {
@@ -82,7 +84,7 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { name, onboarding_completed_at } = body;
+    const { name, onboarding_completed_at, current_password, new_password } = body;
 
     // バリデーション
     if (name !== undefined) {
@@ -105,6 +107,61 @@ export async function PATCH(req: NextRequest) {
     const updateData: Record<string, string> = {};
     if (name !== undefined) updateData.name = name.trim();
     if (onboarding_completed_at !== undefined) updateData.onboarding_completed_at = new Date().toISOString();
+
+    // パスワード変更処理
+    let passwordChanged = false;
+    if (current_password !== undefined || new_password !== undefined) {
+      if (!current_password || !new_password) {
+        return NextResponse.json(
+          { error: "現在のパスワードと新しいパスワードの両方を入力してください。" },
+          { status: 400 }
+        );
+      }
+
+      const validation = validatePassword(new_password);
+      if (!validation.valid) {
+        return NextResponse.json(
+          { error: validation.error },
+          { status: 400 }
+        );
+      }
+
+      // 現在のパスワードハッシュを取得
+      const { data: userData, error: fetchError } = await supabase
+        .from("users")
+        .select("password_hash")
+        .eq("id", session.user.id)
+        .single();
+
+      if (fetchError || !userData?.password_hash) {
+        return NextResponse.json(
+          { error: "パスワード情報の取得に失敗しました。" },
+          { status: 500 }
+        );
+      }
+
+      // 現在のパスワード検証
+      const isCurrentValid = await bcrypt.compare(current_password, userData.password_hash);
+      if (!isCurrentValid) {
+        return NextResponse.json(
+          { error: "現在のパスワードが正しくありません。" },
+          { status: 400 }
+        );
+      }
+
+      // 新旧同一チェック
+      const isSame = await bcrypt.compare(new_password, userData.password_hash);
+      if (isSame) {
+        return NextResponse.json(
+          { error: "新しいパスワードは現在のパスワードと異なるものを設定してください。" },
+          { status: 400 }
+        );
+      }
+
+      const newHash = await bcrypt.hash(new_password, 10);
+      updateData.password_hash = newHash;
+      passwordChanged = true;
+    }
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
@@ -130,7 +187,7 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({
       user: updatedUser,
-      message: "アカウント情報を更新しました。",
+      message: passwordChanged ? "パスワードを変更しました。" : "アカウント情報を更新しました。",
     });
   } catch {
     return NextResponse.json(

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import Header from "@/components/landing/Header";
+import AppLayout from "@/components/AppLayout";
 import CommonFooter from "@/components/CommonFooter";
 import GalleryCard from "@/components/gallery/GalleryCard";
 import type { GalleryItem } from "@/lib/types";
@@ -23,6 +25,7 @@ const SORT_OPTIONS = [
 ];
 
 export default function GalleryPage() {
+  const { data: session } = useSession();
   const [items, setItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("");
@@ -131,14 +134,12 @@ export default function GalleryPage() {
     }
   };
 
-  return (
+  const galleryContent = (
     <>
-      <Header activeTab="gallery" />
-      <main className="mt-[56px] min-h-[calc(100vh-56px)] bg-bg-primary relative overflow-hidden">
-        {/* Background blur decorations */}
-        <div className="absolute top-[5%] right-[5%] w-72 h-72 bg-accent-warm/[.04] rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-[40%] left-[3%] w-56 h-56 bg-accent-gold/[.05] rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-[10%] right-[10%] w-48 h-48 bg-accent-olive/[.04] rounded-full blur-3xl pointer-events-none" />
+      {/* Background blur decorations */}
+      <div className="absolute top-[5%] right-[5%] w-72 h-72 bg-accent-warm/[.04] rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-[40%] left-[3%] w-56 h-56 bg-accent-gold/[.05] rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[10%] right-[10%] w-48 h-48 bg-accent-olive/[.04] rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-[1080px] mx-auto px-6 sm:px-10 py-10 relative z-10">
           {/* ヘッダー */}
@@ -260,7 +261,25 @@ export default function GalleryPage() {
           )}
         </div>
 
-        <CommonFooter />
+      <CommonFooter />
+    </>
+  );
+
+  if (session) {
+    return (
+      <AppLayout>
+        <main className="min-h-full bg-bg-primary relative overflow-hidden">
+          {galleryContent}
+        </main>
+      </AppLayout>
+    );
+  }
+
+  return (
+    <>
+      <Header activeTab="gallery" />
+      <main className="mt-[56px] min-h-[calc(100vh-56px)] bg-bg-primary relative overflow-hidden">
+        {galleryContent}
       </main>
     </>
   );

@@ -1,4 +1,17 @@
-export default function DashboardHeader({ onCreateNew }: { onCreateNew: () => void }) {
+import { getGreeting, getStatsMessage } from "@/lib/greeting";
+import type { StatsData } from "@/hooks/useDashboardData";
+
+type Props = {
+  onCreateNew: () => void;
+  userName: string | null;
+  stats: StatsData | null;
+};
+
+export default function DashboardHeader({ onCreateNew, userName, stats }: Props) {
+  const greeting = getGreeting();
+  const heading = userName ? `${greeting}、${userName}さん` : greeting;
+  const subtitle = stats ? getStatsMessage(stats.monthlyImages) : "生成履歴と統計";
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
       <div>
@@ -6,10 +19,10 @@ export default function DashboardHeader({ onCreateNew }: { onCreateNew: () => vo
           Dashboard
         </span>
         <h1 className="font-[family-name:var(--font-playfair)] text-[32px] font-bold">
-          ダッシュボード
+          {heading}
         </h1>
         <p className="text-text-secondary text-sm mt-1.5">
-          生成履歴と統計
+          {subtitle}
         </p>
         {/* Decorative line */}
         <div className="flex items-center gap-2 mt-3">

@@ -19,7 +19,7 @@ import { useDashboardData, type SessionData } from "@/hooks/useDashboardData";
 import { useSessionActions } from "@/hooks/useSessionActions";
 
 export default function DashboardPage() {
-  const { sessions, setSessions, stats, setStats, galleryStats, loading, onboardingCompleted, completeOnboarding, achievements, newBadges, dismissBadge } = useDashboardData();
+  const { sessions, setSessions, stats, setStats, galleryStats, loading, userName, onboardingCompleted, completeOnboarding, achievements, newBadges, dismissBadge } = useDashboardData();
   const {
     downloading,
     showLimitModal,
@@ -85,7 +85,7 @@ export default function DashboardPage() {
         <div className="absolute bottom-[15%] left-[10%] w-48 h-48 bg-accent-olive/[.04] rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-[960px] mx-auto px-6 sm:px-10 py-10 relative z-10">
-          <DashboardHeader onCreateNew={handleCreateNew} />
+          <DashboardHeader onCreateNew={handleCreateNew} userName={userName} stats={stats} />
           <StatsSection cards={statsCards} loading={loading} />
           <QuickActions onCreateNew={handleCreateNew} />
 

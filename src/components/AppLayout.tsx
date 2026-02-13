@@ -12,9 +12,15 @@ const SIDEBAR_NAV: NavItem[] = [
   { href: "/settings", label: "設定", icon: "⚙️" },
 ];
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+type AppLayoutProps = {
+  children: React.ReactNode;
+  defaultCollapsed?: boolean;
+  noScroll?: boolean;
+};
+
+export default function AppLayout({ children, defaultCollapsed = false, noScroll = false }: AppLayoutProps) {
   const { data: session } = useSession();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -35,7 +41,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* メインエリア */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* スリムヘッダー: ロゴ + プランバッジ + アバター */}
-        <header className="h-[56px] flex items-center px-4 sm:px-6 border-b border-border-light flex-shrink-0 bg-white/95 backdrop-blur-md">
+        <header className="h-[56px] flex items-center px-4 sm:px-6 border-b border-border-light flex-shrink-0 bg-white/95 backdrop-blur-md relative z-20">
           {/* モバイル: ハンバーガー */}
           <button
             onClick={() => setMobileOpen(true)}
@@ -120,8 +126,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           )}
         </header>
 
-        {/* コンテンツエリア（スクロール可能） */}
-        <div className="flex-1 overflow-y-auto">
+        {/* コンテンツエリア */}
+        <div className={`flex-1 ${noScroll ? "overflow-hidden" : "overflow-y-auto"}`}>
           {children}
         </div>
       </div>

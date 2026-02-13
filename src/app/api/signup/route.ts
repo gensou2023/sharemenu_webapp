@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase";
 import bcrypt from "bcryptjs";
+import { validatePassword } from "@/lib/password-validation";
 
 // ユーザー新規登録API
 export async function POST(req: NextRequest) {
@@ -26,16 +27,10 @@ export async function POST(req: NextRequest) {
     }
 
     // パスワード強度チェック
-    if (password.length < 8) {
+    const pwValidation = validatePassword(password);
+    if (!pwValidation.valid) {
       return NextResponse.json(
-        { error: "パスワードは8文字以上で設定してください。" },
-        { status: 400 }
-      );
-    }
-
-    if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
-      return NextResponse.json(
-        { error: "パスワードには英字と数字の両方を含めてください。" },
+        { error: pwValidation.error },
         { status: 400 }
       );
     }

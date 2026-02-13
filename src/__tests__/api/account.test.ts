@@ -4,9 +4,16 @@ import { NextRequest } from "next/server";
 // Mock dependencies
 vi.mock("@/auth", () => ({ auth: vi.fn() }));
 vi.mock("@/lib/supabase", () => ({ createAdminClient: vi.fn() }));
+vi.mock("bcryptjs", () => ({
+  default: {
+    compare: vi.fn(),
+    hash: vi.fn(),
+  },
+}));
 
 import { auth } from "@/auth";
 import { createAdminClient } from "@/lib/supabase";
+import bcrypt from "bcryptjs";
 import { GET, PATCH, DELETE } from "@/app/api/account/route";
 
 const mockAuth = vi.mocked(auth);
@@ -167,6 +174,91 @@ describe("PATCH /api/account", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.user.name).toBe("New Name");
+  });
+});
+
+describe("PATCH /api/account パスワード変更", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function mockPasswordSupabase(passwordHash = "$2a$10$hashed") {
+    const selectPasswordChain = {
+      single: vi.fn().mockResolvedValue({ data: { password_hash: passwordHash }, error: null }),
+    };
+    const updateChain = {
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: { id: "user-1", email: "t@t.com", name: "T", role: "user" }, error: null }),
+        }),
+      }),
+    };
+    const client = {
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue(selectPasswordChain),
+        }),
+        update: vi.fn().mockReturnValue(updateChain),
+      }),
+    };
+    mockCreateAdminClient.mockReturnValue(client as never);
+    return client;
+  }
+
+  it("current_passwordのみ指定で400を返す", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const req = new NextRequest("http://localhost/api/account", {
+      method: "PATCH",
+      body: JSON.stringify({ current_password: "oldpass1" }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain("両方を入力");
+  });
+
+  it("無効な新パスワード（短すぎ）で400を返す", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const req = new NextRequest("http://localhost/api/account", {
+      method: "PATCH",
+      body: JSON.stringify({ current_password: "oldpass1", new_password: "ab1" }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain("8文字以上");
+  });
+
+  it("現在のパスワードが不正で400を返す", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    mockPasswordSupabase();
+    vi.mocked(bcrypt.compare).mockResolvedValueOnce(false as never);
+
+    const req = new NextRequest("http://localhost/api/account", {
+      method: "PATCH",
+      body: JSON.stringify({ current_password: "wrongpw1", new_password: "newpass12" }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain("現在のパスワードが正しくありません");
+  });
+
+  it("正しいパスワード変更で200を返す", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    mockPasswordSupabase();
+    vi.mocked(bcrypt.compare).mockResolvedValueOnce(true as never);   // current pw valid
+    vi.mocked(bcrypt.compare).mockResolvedValueOnce(false as never);  // not same
+    vi.mocked(bcrypt.hash).mockResolvedValueOnce("$2a$10$newhash" as never);
+
+    const req = new NextRequest("http://localhost/api/account", {
+      method: "PATCH",
+      body: JSON.stringify({ current_password: "oldpass12", new_password: "newpass12" }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.message).toBe("パスワードを変更しました。");
   });
 });
 

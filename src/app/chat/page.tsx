@@ -3,13 +3,12 @@
 import { useState, useRef, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import Header from "@/components/landing/Header";
+import AppLayout from "@/components/AppLayout";
 import ChatMessage from "@/components/chat/ChatMessage";
 import ChatInput from "@/components/chat/ChatInput";
 import PreviewPanel from "@/components/chat/PreviewPanel";
 import PromptMode from "@/components/chat/PromptMode";
 import SavePromptModal from "@/components/chat/SavePromptModal";
-import Link from "next/link";
 import AdPlaceholder from "@/components/AdPlaceholder";
 import { useChatSession } from "@/hooks/useChatSession";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
@@ -130,9 +129,8 @@ function ChatPageInner() {
   };
 
   return (
-    <>
-      <Header activeTab="chat" />
-      <div className="flex h-[calc(100vh-56px)] mt-[56px]">
+    <AppLayout defaultCollapsed noScroll>
+      <div className="flex h-full">
         {/* チャットメイン */}
         <div className="flex-1 flex flex-col min-w-0 bg-bg-primary relative overflow-hidden">
           {/* 背景装飾ブラー（ツール画面のため控えめ） */}
@@ -182,15 +180,6 @@ function ChatPageInner() {
                   <rect x="10" y="1" width="7" height="16" rx="2" stroke="currentColor" strokeWidth="1.5" />
                 </svg>
               </button>
-              <Link
-                href="/dashboard"
-                title="ダッシュボード"
-                className="w-9 h-9 rounded-full border border-border-light bg-bg-secondary cursor-pointer flex items-center justify-center transition-all duration-300 text-text-secondary hover:bg-accent-warm/10 hover:text-accent-warm hover:border-accent-warm/30 no-underline"
-              >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M3 9l6-6 6 6M5 7.5V15h3v-4h2v4h3V7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </Link>
             </div>
           </div>
 
@@ -204,6 +193,11 @@ function ChatPageInner() {
               <span className="text-xs text-amber-800">オフラインです。インターネット接続を確認してください。</span>
             </div>
           )}
+
+          {/* 広告プレースホルダー（ヘッダー下） */}
+          <div className="relative z-10 px-4 md:px-7 py-2 flex-shrink-0">
+            <AdPlaceholder variant="inline" />
+          </div>
 
           {promptMode ? (
             /* プロンプトモード */
@@ -254,11 +248,6 @@ function ChatPageInner() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* 広告プレースホルダー */}
-              <div className="relative z-10 px-4 md:px-7 flex-shrink-0">
-                <AdPlaceholder variant="inline" />
-              </div>
-
               {/* 入力エリア */}
               <ChatInput onSend={handleSend} disabled={isTyping || isGeneratingImage || isRestoring || !isOnline} />
             </>
@@ -289,6 +278,6 @@ function ChatPageInner() {
           onSaved={() => setShowSavePromptModal(false)}
         />
       )}
-    </>
+    </AppLayout>
   );
 }

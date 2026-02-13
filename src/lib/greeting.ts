@@ -1,0 +1,11 @@
+export function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 11) return "おはようございます";
+  if (hour >= 11 && hour < 17) return "こんにちは";
+  return "おつかれさまです";
+}
+
+export function getStatsMessage(monthlyImages: number): string {
+  if (monthlyImages === 0) return "まだ画像を生成していません。始めましょう！";
+  return `今月は${monthlyImages}枚の画像を生成しました`;
+}
