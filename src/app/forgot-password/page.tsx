@@ -44,12 +44,15 @@ export default function ForgotPasswordPage() {
         </form>
       ) : (
         <div className="text-center py-4">
-          <div className="text-4xl mb-4">✉️</div>
-          <p className="text-text-secondary text-sm mb-6">
-            <strong>{email}</strong> にパスワードリセットのリンクを送信しました。メールをご確認ください。
+          <div className="text-4xl mb-4">🔧</div>
+          <p className="text-text-secondary text-sm mb-4">
+            パスワードリセット機能は現在準備中です。
+          </p>
+          <p className="text-text-muted text-xs mb-2">
+            お手数ですが、パスワードの再設定が必要な場合は管理者にお問い合わせください。
           </p>
           <p className="text-text-muted text-xs">
-            ※ 現在デモ版のため、実際のメール送信は行われません
+            連絡先: support@menucraft.jp
           </p>
         </div>
       )}

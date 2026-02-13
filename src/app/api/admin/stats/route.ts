@@ -47,6 +47,13 @@ type AdminDashboardStats = {
     avgResponseMs: number;
     errorCount: number;
   };
+  gallery: {
+    total_shared: number;
+    total_likes: number;
+    total_saves: number;
+    pending_reports: number;
+  };
+  profile_completion_rate: number;
 };
 
 // --- ヘルパー関数 ---
@@ -109,6 +116,13 @@ export const GET = withAdmin(async () => {
     recentSessionsData,
     // APIヘルス（直近30日のログ）
     apiLogsData,
+    // ギャラリー統計
+    sharedImagesCount,
+    likesCount,
+    savesCount,
+    reportsCount,
+    // プロフィール設定率
+    profileCompletedCount,
   ] = await Promise.all([
     // 全期間
     supabase.from("users").select("id", { count: "exact", head: true }),
@@ -181,6 +195,13 @@ export const GET = withAdmin(async () => {
       .from("api_usage_logs")
       .select("status, duration_ms")
       .gte("created_at", thirtyDaysAgo),
+    // ギャラリー統計
+    supabase.from("shared_images").select("*", { count: "exact", head: true }),
+    supabase.from("image_likes").select("*", { count: "exact", head: true }),
+    supabase.from("image_saves").select("*", { count: "exact", head: true }),
+    supabase.from("image_reports").select("*", { count: "exact", head: true }),
+    // プロフィール設定率
+    supabase.from("users").select("*", { count: "exact", head: true }).not("business_type", "is", null).is("deleted_at", null),
   ]);
 
   // --- 時系列集計 ---
@@ -300,6 +321,15 @@ export const GET = withAdmin(async () => {
       avgResponseMs,
       errorCount,
     },
+    gallery: {
+      total_shared: sharedImagesCount.count || 0,
+      total_likes: likesCount.count || 0,
+      total_saves: savesCount.count || 0,
+      pending_reports: reportsCount.count || 0,
+    },
+    profile_completion_rate: (allUsers.count || 0) > 0
+      ? Math.round(((profileCompletedCount.count || 0) / (allUsers.count || 1)) * 100)
+      : 0,
   };
 
   return NextResponse.json(stats);

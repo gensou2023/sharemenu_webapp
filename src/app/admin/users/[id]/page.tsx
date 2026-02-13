@@ -189,6 +189,71 @@ export default function AdminUserDetailPage({
         </div>
       </div>
 
+      {/* 店舗情報セクション */}
+      <div className="bg-bg-secondary rounded-[12px] border border-border-light p-6 mb-6 relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-accent-olive via-accent-gold to-transparent" />
+        <h2 className="text-sm font-semibold mb-4">店舗情報</h2>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <div className="text-xs text-text-muted mb-1">業態</div>
+            {user.business_type ? (
+              <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-accent-warm/15 text-accent-warm">
+                {user.business_type}
+              </span>
+            ) : (
+              <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-border-light text-text-muted">
+                未設定
+              </span>
+            )}
+          </div>
+          <div>
+            <div className="text-xs text-text-muted mb-1">都道府県</div>
+            <div className="text-text-primary">{user.prefecture || "—"}</div>
+          </div>
+          <div className="col-span-2">
+            <div className="text-xs text-text-muted mb-1">店舗コンセプト</div>
+            <div className="text-text-primary">{user.shop_concept || "—"}</div>
+          </div>
+          <div>
+            <div className="text-xs text-text-muted mb-1">ブランドカラー</div>
+            <div className="flex items-center gap-2">
+              {user.brand_color_primary ? (
+                <span className="flex items-center gap-1.5">
+                  <span className="inline-block w-4 h-4 rounded border border-border-light" style={{ backgroundColor: user.brand_color_primary }} />
+                  <span className="text-xs text-text-secondary">{user.brand_color_primary}</span>
+                </span>
+              ) : (
+                <span className="text-text-muted">—</span>
+              )}
+              {user.brand_color_secondary && (
+                <span className="flex items-center gap-1.5 ml-2">
+                  <span className="inline-block w-4 h-4 rounded border border-border-light" style={{ backgroundColor: user.brand_color_secondary }} />
+                  <span className="text-xs text-text-secondary">{user.brand_color_secondary}</span>
+                </span>
+              )}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs text-text-muted mb-1">Webサイト</div>
+            {user.website_url ? (
+              <a href={user.website_url} target="_blank" rel="noopener noreferrer" className="text-accent-warm text-xs hover:underline no-underline">
+                {user.website_url}
+              </a>
+            ) : (
+              <span className="text-text-muted">—</span>
+            )}
+          </div>
+          <div>
+            <div className="text-xs text-text-muted mb-1">Instagram</div>
+            <div className="text-text-primary text-xs">{user.sns_instagram || "—"}</div>
+          </div>
+          <div>
+            <div className="text-xs text-text-muted mb-1">X (Twitter)</div>
+            <div className="text-text-primary text-xs">{user.sns_x || "—"}</div>
+          </div>
+        </div>
+      </div>
+
       {/* 統計カード4枚 */}
       <div className="grid grid-cols-4 gap-4 mb-6">
         {[

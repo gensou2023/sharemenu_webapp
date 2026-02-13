@@ -52,6 +52,13 @@ type AdminDashboardStats = {
     avgResponseMs: number;
     errorCount: number;
   };
+  gallery?: {
+    total_shared: number;
+    total_likes: number;
+    total_saves: number;
+    pending_reports: number;
+  };
+  profile_completion_rate?: number;
 };
 
 // --- KPI カード設定 ---
@@ -193,12 +200,68 @@ export default function AdminDashboard() {
       </div>
 
       {/* ボトムエリア */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-6">
         <div className="lg:col-span-3">
           <RecentSessionsTable sessions={stats.recentSessions} />
         </div>
         <div className="lg:col-span-2">
           <ApiHealthIndicator {...stats.apiHealth} />
+        </div>
+      </div>
+
+      {/* ギャラリー統計 + プロフィール設定率 */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        <div className="lg:col-span-3">
+          <div className="bg-bg-secondary rounded-[12px] border border-border-light p-5">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4">Gallery Stats</h3>
+            <div className="grid grid-cols-4 gap-3">
+              {[
+                { label: "公開画像", value: stats.gallery?.total_shared ?? 0, color: "text-text-primary" },
+                { label: "いいね", value: stats.gallery?.total_likes ?? 0, color: "text-accent-warm" },
+                { label: "保存", value: stats.gallery?.total_saves ?? 0, color: "text-accent-gold" },
+                {
+                  label: "未対応通報",
+                  value: stats.gallery?.pending_reports ?? 0,
+                  color: (stats.gallery?.pending_reports ?? 0) > 0 ? "text-red-600" : "text-accent-olive",
+                },
+              ].map((item) => (
+                <div key={item.label} className="text-center">
+                  <div className={`text-xl font-bold font-[family-name:var(--font-playfair)] ${item.color}`}>
+                    {item.value}
+                  </div>
+                  <div className="text-[11px] text-text-muted mt-0.5">{item.label}</div>
+                </div>
+              ))}
+            </div>
+            {(stats.gallery?.pending_reports ?? 0) > 0 && (
+              <a href="/admin/moderation" className="inline-block mt-3 text-xs text-red-600 font-semibold hover:underline no-underline">
+                モデレーション画面へ →
+              </a>
+            )}
+            {(stats.gallery?.pending_reports ?? 0) === 0 && (
+              <div className="mt-3 text-xs text-accent-olive font-medium">通報なし</div>
+            )}
+          </div>
+        </div>
+        <div className="lg:col-span-2">
+          <div className="bg-bg-secondary rounded-[12px] border border-border-light p-5">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-4">Profile Completion</h3>
+            <div className="text-2xl font-bold font-[family-name:var(--font-playfair)] mb-2">
+              {stats.profile_completion_rate ?? 0}%
+            </div>
+            <div className="h-3 bg-border-light rounded-full overflow-hidden relative">
+              <div
+                className="h-full bg-accent-olive rounded-full transition-all duration-500"
+                style={{ width: `${stats.profile_completion_rate ?? 0}%` }}
+              />
+              {/* 目標60%マーカー */}
+              <div className="absolute top-0 bottom-0 w-0.5 bg-accent-warm/60" style={{ left: "60%" }} />
+            </div>
+            <div className="flex justify-between text-[11px] text-text-muted mt-1">
+              <span>プロフィール設定率</span>
+              <span>目標: 60%</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
