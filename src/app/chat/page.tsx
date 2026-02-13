@@ -129,7 +129,7 @@ function ChatPageInner() {
   };
 
   return (
-    <AppLayout defaultCollapsed noScroll>
+    <AppLayout noScroll>
       <div className="flex h-full">
         {/* チャットメイン */}
         <div className="flex-1 flex flex-col min-w-0 bg-bg-primary relative overflow-hidden">
