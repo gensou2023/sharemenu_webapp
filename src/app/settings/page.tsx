@@ -8,6 +8,7 @@ import SecuritySection from "@/components/settings/SecuritySection";
 import GenerationDefaultsSection from "@/components/settings/GenerationDefaultsSection";
 import UsageSection from "@/components/settings/UsageSection";
 import DangerSection from "@/components/settings/DangerSection";
+import PrivacySection from "@/components/settings/PrivacySection";
 
 type UserData = {
   id: string;
@@ -185,6 +186,8 @@ export default function SettingsPage() {
               <UsageSection />
 
               <SecuritySection />
+
+              <PrivacySection />
 
               <DangerSection onError={setError} />
             </div>

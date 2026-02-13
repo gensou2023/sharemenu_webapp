@@ -12,6 +12,9 @@ const DEFAULT_SETTINGS = {
   default_style: null,
   default_text_language: "ja",
   default_photo_style: null,
+  ai_data_usage: true,
+  gallery_show_shop_name: true,
+  analytics_data_sharing: true,
 };
 
 export async function GET() {
@@ -26,7 +29,7 @@ export async function GET() {
     // 既存設定を取得
     const { data, error } = await supabase
       .from("user_settings")
-      .select("default_sizes, default_style, default_text_language, default_photo_style")
+      .select("default_sizes, default_style, default_text_language, default_photo_style, ai_data_usage, gallery_show_shop_name, analytics_data_sharing")
       .eq("user_id", session.user.id)
       .single();
 
@@ -35,7 +38,7 @@ export async function GET() {
       const { data: created, error: insertError } = await supabase
         .from("user_settings")
         .insert({ user_id: session.user.id })
-        .select("default_sizes, default_style, default_text_language, default_photo_style")
+        .select("default_sizes, default_style, default_text_language, default_photo_style, ai_data_usage, gallery_show_shop_name, analytics_data_sharing")
         .single();
 
       if (insertError) {
@@ -43,7 +46,7 @@ export async function GET() {
         if (insertError.code === "23505") {
           const { data: retry } = await supabase
             .from("user_settings")
-            .select("default_sizes, default_style, default_text_language, default_photo_style")
+            .select("default_sizes, default_style, default_text_language, default_photo_style, ai_data_usage, gallery_show_shop_name, analytics_data_sharing")
             .eq("user_id", session.user.id)
             .single();
           return NextResponse.json({ settings: retry || DEFAULT_SETTINGS });
@@ -68,7 +71,7 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { default_sizes, default_style, default_text_language, default_photo_style } = body;
+    const { default_sizes, default_style, default_text_language, default_photo_style, ai_data_usage, gallery_show_shop_name, analytics_data_sharing } = body;
 
     const updateData: Record<string, unknown> = {};
 
@@ -104,6 +107,17 @@ export async function PATCH(req: NextRequest) {
       updateData.default_photo_style = default_photo_style;
     }
 
+    // プライバシー設定
+    const booleanFields = { ai_data_usage, gallery_show_shop_name, analytics_data_sharing } as Record<string, unknown>;
+    for (const [key, value] of Object.entries(booleanFields)) {
+      if (value !== undefined) {
+        if (typeof value !== "boolean") {
+          return NextResponse.json({ error: "無効な値が指定されました。" }, { status: 400 });
+        }
+        updateData[key] = value;
+      }
+    }
+
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json({ error: "更新する項目がありません。" }, { status: 400 });
     }
@@ -117,7 +131,7 @@ export async function PATCH(req: NextRequest) {
         { user_id: session.user.id, ...updateData },
         { onConflict: "user_id" }
       )
-      .select("default_sizes, default_style, default_text_language, default_photo_style")
+      .select("default_sizes, default_style, default_text_language, default_photo_style, ai_data_usage, gallery_show_shop_name, analytics_data_sharing")
       .single();
 
     if (error) {
