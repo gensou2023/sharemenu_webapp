@@ -19,6 +19,10 @@ const RATE_LIMITS: Record<string, RateLimitConfig> = {
     maxRequests: 10,
     windowMs: 60 * 1000, // 10リクエスト/分
   },
+  signup: {
+    maxRequests: 3,
+    windowMs: 10 * 60 * 1000, // 3リクエスト/10分
+  },
 };
 
 // compositeKey = `${userId}:${apiType}` → タイムスタンプ配列

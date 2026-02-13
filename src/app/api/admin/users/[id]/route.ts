@@ -18,7 +18,7 @@ export async function GET(
   // ユーザー基本情報
   const { data: user, error } = await supabase
     .from("users")
-    .select("id, email, name, role, created_at, updated_at, deleted_at")
+    .select("id, email, name, role, created_at, updated_at, deleted_at, business_type, shop_concept, brand_color_primary, brand_color_secondary, prefecture, website_url, sns_instagram, sns_x")
     .eq("id", userId)
     .single();
 
@@ -124,6 +124,14 @@ export async function GET(
       created_at: user.created_at,
       updated_at: user.updated_at,
       deleted_at: user.deleted_at,
+      business_type: user.business_type ?? null,
+      shop_concept: user.shop_concept ?? null,
+      brand_color_primary: user.brand_color_primary ?? null,
+      brand_color_secondary: user.brand_color_secondary ?? null,
+      prefecture: user.prefecture ?? null,
+      website_url: user.website_url ?? null,
+      sns_instagram: user.sns_instagram ?? null,
+      sns_x: user.sns_x ?? null,
       sessionCount: totalSessions,
       imageCount: totalImages,
       stats: {

@@ -6,6 +6,9 @@ vi.mock("@/lib/supabase", () => ({ createAdminClient: vi.fn() }));
 vi.mock("bcryptjs", () => ({
   default: { hash: vi.fn().mockResolvedValue("hashed_password") },
 }));
+vi.mock("@/lib/rate-limiter", () => ({
+  checkRateLimit: vi.fn().mockReturnValue({ allowed: true, remaining: 2, limit: 3 }),
+}));
 
 import { createAdminClient } from "@/lib/supabase";
 import { POST } from "@/app/api/signup/route";

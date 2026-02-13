@@ -93,6 +93,14 @@ export type AdminUserSummary = {
 
 export type AdminUserDetail = AdminUserSummary & {
   updated_at: string;
+  business_type: string | null;
+  shop_concept: string | null;
+  brand_color_primary: string | null;
+  brand_color_secondary: string | null;
+  prefecture: string | null;
+  website_url: string | null;
+  sns_instagram: string | null;
+  sns_x: string | null;
   stats: {
     totalSessions: number;
     totalImages: number;

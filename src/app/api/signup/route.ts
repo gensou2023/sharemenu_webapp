@@ -2,9 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase";
 import bcrypt from "bcryptjs";
 import { validatePassword } from "@/lib/password-validation";
+import { checkRateLimit } from "@/lib/rate-limiter";
 
 // ユーザー新規登録API
 export async function POST(req: NextRequest) {
+  // レート制限（IPベース）
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const rateLimit = checkRateLimit(ip, "signup");
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "登録リクエストが多すぎます。しばらくしてからお試しください。" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil((rateLimit.retryAfterMs ?? 1000) / 1000)),
+        },
+      }
+    );
+  }
+
   try {
     const body = await req.json();
     const { name, email, password } = body;
