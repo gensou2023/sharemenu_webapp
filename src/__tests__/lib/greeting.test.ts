@@ -16,14 +16,14 @@ describe("getGreeting", () => {
     expect(getGreeting()).toBe("こんにちは");
   });
 
-  it("夜（20時）は「おつかれさまです」を返す", () => {
+  it("夜（20時）は「こんばんは」を返す", () => {
     vi.setSystemTime(new Date(2025, 0, 1, 20, 0, 0));
-    expect(getGreeting()).toBe("おつかれさまです");
+    expect(getGreeting()).toBe("こんばんは");
   });
 
-  it("深夜（3時）は「おつかれさまです」を返す", () => {
+  it("深夜（3時）は「こんばんは」を返す", () => {
     vi.setSystemTime(new Date(2025, 0, 1, 3, 0, 0));
-    expect(getGreeting()).toBe("おつかれさまです");
+    expect(getGreeting()).toBe("こんばんは");
   });
 });
 
@@ -38,5 +38,13 @@ describe("getStatsMessage", () => {
 
   it("セッション0件の場合は初回誘導メッセージを返す", () => {
     expect(getStatsMessage(0, 0)).toBe("最初のメニュー画像を作ってみましょう！");
+  });
+
+  it("Free上限近い（セッション2/3以上）は残りセッション数を返す", () => {
+    expect(getStatsMessage(5, 2, 2)).toBe("今月の残りセッション: 1件");
+  });
+
+  it("Free上限到達（セッション3/3）は残り0件を返す", () => {
+    expect(getStatsMessage(5, 3, 3)).toBe("今月の残りセッション: 0件");
   });
 });
