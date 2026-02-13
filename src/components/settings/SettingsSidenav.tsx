@@ -10,6 +10,7 @@ const NAV_ITEMS: SettingsNavItem[] = [
   { id: "profile", label: "プロフィール", icon: "👤" },
   { id: "plan", label: "プラン", icon: "💎" },
   { id: "generation", label: "画像生成", icon: "🎨" },
+  { id: "usage", label: "使用状況", icon: "📊" },
   { id: "security", label: "セキュリティ", icon: "🔒" },
   { id: "danger", label: "退会", icon: "⚠️" },
 ];

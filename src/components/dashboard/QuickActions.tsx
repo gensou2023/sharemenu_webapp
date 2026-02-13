@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function QuickActions({ onCreateNew }: { onCreateNew: () => void }) {
   return (
-    <div className="flex flex-wrap gap-3 mb-9">
+    <div className="flex flex-col gap-2">
       <button
         onClick={onCreateNew}
         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent-warm/10 text-accent-warm text-[13px] font-semibold border border-accent-warm/20 transition-all duration-300 hover:bg-accent-warm hover:text-white hover:shadow-[0_4px_16px_rgba(232,113,58,.2)] cursor-pointer"

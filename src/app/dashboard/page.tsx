@@ -84,32 +84,42 @@ export default function DashboardPage() {
         <div className="absolute top-[30%] right-[5%] w-56 h-56 bg-accent-gold/[.05] rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-[15%] left-[10%] w-48 h-48 bg-accent-olive/[.04] rounded-full blur-3xl pointer-events-none" />
 
-        <div className="max-w-[960px] mx-auto px-6 sm:px-10 py-10 relative z-10">
+        <div className="max-w-[1120px] mx-auto px-6 sm:px-10 py-10 relative z-10">
           <DashboardHeader onCreateNew={handleCreateNew} userName={userName} stats={stats} />
-          <StatsSection cards={statsCards} loading={loading} />
-          <QuickActions onCreateNew={handleCreateNew} />
 
-          <GalleryStatsSection data={galleryStats} loading={loading} />
+          {/* 2カラムレイアウト: lg以上で左右分割 */}
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* 左カラム: セッション履歴 */}
+            <div className="flex-1 min-w-0">
+              <SessionGrid
+                sessions={sessions}
+                loading={loading}
+                downloading={downloading}
+                onDownload={handleDownload}
+                onDelete={setDeleteTarget}
+                onShare={setShareTarget}
+              />
+            </div>
 
-          <AchievementSection
-            visible={achievements?.visible || []}
-            hidden={achievements?.hidden || []}
-            totalHidden={achievements?.totalHidden || 0}
-            loading={loading}
-          />
+            {/* 右カラム: 統計・クイックアクション・ギャラリー・アチーブメント */}
+            <div className="w-full lg:w-[320px] flex-shrink-0 space-y-6">
+              <StatsSection cards={statsCards} loading={loading} />
+              <QuickActions onCreateNew={handleCreateNew} />
 
-          <div className="mb-9">
-            <AdPlaceholder variant="banner" />
+              <div>
+                <AdPlaceholder variant="banner" />
+              </div>
+
+              <GalleryStatsSection data={galleryStats} loading={loading} />
+
+              <AchievementSection
+                visible={achievements?.visible || []}
+                hidden={achievements?.hidden || []}
+                totalHidden={achievements?.totalHidden || 0}
+                loading={loading}
+              />
+            </div>
           </div>
-
-          <SessionGrid
-            sessions={sessions}
-            loading={loading}
-            downloading={downloading}
-            onDownload={handleDownload}
-            onDelete={setDeleteTarget}
-            onShare={setShareTarget}
-          />
         </div>
 
         <CommonFooter showFaq />

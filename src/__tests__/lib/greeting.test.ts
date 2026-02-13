@@ -33,6 +33,10 @@ describe("getStatsMessage", () => {
   });
 
   it("N枚の場合はN枚メッセージを返す", () => {
-    expect(getStatsMessage(12)).toBe("今月は12枚の画像を生成しました");
+    expect(getStatsMessage(12)).toBe("今月 12枚 のメニュー画像を作成しました");
+  });
+
+  it("セッション0件の場合は初回誘導メッセージを返す", () => {
+    expect(getStatsMessage(0, 0)).toBe("最初のメニュー画像を作ってみましょう！");
   });
 });

@@ -17,10 +17,52 @@ const notoSansJP = Noto_Sans_JP({
   weight: ["300", "400", "500", "600", "700"],
 });
 
+const SITE_URL = "https://sharemenu-webapp.vercel.app";
+
 export const metadata: Metadata = {
-  title: "MenuCraft AI - チャットするだけでプロ品質のメニューを",
+  title: {
+    default: "MenuCraft AI - チャットするだけでプロ品質のメニューを",
+    template: "%s | MenuCraft AI",
+  },
   description:
     "AIがSNS最適サイズのメニュー画像を自動生成。飲食店オーナーのためのデザインツール。",
+  keywords: [
+    "メニュー画像",
+    "AI画像生成",
+    "飲食店",
+    "メニューデザイン",
+    "SNS画像",
+    "MenuCraft",
+  ],
+  metadataBase: new URL(SITE_URL),
+  openGraph: {
+    title: "MenuCraft AI - チャットするだけでプロ品質のメニューを",
+    description:
+      "AIがSNS最適サイズのメニュー画像を自動生成。飲食店オーナーのためのデザインツール。",
+    url: SITE_URL,
+    siteName: "MenuCraft AI",
+    locale: "ja_JP",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "MenuCraft AI - AIメニュー画像自動生成",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MenuCraft AI - チャットするだけでプロ品質のメニューを",
+    description:
+      "AIがSNS最適サイズのメニュー画像を自動生成。飲食店オーナーのためのデザインツール。",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

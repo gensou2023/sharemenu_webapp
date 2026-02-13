@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { createAdminClient } from "@/lib/supabase";
 import { logApiUsage } from "@/lib/api-logger";
 import { getActivePrompt } from "@/lib/prompt-loader";
 import { checkRateLimit } from "@/lib/rate-limiter";
@@ -65,7 +66,23 @@ export async function POST(req: NextRequest) {
     const ai = new GoogleGenAI({ apiKey });
 
     // DBからシステムプロンプトを取得（キャッシュ＋フォールバック付き）
-    const systemPrompt = await getActivePrompt("chat_system");
+    let systemPrompt = await getActivePrompt("chat_system");
+
+    // ユーザーの店舗プロフィールをシステムプロンプトに注入
+    try {
+      const supabase = createAdminClient();
+      const { data: profile } = await supabase
+        .from("users")
+        .select("name, business_type, shop_concept, brand_color_primary")
+        .eq("id", userId)
+        .single();
+
+      if (profile?.business_type) {
+        systemPrompt += `\n\nユーザーの店舗情報:\n店名: ${profile.name || "未設定"}\n業態: ${profile.business_type}\nコンセプト: ${profile.shop_concept || "未設定"}\nブランドカラー: ${profile.brand_color_primary || "未設定"}\nこの情報を踏まえて、既に把握済みの項目は再度質問せず、未設定の項目のみヒアリングしてください。`;
+      }
+    } catch {
+      // プロフィール取得失敗時は通常のプロンプトで続行
+    }
 
     // チャット履歴を構築（最初のAIメッセージを除外し、userから始まるようにする）
     const filteredMessages = recentMessages.slice(0, -1);

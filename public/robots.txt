@@ -1,2 +1,9 @@
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /chat/
+Disallow: /settings/
+
+Sitemap: https://sharemenu-webapp.vercel.app/sitemap.xml

@@ -146,6 +146,38 @@ export type Achievement = {
   notified: boolean;
 };
 
+// --- 画像生成設定 ---
+export type DesignStyle =
+  | "pop" | "chic" | "japanese" | "modern" | "natural" | "minimal";
+
+export type PhotoStyle =
+  | "realistic" | "illustration" | "watercolor" | "flat";
+
+export type ImageSize = "1:1" | "9:16" | "16:9";
+
+export interface GenerationDefaults {
+  default_sizes: ImageSize[];
+  default_style: DesignStyle | null;
+  default_text_language: string;
+  default_photo_style: PhotoStyle | null;
+}
+
+// --- 利用状況 ---
+export interface UsageStats {
+  current_period: {
+    image_generations_today: number;
+    image_generation_limit_today: number;
+    sessions_this_month: number;
+    session_limit_this_month: number;
+  };
+  totals: {
+    total_images: number;
+    total_sessions: number;
+    storage_used_mb: number;
+  };
+  daily_chart: Array<{ date: string; count: number }>;
+}
+
 // --- ユーザープロンプト ---
 export type UserPrompt = {
   id: string;
