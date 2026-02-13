@@ -9,9 +9,30 @@ import CTABannerSection from "@/components/landing/CTABannerSection";
 import FooterSection from "@/components/landing/FooterSection";
 import AdPlaceholder from "@/components/AdPlaceholder";
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "MenuCraft AI",
+  applicationCategory: "DesignApplication",
+  operatingSystem: "Web",
+  description:
+    "AIがSNS最適サイズのメニュー画像を自動生成。飲食店オーナーのためのデザインツール。",
+  url: "https://sharemenu-webapp.vercel.app",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "JPY",
+    description: "Free プラン（無料）",
+  },
+};
+
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header />
       <main className="mt-[56px]">
         <HeroSection />

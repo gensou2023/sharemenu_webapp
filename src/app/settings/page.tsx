@@ -5,6 +5,8 @@ import AppLayout from "@/components/AppLayout";
 import ProfileSection from "@/components/settings/ProfileSection";
 import PlanSection from "@/components/settings/PlanSection";
 import SecuritySection from "@/components/settings/SecuritySection";
+import GenerationDefaultsSection from "@/components/settings/GenerationDefaultsSection";
+import UsageSection from "@/components/settings/UsageSection";
 import DangerSection from "@/components/settings/DangerSection";
 
 type UserData = {
@@ -177,6 +179,10 @@ export default function SettingsPage() {
               />
 
               <PlanSection planLabel="Free（無料プラン）" />
+
+              <GenerationDefaultsSection />
+
+              <UsageSection />
 
               <SecuritySection />
 

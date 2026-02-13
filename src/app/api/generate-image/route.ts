@@ -47,7 +47,36 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { prompt, aspectRatio = "1:1", sessionId, shopName, designDirection, category, userReferenceImages } = await req.json();
+    const body = await req.json();
+    const { prompt, sessionId, shopName, category, userReferenceImages } = body;
+    let { aspectRatio, designDirection } = body;
+
+    // ユーザーのデフォルト設定を適用（明示的に指定されていない場合）
+    if (!aspectRatio || !designDirection) {
+      try {
+        const supabase = createAdminClient();
+        const { data: settings } = await supabase
+          .from("user_settings")
+          .select("default_sizes, default_style")
+          .eq("user_id", userId)
+          .single();
+
+        if (settings) {
+          if (!aspectRatio && settings.default_sizes?.length > 0) {
+            const sizeToRatio: Record<string, string> = {
+              "1:1": "1:1", "9:16": "9:16", "16:9": "16:9",
+            };
+            aspectRatio = sizeToRatio[settings.default_sizes[0]] ?? "1:1";
+          }
+          if (!designDirection && settings.default_style) {
+            designDirection = settings.default_style;
+          }
+        }
+      } catch {
+        // 設定取得失敗時はデフォルト値で続行
+      }
+    }
+    if (!aspectRatio) aspectRatio = "1:1";
 
     // DBテンプレートを使った動的プロンプト生成 or クライアント直送プロンプト
     let finalPrompt: string;

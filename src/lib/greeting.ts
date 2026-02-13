@@ -5,7 +5,10 @@ export function getGreeting(): string {
   return "おつかれさまです";
 }
 
-export function getStatsMessage(monthlyImages: number): string {
+export function getStatsMessage(monthlyImages: number, recentSessions?: number): string {
+  if (recentSessions !== undefined && recentSessions === 0) {
+    return "最初のメニュー画像を作ってみましょう！";
+  }
   if (monthlyImages === 0) return "まだ画像を生成していません。始めましょう！";
-  return `今月は${monthlyImages}枚の画像を生成しました`;
+  return `今月 ${monthlyImages}枚 のメニュー画像を作成しました`;
 }
