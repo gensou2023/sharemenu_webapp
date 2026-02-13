@@ -6,6 +6,16 @@ const VALID_SIZES = ["1:1", "9:16", "16:9"];
 const VALID_STYLES = ["pop", "chic", "japanese", "modern", "natural", "minimal"];
 const VALID_PHOTO_STYLES = ["realistic", "illustration", "watercolor", "flat"];
 const VALID_LANGUAGES = ["ja", "en"];
+const VALID_FREQUENCIES = ["realtime", "daily", "weekly", "off"];
+
+const NOTIF_SELECT = "new_features, generation_complete, gallery_reactions, marketing, email_frequency";
+const DEFAULT_NOTIFICATIONS = {
+  new_features: true,
+  generation_complete: true,
+  gallery_reactions: true,
+  marketing: false,
+  email_frequency: "realtime",
+};
 
 const DEFAULT_SETTINGS = {
   default_sizes: ["1:1"],
@@ -57,7 +67,24 @@ export async function GET() {
       return NextResponse.json({ settings: created });
     }
 
-    return NextResponse.json({ settings: data });
+    // 通知設定を取得（別テーブル）
+    const { data: notifData } = await supabase
+      .from("notification_preferences")
+      .select(NOTIF_SELECT)
+      .eq("user_id", session.user.id)
+      .single();
+
+    let notifications = notifData;
+    if (!notifications) {
+      const { data: createdNotif } = await supabase
+        .from("notification_preferences")
+        .insert({ user_id: session.user.id })
+        .select(NOTIF_SELECT)
+        .single();
+      notifications = createdNotif || DEFAULT_NOTIFICATIONS;
+    }
+
+    return NextResponse.json({ settings: data, notifications });
   } catch {
     return NextResponse.json({ error: "サーバーエラーが発生しました。" }, { status: 500 });
   }
@@ -71,7 +98,7 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { default_sizes, default_style, default_text_language, default_photo_style, ai_data_usage, gallery_show_shop_name, analytics_data_sharing } = body;
+    const { default_sizes, default_style, default_text_language, default_photo_style, ai_data_usage, gallery_show_shop_name, analytics_data_sharing, notifications } = body;
 
     const updateData: Record<string, unknown> = {};
 
@@ -115,6 +142,45 @@ export async function PATCH(req: NextRequest) {
           return NextResponse.json({ error: "無効な値が指定されました。" }, { status: 400 });
         }
         updateData[key] = value;
+      }
+    }
+
+    // 通知設定の更新
+    if (notifications && typeof notifications === "object") {
+      const notifUpdate: Record<string, unknown> = {};
+      const notifBoolFields = ["new_features", "generation_complete", "gallery_reactions", "marketing"];
+      for (const field of notifBoolFields) {
+        if (notifications[field] !== undefined) {
+          if (typeof notifications[field] !== "boolean") {
+            return NextResponse.json({ error: "無効な通知設定の値です。" }, { status: 400 });
+          }
+          notifUpdate[field] = notifications[field];
+        }
+      }
+      if (notifications.email_frequency !== undefined) {
+        if (!VALID_FREQUENCIES.includes(notifications.email_frequency)) {
+          return NextResponse.json({ error: "無効なメール頻度が指定されました。" }, { status: 400 });
+        }
+        notifUpdate.email_frequency = notifications.email_frequency;
+      }
+
+      if (Object.keys(notifUpdate).length > 0) {
+        const supabase = createAdminClient();
+        const { data: notifData, error: notifError } = await supabase
+          .from("notification_preferences")
+          .upsert(
+            { user_id: session.user.id, ...notifUpdate },
+            { onConflict: "user_id" }
+          )
+          .select(NOTIF_SELECT)
+          .single();
+
+        if (notifError) {
+          console.error("Notification settings update error:", notifError);
+          return NextResponse.json({ error: "通知設定の更新に失敗しました。" }, { status: 500 });
+        }
+
+        return NextResponse.json({ notifications: notifData, message: "通知設定を保存しました。" });
       }
     }
 
