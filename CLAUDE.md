@@ -195,13 +195,17 @@ npm start        # 本番サーバー起動
 | ~~dashboard/page.tsx~~ | ~~HIGH~~ | DONE — コンポーネント分離済み（160行） |
 | ~~admin 認証チェック~~ | ~~HIGH~~ | DONE — `withAdmin` ミドルウェア化済み |
 | login/signup レイアウト | MEDIUM | 重複 → AuthLayout 共通化 |
-| ~~テストコード~~ | ~~HIGH~~ | DONE — Vitest 基盤構築済み（8ファイル, 72テスト） |
+| ~~テストコード~~ | ~~HIGH~~ | DONE — Vitest 基盤構築済み（8ファイル, 74テスト） |
 
 ## 次回セッションのタスク
 
-1. **Sprint B 実施** — `docs/sprint-b-instructions.md` に従い、ダッシュボード改善 + 設定Tier 3 を実施。`/preflight-check` を実行してから開始すること
-2. **リファクタリング（HIGH）** — useChatSession 分割
-3. **login/signup レイアウト共通化** — AuthLayout 抽出
+1. **Sprint B 残件（スキップ可）** — #36 レイアウト微調整, #41 インサイトカード改善, #38 広告枠配置改善
+2. **Sprint C 計画** — #47 ダークモード（CSS影響大・事前設計必要）, #48 通知センター（#51完了済み）
+3. **リファクタリング（HIGH）** — useChatSession 分割
+4. **login/signup レイアウト共通化** — AuthLayout 抽出
+5. **PR #53 クローズ検討** — Sprint A で withAdmin() が別途実装済み
+6. **リリースノート機能** — #44→#43→#42（連鎖依存、Sprint D候補）
+7. **多言語対応（i18n）** — 日本語/英語のUI切り替え機能。設定画面 S-06 で言語選択を想定（Phase 3以降で本格対応）
 
 ## エージェント構成
 
