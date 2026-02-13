@@ -60,6 +60,7 @@ export function useDashboardData() {
   const [galleryStats, setGalleryStats] = useState<GalleryStatsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
   const [achievements, setAchievements] = useState<AchievementData | null>(null);
   const [newBadges, setNewBadges] = useState<NewAchievement[]>([]);
@@ -81,6 +82,7 @@ export function useDashboardData() {
         if (accountRes.ok) {
           const accountData = await accountRes.json();
           setUserName(accountData.user?.name || null);
+          setUserRole(accountData.user?.role || null);
           setOnboardingCompleted(!!accountData.user?.onboarding_completed_at);
         }
         if (achieveRes.ok) {
@@ -132,5 +134,5 @@ export function useDashboardData() {
     }
   };
 
-  return { sessions, setSessions, stats, setStats, galleryStats, loading, userName, onboardingCompleted, completeOnboarding, achievements, newBadges, dismissBadge };
+  return { sessions, setSessions, stats, setStats, galleryStats, loading, userName, userRole, onboardingCompleted, completeOnboarding, achievements, newBadges, dismissBadge };
 }

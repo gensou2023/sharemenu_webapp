@@ -5,15 +5,20 @@ type Props = {
   onCreateNew: () => void;
   userName: string | null;
   stats: StatsData | null;
+  userRole: string | null;
+  sessionCount: number;
 };
 
-export default function DashboardHeader({ onCreateNew, userName, stats }: Props) {
+export default function DashboardHeader({ onCreateNew, userName, stats, userRole, sessionCount }: Props) {
   const greeting = getGreeting();
-  const heading = userName ? `${greeting}、${userName}さん` : greeting;
-  const subtitle = stats ? getStatsMessage(stats.monthlyImages) : "生成履歴と統計";
+  const heading = userName ? `${userName}さん、${greeting}` : greeting;
+  const isFree = userRole === "user";
+  const subtitle = stats
+    ? getStatsMessage(stats.monthlyImages, stats.recentSessions, isFree ? sessionCount : undefined)
+    : "生成履歴と統計";
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10 animate-fade-in-up">
       <div>
         <span className="inline-block text-xs font-semibold text-accent-warm uppercase tracking-[2px] mb-2">
           Dashboard
