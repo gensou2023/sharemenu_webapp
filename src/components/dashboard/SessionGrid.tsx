@@ -35,7 +35,7 @@ export default function SessionGrid({
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {[1, 2, 3].map((i) => (
             <div key={i} className="bg-bg-secondary rounded-[20px] border border-border-light overflow-hidden">
               <div className="h-40 bg-border-light animate-pulse" />
@@ -78,7 +78,7 @@ export default function SessionGrid({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {sessions.map((item, idx) => (
             <SessionCard
               key={item.id}
