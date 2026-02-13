@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { signOut } from "next-auth/react";
-import Link from "next/link";
+import { useState, useEffect, useCallback } from "react";
 import AppLayout from "@/components/AppLayout";
-import PasswordChangeForm from "@/components/settings/PasswordChangeForm";
+import ProfileSection from "@/components/settings/ProfileSection";
+import PlanSection from "@/components/settings/PlanSection";
+import SecuritySection from "@/components/settings/SecuritySection";
+import DangerSection from "@/components/settings/DangerSection";
 
 type UserData = {
   id: string;
@@ -12,17 +13,53 @@ type UserData = {
   name: string;
   role: string;
   created_at: string;
+  business_type: string | null;
+  shop_concept: string | null;
+  brand_color_primary: string | null;
+  brand_color_secondary: string | null;
+  prefecture: string | null;
+  website_url: string | null;
+  sns_instagram: string | null;
+  sns_x: string | null;
 };
+
+type ProfileForm = {
+  name: string;
+  business_type: string | null;
+  shop_concept: string | null;
+  prefecture: string | null;
+  website_url: string | null;
+  sns_instagram: string | null;
+  sns_x: string | null;
+};
+
+function buildProfileForm(user: UserData): ProfileForm {
+  return {
+    name: user.name || "",
+    business_type: user.business_type,
+    shop_concept: user.shop_concept,
+    prefecture: user.prefecture,
+    website_url: user.website_url,
+    sns_instagram: user.sns_instagram,
+    sns_x: user.sns_x,
+  };
+}
 
 export default function SettingsPage() {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [name, setName] = useState("");
+  const [profile, setProfile] = useState<ProfileForm>({
+    name: "",
+    business_type: null,
+    shop_concept: null,
+    prefecture: null,
+    website_url: null,
+    sns_instagram: null,
+    sns_x: null,
+  });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [withdrawing, setWithdrawing] = useState(false);
 
   useEffect(() => {
     async function fetchAccount() {
@@ -31,7 +68,7 @@ export default function SettingsPage() {
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
-          setName(data.user.name || "");
+          setProfile(buildProfileForm(data.user));
         }
       } catch {
         setError("アカウント情報の取得に失敗しました。");
@@ -42,6 +79,20 @@ export default function SettingsPage() {
     fetchAccount();
   }, []);
 
+  const handleProfileChange = useCallback((field: string, value: string | null) => {
+    setProfile((prev) => ({ ...prev, [field]: value }));
+  }, []);
+
+  const isDirty = user ? (
+    profile.name !== (user.name || "") ||
+    profile.business_type !== user.business_type ||
+    profile.shop_concept !== user.shop_concept ||
+    profile.prefecture !== user.prefecture ||
+    profile.website_url !== user.website_url ||
+    profile.sns_instagram !== user.sns_instagram ||
+    profile.sns_x !== user.sns_x
+  ) : false;
+
   const handleSave = async () => {
     setSaving(true);
     setMessage("");
@@ -51,13 +102,13 @@ export default function SettingsPage() {
       const res = await fetch("/api/account", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify(profile),
       });
       const data = await res.json();
 
       if (res.ok) {
         setMessage(data.message || "更新しました。");
-        setUser((prev) => (prev ? { ...prev, name } : null));
+        setUser((prev) => (prev ? { ...prev, ...profile } : null));
       } else {
         setError(data.error || "更新に失敗しました。");
       }
@@ -67,27 +118,6 @@ export default function SettingsPage() {
       setSaving(false);
     }
   };
-
-  const handleWithdraw = async () => {
-    setWithdrawing(true);
-    try {
-      const res = await fetch("/api/account", { method: "DELETE" });
-      if (res.ok) {
-        await signOut({ callbackUrl: "/login" });
-      } else {
-        const data = await res.json();
-        setError(data.error || "退会処理に失敗しました。");
-        setShowWithdrawModal(false);
-      }
-    } catch {
-      setError("通信エラーが発生しました。");
-      setShowWithdrawModal(false);
-    } finally {
-      setWithdrawing(false);
-    }
-  };
-
-  const planLabel = "Free（無料プラン）";
 
   return (
     <AppLayout>
@@ -136,168 +166,25 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              {/* プロフィール情報 */}
-              <section id="profile" className="scroll-mt-[72px]">
-                <div className="bg-bg-secondary rounded-[20px] border border-border-light p-6 relative overflow-hidden animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-accent-warm via-accent-gold to-transparent" />
-                  <h2 className="text-[11px] font-semibold text-accent-warm uppercase tracking-[1px] mb-5">
-                    プロフィール
-                  </h2>
+              <ProfileSection
+                data={profile}
+                onChange={handleProfileChange}
+                email={user?.email || ""}
+                createdAt={user?.created_at}
+                saving={saving}
+                dirty={isDirty}
+                onSave={handleSave}
+              />
 
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                        店舗名 / ユーザー名
-                      </label>
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full px-4 py-3 rounded-[8px] border border-border-light bg-bg-primary text-text-primary text-sm outline-none transition-all duration-300 focus:border-accent-warm focus:shadow-[0_0_0_3px_rgba(196,113,59,.12)]"
-                      />
-                    </div>
+              <PlanSection planLabel="Free（無料プラン）" />
 
-                    <div>
-                      <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                        メールアドレス
-                      </label>
-                      <input
-                        type="email"
-                        value={user?.email || ""}
-                        readOnly
-                        className="w-full px-4 py-3 rounded-[8px] border border-border-light bg-bg-tag text-text-muted text-sm outline-none cursor-not-allowed"
-                      />
-                      <p className="text-[11px] text-text-muted mt-1">
-                        メールアドレスの変更はサポートまでお問い合わせください
-                      </p>
-                    </div>
+              <SecuritySection />
 
-                    <div>
-                      <label className="block text-xs font-medium text-text-secondary mb-1.5">
-                        登録日
-                      </label>
-                      <div className="text-sm text-text-primary">
-                        {user?.created_at
-                          ? new Date(user.created_at).toLocaleDateString("ja-JP", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })
-                          : "—"}
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleSave}
-                    disabled={saving || name === user?.name}
-                    className="mt-6 px-6 py-3 rounded-[28px] bg-accent-warm text-white text-sm font-semibold transition-all duration-300 hover:bg-accent-warm-hover disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    {saving ? "保存中..." : "変更を保存"}
-                  </button>
-                </div>
-              </section>
-
-              {/* プラン情報 */}
-              <section id="plan" className="scroll-mt-[72px]">
-                <div className="bg-bg-secondary rounded-[20px] border border-border-light p-6 relative overflow-hidden animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-accent-gold via-accent-olive to-transparent" />
-                  <h2 className="text-[11px] font-semibold text-accent-warm uppercase tracking-[1px] mb-5">
-                    プラン
-                  </h2>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-semibold text-[15px] mb-1">
-                        {planLabel}
-                      </div>
-                      <div className="text-xs text-text-secondary">
-                        月3セッションまで · 基本テンプレート
-                      </div>
-                    </div>
-                    <Link
-                      href="/#pricing"
-                      className="px-5 py-2.5 rounded-[28px] border border-accent-warm text-accent-warm text-[13px] font-semibold no-underline transition-all duration-300 hover:bg-accent-warm hover:text-white"
-                    >
-                      プランを変更
-                    </Link>
-                  </div>
-                </div>
-              </section>
-
-              {/* パスワード変更 */}
-              <section id="security" className="scroll-mt-[72px]">
-                <div className="bg-bg-secondary rounded-[20px] border border-border-light p-6 relative overflow-hidden animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-accent-olive via-accent-warm to-transparent" />
-                  <h2 className="text-[11px] font-semibold text-accent-warm uppercase tracking-[1px] mb-5">
-                    セキュリティ
-                  </h2>
-
-                  <PasswordChangeForm />
-                </div>
-              </section>
-
-              {/* 退会 */}
-              <section id="danger" className="scroll-mt-[72px]">
-                <div className="bg-bg-secondary rounded-[20px] border border-red-200 p-6 relative overflow-hidden animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
-                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-red-400 via-red-300 to-transparent" />
-                  <h2 className="text-[11px] font-semibold text-red-500 uppercase tracking-[1px] mb-5">
-                    退会
-                  </h2>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-semibold text-[15px] mb-1">
-                        アカウントを削除
-                      </div>
-                      <div className="text-xs text-text-secondary">
-                        退会すると、ログインできなくなります
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setShowWithdrawModal(true)}
-                      className="px-5 py-2.5 rounded-[28px] bg-red-500 text-white text-[13px] font-semibold transition-all duration-300 hover:bg-red-600 cursor-pointer"
-                    >
-                      退会する
-                    </button>
-                  </div>
-                </div>
-              </section>
+              <DangerSection onError={setError} />
             </div>
           )}
         </div>
       </main>
-
-      {/* 退会確認モーダル */}
-      {showWithdrawModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60]">
-          <div className="bg-bg-secondary rounded-[16px] border border-border-light p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-bold mb-2">退会の確認</h3>
-            <p className="text-sm text-text-secondary mb-1">
-              本当に退会しますか？
-            </p>
-            <p className="text-sm text-red-500 mb-4">
-              退会するとログインできなくなります。この操作は取り消せません。
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowWithdrawModal(false)}
-                disabled={withdrawing}
-                className="px-4 py-2 rounded-[8px] border border-border-light text-sm cursor-pointer hover:bg-bg-primary transition-colors disabled:opacity-50"
-              >
-                キャンセル
-              </button>
-              <button
-                onClick={handleWithdraw}
-                disabled={withdrawing}
-                className="px-4 py-2 rounded-[8px] bg-red-500 text-white text-sm font-semibold cursor-pointer transition-colors hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {withdrawing ? "処理中..." : "退会する"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </AppLayout>
   );
 }

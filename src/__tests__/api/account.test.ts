@@ -262,6 +262,127 @@ describe("PATCH /api/account パスワード変更", () => {
   });
 });
 
+describe("PATCH /api/account プロフィール拡張", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("業態カテゴリを更新できる", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const updated = { id: "user-1", email: "t@t.com", name: "T", role: "user" };
+    mockSupabase({ updateData: updated });
+
+    const req = new NextRequest("http://localhost/api/account", {
+      method: "PATCH",
+      body: JSON.stringify({ business_type: "cafe" }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(200);
+  });
+
+  it("無効な業態カテゴリで400を返す", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    mockSupabase();
+
+    const req = new NextRequest("http://localhost/api/account", {
+      method: "PATCH",
+      body: JSON.stringify({ business_type: "invalid_type" }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain("無効な業態");
+  });
+
+  it("店舗コンセプト200文字超で400を返す", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    mockSupabase();
+
+    const req = new NextRequest("http://localhost/api/account", {
+      method: "PATCH",
+      body: JSON.stringify({ shop_concept: "あ".repeat(201) }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toContain("200文字");
+  });
+
+  it("複数プロフィールフィールドを同時に更新できる", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const updated = { id: "user-1", email: "t@t.com", name: "New Shop", role: "user" };
+    mockSupabase({ updateData: updated });
+
+    const req = new NextRequest("http://localhost/api/account", {
+      method: "PATCH",
+      body: JSON.stringify({
+        name: "New Shop",
+        business_type: "ramen",
+        shop_concept: "こだわりの一杯",
+        prefecture: "東京都",
+      }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(200);
+  });
+
+  it("nullでフィールドをクリアできる", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const updated = { id: "user-1", email: "t@t.com", name: "T", role: "user" };
+    mockSupabase({ updateData: updated });
+
+    const req = new NextRequest("http://localhost/api/account", {
+      method: "PATCH",
+      body: JSON.stringify({ business_type: null, shop_concept: null }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(200);
+  });
+
+  it("空文字のSNSフィールドはnullに変換される", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const updated = { id: "user-1", email: "t@t.com", name: "T", role: "user" };
+    const client = mockSupabase({ updateData: updated });
+
+    const req = new NextRequest("http://localhost/api/account", {
+      method: "PATCH",
+      body: JSON.stringify({ sns_instagram: "", website_url: "" }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(200);
+
+    // updateに渡されたデータを検証
+    const fromCall = client.from.mock.calls[0];
+    expect(fromCall[0]).toBe("users");
+  });
+
+  it("都道府県とWebサイトURLを更新できる", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const updated = { id: "user-1", email: "t@t.com", name: "T", role: "user" };
+    mockSupabase({ updateData: updated });
+
+    const req = new NextRequest("http://localhost/api/account", {
+      method: "PATCH",
+      body: JSON.stringify({ prefecture: "大阪府", website_url: "https://example.com" }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(200);
+  });
+
+  it("店舗コンセプト200文字ちょうどは許可される", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const updated = { id: "user-1", email: "t@t.com", name: "T", role: "user" };
+    mockSupabase({ updateData: updated });
+
+    const req = new NextRequest("http://localhost/api/account", {
+      method: "PATCH",
+      body: JSON.stringify({ shop_concept: "あ".repeat(200) }),
+    });
+    const res = await PATCH(req);
+    expect(res.status).toBe(200);
+  });
+});
+
 describe("DELETE /api/account", () => {
   beforeEach(() => {
     vi.clearAllMocks();
