@@ -37,6 +37,7 @@ export default function DashboardPage() {
 
   const [shareTarget, setShareTarget] = useState<SessionData | null>(null);
 
+  const remaining = Math.max(0, 3 - sessions.length);
   const statsCards = [
     {
       label: "総生成数",
@@ -52,14 +53,15 @@ export default function DashboardPage() {
       ),
     },
     {
-      label: "今月の生成",
-      value: stats ? String(stats.monthlyImages) : "—",
-      sub: "残り: 無制限（Pro）",
+      label: "公開数",
+      value: galleryStats ? String(galleryStats.sharedCount) : "—",
+      sub: "ギャラリーに共有した数",
       accent: "gold" as const,
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-          <rect x="3" y="4" width="18" height="18" rx="2" />
-          <path d="M16 2v4M8 2v4M3 10h18" />
+          <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" />
+          <polyline points="16 6 12 2 8 6" />
+          <line x1="12" y1="2" x2="12" y2="15" />
         </svg>
       ),
     },
@@ -74,6 +76,22 @@ export default function DashboardPage() {
         </svg>
       ),
     },
+    ...(userRole === "user"
+      ? [
+          {
+            label: "残りセッション",
+            value: String(remaining),
+            sub: "Free プラン上限: 3",
+            accent: (remaining === 0 ? "warm" : "olive") as "warm" | "olive",
+            icon: (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
