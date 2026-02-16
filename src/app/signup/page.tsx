@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import AuthLayout from "@/components/auth/AuthLayout";
+import AuthInput from "@/components/auth/AuthInput";
+import AuthErrorMessage from "@/components/auth/AuthErrorMessage";
+import AuthFooterLink from "@/components/auth/AuthFooterLink";
 
 export default function SignupPage() {
   const [shopName, setShopName] = useState("");
@@ -56,58 +59,37 @@ export default function SignupPage() {
 
   return (
     <AuthLayout title="無料で始めましょう" subtitle="30秒で登録完了。クレジットカード不要です。">
-      {error && (
-        <div className="mb-4 p-3 rounded-[8px] bg-red-50 border border-red-200 text-red-600 text-sm">
-          {error}
-        </div>
-      )}
+      {error && <AuthErrorMessage message={error} />}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div>
-          <label className="block text-xs font-medium text-text-secondary mb-1.5 tracking-wide">
-            店舗名
-          </label>
-          <input
-            type="text"
-            value={shopName}
-            onChange={(e) => setShopName(e.target.value)}
-            placeholder="さくらカフェ"
-            required
-            className="w-full px-4 py-3 rounded-[8px] border border-border-light bg-bg-primary text-text-primary text-sm outline-none transition-all duration-300 focus:border-accent-warm focus:shadow-[0_0_0_3px_rgba(196,113,59,.12)] placeholder:text-text-muted"
-          />
-        </div>
+        <AuthInput
+          label="店舗名"
+          type="text"
+          value={shopName}
+          onChange={(e) => setShopName(e.target.value)}
+          placeholder="さくらカフェ"
+          required
+        />
 
-        <div>
-          <label className="block text-xs font-medium text-text-secondary mb-1.5 tracking-wide">
-            メールアドレス
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="example@email.com"
-            required
-            className="w-full px-4 py-3 rounded-[8px] border border-border-light bg-bg-primary text-text-primary text-sm outline-none transition-all duration-300 focus:border-accent-warm focus:shadow-[0_0_0_3px_rgba(196,113,59,.12)] placeholder:text-text-muted"
-          />
-        </div>
+        <AuthInput
+          label="メールアドレス"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="example@email.com"
+          required
+        />
 
-        <div>
-          <label className="block text-xs font-medium text-text-secondary mb-1.5 tracking-wide">
-            パスワード
-          </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="8文字以上で設定"
-            required
-            minLength={8}
-            className="w-full px-4 py-3 rounded-[8px] border border-border-light bg-bg-primary text-text-primary text-sm outline-none transition-all duration-300 focus:border-accent-warm focus:shadow-[0_0_0_3px_rgba(196,113,59,.12)] placeholder:text-text-muted"
-          />
-          <p className="text-xs text-text-muted mt-1.5">
-            英数字を含む8文字以上
-          </p>
-        </div>
+        <AuthInput
+          label="パスワード"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="8文字以上で設定"
+          required
+          minLength={8}
+          helperText="英数字を含む8文字以上"
+        />
 
         <label className="flex items-start gap-2.5 cursor-pointer mt-1">
           <input
@@ -133,15 +115,11 @@ export default function SignupPage() {
         </button>
       </form>
 
-      <p className="text-center text-sm text-text-secondary mt-6">
-        すでにアカウントをお持ちですか？{" "}
-        <Link
-          href="/login"
-          className="text-accent-warm font-semibold hover:text-accent-warm-hover transition-colors no-underline"
-        >
-          ログイン
-        </Link>
-      </p>
+      <AuthFooterLink
+        text="すでにアカウントをお持ちですか？"
+        href="/login"
+        linkText="ログイン"
+      />
     </AuthLayout>
   );
 }

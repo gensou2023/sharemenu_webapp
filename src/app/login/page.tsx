@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import AuthLayout from "@/components/auth/AuthLayout";
+import AuthInput from "@/components/auth/AuthInput";
+import AuthErrorMessage from "@/components/auth/AuthErrorMessage";
+import AuthFooterLink from "@/components/auth/AuthFooterLink";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -43,48 +46,34 @@ export default function LoginPage() {
         </div>
       )}
 
-      {error && (
-        <div className="mb-4 p-3 rounded-[8px] bg-red-50 border border-red-200 text-red-600 text-sm">
-          {error}
-        </div>
-      )}
+      {error && <AuthErrorMessage message={error} />}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div>
-          <label className="block text-xs font-medium text-text-secondary mb-1.5 tracking-wide">
-            メールアドレス
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="example@email.com"
-            required
-            className="w-full px-4 py-3 rounded-[8px] border border-border-light bg-bg-primary text-text-primary text-sm outline-none transition-all duration-300 focus:border-accent-warm focus:shadow-[0_0_0_3px_rgba(196,113,59,.12)] placeholder:text-text-muted"
-          />
-        </div>
+        <AuthInput
+          label="メールアドレス"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="example@email.com"
+          required
+        />
 
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-medium text-text-secondary tracking-wide">
-              パスワード
-            </label>
+        <AuthInput
+          label="パスワード"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="パスワードを入力"
+          required
+          labelRight={
             <Link
               href="/forgot-password"
               className="text-xs text-accent-warm hover:text-accent-warm-hover transition-colors no-underline"
             >
               パスワードをお忘れですか？
             </Link>
-          </div>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="パスワードを入力"
-            required
-            className="w-full px-4 py-3 rounded-[8px] border border-border-light bg-bg-primary text-text-primary text-sm outline-none transition-all duration-300 focus:border-accent-warm focus:shadow-[0_0_0_3px_rgba(196,113,59,.12)] placeholder:text-text-muted"
-          />
-        </div>
+          }
+        />
 
         <button
           type="submit"
@@ -95,15 +84,11 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <p className="text-center text-sm text-text-secondary mt-6">
-        アカウントをお持ちでないですか？{" "}
-        <Link
-          href="/signup"
-          className="text-accent-warm font-semibold hover:text-accent-warm-hover transition-colors no-underline"
-        >
-          無料で登録
-        </Link>
-      </p>
+      <AuthFooterLink
+        text="アカウントをお持ちでないですか？"
+        href="/signup"
+        linkText="無料で登録"
+      />
     </AuthLayout>
   );
 }

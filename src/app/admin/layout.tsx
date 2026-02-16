@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/admin/prompts", label: "プロンプト管理", icon: "📝" },
   { href: "/admin/references", label: "参考画像", icon: "🖼" },
   { href: "/admin/api-logs", label: "API利用ログ", icon: "📈" },
+  { href: "/admin/release-notes", label: "リリースノート", icon: "📢" },
 ];
 
 export default function AdminLayout({

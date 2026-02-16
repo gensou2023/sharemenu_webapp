@@ -186,6 +186,21 @@ export interface UsageStats {
   daily_chart: Array<{ date: string; count: number }>;
 }
 
+// --- リリースノート ---
+export type ReleaseNoteCategory = "feature" | "bugfix" | "improvement";
+
+export type ReleaseNote = {
+  id: string;
+  version: string;
+  title: string;
+  content: string;
+  category: ReleaseNoteCategory;
+  is_published: boolean;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 // --- ユーザープロンプト ---
 export type UserPrompt = {
   id: string;

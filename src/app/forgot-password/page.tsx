@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import AuthLayout from "@/components/auth/AuthLayout";
+import AuthInput from "@/components/auth/AuthInput";
+import AuthFooterLink from "@/components/auth/AuthFooterLink";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -21,19 +22,14 @@ export default function ForgotPasswordPage() {
     >
       {!submitted ? (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1.5 tracking-wide">
-              メールアドレス
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="example@email.com"
-              required
-              className="w-full px-4 py-3 rounded-[8px] border border-border-light bg-bg-primary text-text-primary text-sm outline-none transition-all duration-300 focus:border-accent-warm focus:shadow-[0_0_0_3px_rgba(196,113,59,.12)] placeholder:text-text-muted"
-            />
-          </div>
+          <AuthInput
+            label="メールアドレス"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="example@email.com"
+            required
+          />
 
           <button
             type="submit"
@@ -57,14 +53,11 @@ export default function ForgotPasswordPage() {
         </div>
       )}
 
-      <p className="text-center text-sm text-text-secondary mt-6">
-        <Link
-          href="/login"
-          className="text-accent-warm font-semibold hover:text-accent-warm-hover transition-colors no-underline"
-        >
-          ← ログインに戻る
-        </Link>
-      </p>
+      <AuthFooterLink
+        text=""
+        href="/login"
+        linkText="← ログインに戻る"
+      />
     </AuthLayout>
   );
 }

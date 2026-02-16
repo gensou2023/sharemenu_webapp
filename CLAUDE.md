@@ -40,8 +40,8 @@ main        ← 本番安定ブランチ
 ```
 src/
 ├── app/
-│   ├── api/              # 21 API エンドポイント
-│   ├── admin/            # 管理画面（8ページ）
+│   ├── api/              # 24 API エンドポイント
+│   ├── admin/            # 管理画面（9ページ）
 │   ├── chat/             # チャット画面
 │   ├── dashboard/        # ダッシュボード
 │   ├── settings/         # アカウント設定
@@ -125,8 +125,9 @@ src/
 | `user_achievements` | アチーブメント |
 | `notification_preferences` | 通知設定 |
 | `notifications` | 通知 |
+| `release_notes` | リリースノート |
 
-## API エンドポイント（22本）
+## API エンドポイント（24本）
 
 | パス | メソッド | 概要 |
 |------|---------|------|
@@ -154,6 +155,9 @@ src/
 | `/api/admin/api-logs` | GET | APIログ（フィルタ・ページネーション） |
 | `/api/admin/prompts` | GET/POST | プロンプトテンプレート管理 |
 | `/api/admin/references` | GET/POST | 参考画像管理 |
+| `/api/admin/release-notes` | GET/POST | リリースノート管理 |
+| `/api/admin/release-notes/[id]` | PATCH/DELETE | リリースノート更新・削除 |
+| `/api/release-notes` | GET | 公開リリースノート一覧 |
 
 ## プラン制限
 
@@ -197,16 +201,14 @@ npm start        # 本番サーバー起動
 | ~~useChatSession.ts~~ | ~~HIGH~~ | DONE — 4フック分割済み（useChatFlow, useImageGeneration, useSessionPersistence, useSessionRestore） |
 | ~~dashboard/page.tsx~~ | ~~HIGH~~ | DONE — コンポーネント分離済み（160行） |
 | ~~admin 認証チェック~~ | ~~HIGH~~ | DONE — `withAdmin` ミドルウェア化済み |
-| login/signup レイアウト | MEDIUM | 重複 → AuthLayout 共通化 |
+| ~~login/signup レイアウト~~ | ~~MEDIUM~~ | DONE — AuthInput/AuthErrorMessage/AuthFooterLink 共通化済み |
 | ~~テストコード~~ | ~~HIGH~~ | DONE — Vitest 基盤構築済み（8ファイル, 74テスト） |
 
 ## 次回セッションのタスク
 
 1. **Sprint B 残件（スキップ可）** — #36 レイアウト微調整, #41 インサイトカード改善, #38 広告枠配置改善
 2. **Sprint D 計画** — #47 ダークモード（CSS影響大・事前設計必要）
-3. **login/signup レイアウト共通化** — AuthLayout 抽出
-4. **リリースノート機能** — #44→#43→#42（連鎖依存、Sprint D候補）
-5. **多言語対応（i18n）** — 日本語/英語のUI切り替え機能。設定画面 S-06 で言語選択を想定（Phase 3以降で本格対応）
+3. **多言語対応（i18n）** — 日本語/英語のUI切り替え機能。設定画面 S-06 で言語選択を想定（Phase 3以降で本格対応）
 
 ## エージェント構成
 
