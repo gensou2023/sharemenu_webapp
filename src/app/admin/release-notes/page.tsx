@@ -132,7 +132,7 @@ export default function AdminReleaseNotesPage() {
           <h2 className="text-lg font-semibold mb-4">
             {editingId ? "リリースノートを編集" : "新しいリリースノート"}
           </h2>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
               <label className="block text-xs font-medium text-text-secondary mb-1.5">
                 バージョン
@@ -225,15 +225,15 @@ export default function AdminReleaseNotesPage() {
           リリースノートはまだありません
         </div>
       ) : (
-        <div className="bg-bg-secondary rounded-[12px] border border-border-light overflow-hidden">
+        <div className="bg-bg-secondary rounded-[12px] border border-border-light overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border-light">
                 <th className="text-left px-4 py-3 text-xs text-text-muted font-medium">バージョン</th>
                 <th className="text-left px-4 py-3 text-xs text-text-muted font-medium">タイトル</th>
-                <th className="text-left px-4 py-3 text-xs text-text-muted font-medium">カテゴリ</th>
+                <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted font-medium">カテゴリ</th>
                 <th className="text-left px-4 py-3 text-xs text-text-muted font-medium">ステータス</th>
-                <th className="text-left px-4 py-3 text-xs text-text-muted font-medium">日付</th>
+                <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted font-medium">日付</th>
                 <th className="text-right px-4 py-3 text-xs text-text-muted font-medium">操作</th>
               </tr>
             </thead>
@@ -242,7 +242,7 @@ export default function AdminReleaseNotesPage() {
                 <tr key={note.id} className="border-b border-border-light last:border-none hover:bg-bg-primary/50">
                   <td className="px-4 py-3 font-mono text-xs font-semibold">{note.version}</td>
                   <td className="px-4 py-3">{note.title}</td>
-                  <td className="px-4 py-3">
+                  <td className="hidden md:table-cell px-4 py-3">
                     <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_COLORS[note.category]}`}>
                       {CATEGORY_LABELS[note.category]}
                     </span>
@@ -256,7 +256,7 @@ export default function AdminReleaseNotesPage() {
                       {note.is_published ? "公開" : "下書き"}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-text-muted text-xs">
+                  <td className="hidden md:table-cell px-4 py-3 text-text-muted text-xs">
                     {new Date(note.created_at).toLocaleDateString("ja-JP")}
                   </td>
                   <td className="px-4 py-3 text-right">

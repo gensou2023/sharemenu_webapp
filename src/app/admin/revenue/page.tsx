@@ -182,7 +182,7 @@ export default function RevenuePage() {
       </div>
 
       {/* Pro転換候補テーブル */}
-      <div className="bg-bg-secondary rounded-[12px] border border-border-light overflow-hidden">
+      <div className="bg-bg-secondary rounded-[12px] border border-border-light overflow-x-auto">
         <div className="px-4 py-3 border-b border-border-light">
           <div className="text-xs text-text-muted uppercase tracking-wider">Pro転換候補</div>
           <p className="text-[11px] text-text-muted mt-0.5">
@@ -197,10 +197,10 @@ export default function RevenuePage() {
             <thead>
               <tr className="border-b border-border-light">
                 <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">Name</th>
-                <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">Email</th>
+                <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">Email</th>
                 <th className="text-right px-4 py-3 text-xs text-text-muted uppercase tracking-wider">Sessions</th>
                 <th className="text-right px-4 py-3 text-xs text-text-muted uppercase tracking-wider">Images</th>
-                <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">登録日</th>
+                <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">登録日</th>
               </tr>
             </thead>
             <tbody>
@@ -211,10 +211,10 @@ export default function RevenuePage() {
                       {user.name}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-text-secondary">{user.email}</td>
+                  <td className="hidden md:table-cell px-4 py-3 text-text-secondary">{user.email}</td>
                   <td className="px-4 py-3 text-right font-semibold">{user.sessions_this_month}</td>
                   <td className="px-4 py-3 text-right">{user.total_images}</td>
-                  <td className="px-4 py-3 text-text-muted text-xs">
+                  <td className="hidden md:table-cell px-4 py-3 text-text-muted text-xs">
                     {new Date(user.created_at).toLocaleDateString("ja-JP")}
                   </td>
                 </tr>

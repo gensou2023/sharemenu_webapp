@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Noto_Sans_JP } from "next/font/google";
 import Providers from "./providers";
 import "./globals.css";
@@ -16,6 +16,12 @@ const notoSansJP = Noto_Sans_JP({
   display: "swap",
   weight: ["300", "400", "500", "600", "700"],
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 const SITE_URL = "https://sharemenu-webapp.vercel.app";
 

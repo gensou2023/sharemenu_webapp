@@ -145,11 +145,11 @@ export default function AdminApiLogsPage() {
             <thead>
               <tr className="border-b border-border-light">
                 <th className="text-left px-4 py-3 text-xs text-text-muted uppercase">種別</th>
-                <th className="text-left px-4 py-3 text-xs text-text-muted uppercase">モデル</th>
+                <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted uppercase">モデル</th>
                 <th className="text-left px-4 py-3 text-xs text-text-muted uppercase">ステータス</th>
                 <th className="text-left px-4 py-3 text-xs text-text-muted uppercase">応答時間</th>
-                <th className="text-left px-4 py-3 text-xs text-text-muted uppercase">トークン</th>
-                <th className="text-left px-4 py-3 text-xs text-text-muted uppercase">ユーザー</th>
+                <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted uppercase">トークン</th>
+                <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted uppercase">ユーザー</th>
                 <th className="text-left px-4 py-3 text-xs text-text-muted uppercase">日時</th>
               </tr>
             </thead>
@@ -170,7 +170,7 @@ export default function AdminApiLogsPage() {
                       {log.api_type === "chat" ? "Chat" : "Image"}
                     </span>
                   </td>
-                  <td className="px-4 py-2.5 text-text-muted font-mono text-xs">{log.model}</td>
+                  <td className="hidden md:table-cell px-4 py-2.5 text-text-muted font-mono text-xs">{log.model}</td>
                   <td className="px-4 py-2.5">
                     <span className={`text-xs font-medium ${
                       log.status === "success" ? "text-accent-olive" : "text-red-500"
@@ -181,13 +181,13 @@ export default function AdminApiLogsPage() {
                   <td className="px-4 py-2.5 text-text-muted">
                     {log.duration_ms ? `${log.duration_ms}ms` : "—"}
                   </td>
-                  <td className="px-4 py-2.5 text-text-muted text-xs">
+                  <td className="hidden md:table-cell px-4 py-2.5 text-text-muted text-xs">
                     {log.tokens_in || log.tokens_out
                       ? `${log.tokens_in || 0} / ${log.tokens_out || 0}`
                       : "—"
                     }
                   </td>
-                  <td className="px-4 py-2.5 text-text-muted text-xs">{log.user_email}</td>
+                  <td className="hidden md:table-cell px-4 py-2.5 text-text-muted text-xs">{log.user_email}</td>
                   <td className="px-4 py-2.5 text-text-muted text-xs">
                     {new Date(log.created_at).toLocaleString("ja-JP")}
                   </td>

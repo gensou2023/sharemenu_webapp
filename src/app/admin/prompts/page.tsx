@@ -143,7 +143,7 @@ export default function AdminPromptsPage() {
               <h2 className="text-sm font-semibold text-text-muted mb-3 uppercase tracking-wider">
                 バージョン履歴
               </h2>
-              <div className="bg-bg-secondary rounded-[12px] border border-border-light overflow-hidden">
+              <div className="bg-bg-secondary rounded-[12px] border border-border-light overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border-light">

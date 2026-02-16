@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -21,6 +22,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = (href: string) =>
     href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
@@ -28,7 +30,18 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen bg-bg-primary">
       {/* 管理画面ヘッダー */}
-      <header className="fixed top-0 left-0 right-0 h-[52px] bg-bg-dark text-white flex items-center px-6 z-50">
+      <header className="fixed top-0 left-0 right-0 h-[52px] bg-bg-dark text-white flex items-center px-4 sm:px-6 z-50">
+        {/* ハンバーガーボタン（モバイル） */}
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="xl:hidden mr-3 w-10 h-10 flex items-center justify-center rounded-[8px] hover:bg-white/10 transition-colors cursor-pointer border-none bg-transparent text-white"
+          aria-label="メニューを開く"
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </button>
+
         <Link href="/admin" className="font-semibold text-sm no-underline text-white flex items-center gap-2">
           <span className="text-accent-warm">MenuCraft</span>
           <span className="text-xs px-2 py-0.5 rounded bg-accent-warm text-white font-bold">ADMIN</span>
@@ -43,13 +56,26 @@ export default function AdminLayout({
           href="/dashboard"
           className="text-xs text-white/60 hover:text-white no-underline transition-colors"
         >
-          ユーザー画面に戻る
+          <span className="hidden sm:inline">ユーザー画面に戻る</span>
+          <span className="sm:hidden">戻る</span>
         </Link>
       </header>
 
       <div className="flex mt-[52px]">
+        {/* バックドロップ（モバイル） */}
+        {mobileOpen && (
+          <div
+            className="fixed inset-0 bg-black/30 z-40 xl:hidden"
+            onClick={() => setMobileOpen(false)}
+          />
+        )}
+
         {/* サイドバー */}
-        <aside className="w-[220px] min-h-[calc(100vh-52px)] bg-bg-secondary border-r border-border-light flex-shrink-0 py-4 relative overflow-hidden">
+        <aside
+          className={`fixed top-[52px] left-0 z-50 h-[calc(100vh-52px)] w-[260px] bg-bg-secondary border-r border-border-light py-4 overflow-hidden overflow-y-auto transition-transform duration-300 ease-in-out xl:static xl:w-[220px] xl:flex-shrink-0 xl:translate-x-0 ${
+            mobileOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
           {/* サイドバー ブラーサークル（控えめ） */}
           <div className="absolute bottom-[10%] left-[-20%] w-40 h-40 bg-accent-warm/[.03] rounded-full blur-3xl pointer-events-none" />
 
@@ -67,6 +93,7 @@ export default function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-2.5 px-3 py-2.5 rounded-[8px] text-sm no-underline transition-all duration-200 relative ${
                   isActive(item.href)
                     ? "bg-bg-primary text-text-primary font-medium shadow-sm"
@@ -85,7 +112,7 @@ export default function AdminLayout({
         </aside>
 
         {/* メインコンテンツ */}
-        <main className="flex-1 p-8 min-w-0">
+        <main className="flex-1 p-4 sm:p-6 xl:p-8 min-w-0">
           {children}
         </main>
       </div>

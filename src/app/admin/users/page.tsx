@@ -78,26 +78,26 @@ export default function AdminUsersPage() {
         </div>
       ) : (
         <>
-          <div className="bg-bg-secondary rounded-[12px] border border-border-light overflow-hidden">
+          <div className="bg-bg-secondary rounded-[12px] border border-border-light overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border-light">
                   <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
                     名前
                   </th>
-                  <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
+                  <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
                     メール
                   </th>
                   <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
                     ロール
                   </th>
-                  <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
+                  <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
                     登録日
                   </th>
-                  <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
+                  <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
                     セッション
                   </th>
-                  <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
+                  <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
                     画像
                   </th>
                   <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
@@ -129,7 +129,7 @@ export default function AdminUsersPage() {
                           {u.name || "—"}
                         </Link>
                       </td>
-                      <td className="px-4 py-3 text-text-muted">{u.email}</td>
+                      <td className="hidden md:table-cell px-4 py-3 text-text-muted">{u.email}</td>
                       <td className="px-4 py-3">
                         <span
                           className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
@@ -141,13 +141,13 @@ export default function AdminUsersPage() {
                           {u.role === "admin" ? "管理者" : "ユーザー"}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-text-muted">
+                      <td className="hidden md:table-cell px-4 py-3 text-text-muted">
                         {new Date(u.created_at).toLocaleDateString("ja-JP")}
                       </td>
-                      <td className="px-4 py-3 text-text-muted">
+                      <td className="hidden md:table-cell px-4 py-3 text-text-muted">
                         {u.sessionCount}
                       </td>
-                      <td className="px-4 py-3 text-text-muted">
+                      <td className="hidden md:table-cell px-4 py-3 text-text-muted">
                         {u.imageCount}
                       </td>
                       <td className="px-4 py-3">

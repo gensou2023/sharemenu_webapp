@@ -97,7 +97,7 @@ export default function ModerationPage() {
 
       {/* 統計カード */}
       {stats && (
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {[
             { label: "全通報数", value: stats.total_reports, color: "text-text-primary" },
             { label: "未対応", value: stats.pending_reports, color: stats.pending_reports > 0 ? "text-red-600" : "text-accent-olive" },

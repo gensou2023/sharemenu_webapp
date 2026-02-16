@@ -45,15 +45,15 @@ export default function AdminSessionsPage() {
         </div>
       ) : (
         <>
-          <div className="bg-bg-secondary rounded-[12px] border border-border-light overflow-hidden">
+          <div className="bg-bg-secondary rounded-[12px] border border-border-light overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border-light">
                   <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">店名 / タイトル</th>
-                  <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">ユーザー</th>
+                  <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">ユーザー</th>
                   <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">ステータス</th>
-                  <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">メッセージ</th>
-                  <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">画像</th>
+                  <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">メッセージ</th>
+                  <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">画像</th>
                   <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">更新日</th>
                 </tr>
               </thead>
@@ -61,7 +61,7 @@ export default function AdminSessionsPage() {
                 {sessions.map((s) => (
                   <tr key={s.id} className="border-b border-border-light last:border-none hover:bg-bg-primary transition-colors">
                     <td className="px-4 py-3 font-medium">{s.shop_name || s.title}</td>
-                    <td className="px-4 py-3 text-text-muted">{s.users?.name || s.users?.email}</td>
+                    <td className="hidden md:table-cell px-4 py-3 text-text-muted">{s.users?.name || s.users?.email}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
                         s.status === "completed"
@@ -71,8 +71,8 @@ export default function AdminSessionsPage() {
                         {s.status === "completed" ? "完了" : "進行中"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-text-muted">{s.messageCount}</td>
-                    <td className="px-4 py-3 text-text-muted">{s.imageCount}</td>
+                    <td className="hidden md:table-cell px-4 py-3 text-text-muted">{s.messageCount}</td>
+                    <td className="hidden md:table-cell px-4 py-3 text-text-muted">{s.imageCount}</td>
                     <td className="px-4 py-3 text-text-muted">
                       {new Date(s.updated_at).toLocaleDateString("ja-JP")}
                     </td>
