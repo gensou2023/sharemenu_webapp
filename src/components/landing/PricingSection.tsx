@@ -16,7 +16,7 @@ export default function PricingSection() {
           料金プラン
         </h2>
         <p className="text-[15px] text-text-secondary max-w-[560px] mx-auto leading-relaxed">
-          まずは無料プランでお試しください。お店の成長に合わせてProへアップグレード。
+          まずは無料プランでお試しください。全機能が使えます。お店の成長に合わせてProへアップグレード。
         </p>
         {/* Decorative line */}
         <div className="flex items-center justify-center gap-2 mt-5">
@@ -39,24 +39,15 @@ export default function PricingSection() {
             </span>
           </div>
           <p className="text-[13px] text-text-muted mb-6 leading-relaxed">
-            まずはお試し。Instagramフィード用の画像を無料で作成できます。
+            全機能を無料で体験。月10枚まで画像を生成できます。
           </p>
           <ul className="mb-7 space-y-0">
-            <PricingItem available text="Instagram フィード画像 (1:1)" />
-            <PricingItem
-              available={false}
-              text="Instagram ストーリーズ (9:16)"
-              limit="Pro限定"
-            />
-            <PricingItem
-              available={false}
-              text="X ポスト画像 (16:9)"
-              limit="Pro限定"
-            />
-            <PricingItem available text="画像生成" limit="1日3枚まで" />
-            <PricingItem available text="生成履歴の保存" limit="直近3件" />
+            <PricingItem available text="全アスペクト比 (1:1, 9:16, 16:9)" />
+            <PricingItem available text="画像生成" limit="月10枚" />
+            <PricingItem available text="セッション" limit="無制限" />
             <PricingItem available text="チャットヒアリング" />
             <PricingItem available text="キャッチコピー・ハッシュタグ提案" />
+            <PricingItem available text="画像保存" limit="30日間" />
           </ul>
           <button className="w-full py-3.5 rounded-full text-sm font-semibold border-[1.5px] border-border-medium bg-transparent text-text-primary transition-all duration-300 hover:border-text-primary hover:bg-bg-tertiary cursor-pointer">
             無料で始める
@@ -79,21 +70,15 @@ export default function PricingSection() {
             </span>
           </div>
           <p className="text-[13px] text-text-muted mb-6 leading-relaxed">
-            3サイズ対応・無制限生成。本格的なSNS運用をしたいお店に。
+            月50枚まで生成可能。1枚あたり約¥14で本格的なメニュー画像を。
           </p>
           <ul className="mb-7 space-y-0">
-            <PricingItem available text="Instagram フィード画像 (1:1)" />
-            <PricingItem available text="Instagram ストーリーズ (9:16)" />
-            <PricingItem available text="X ポスト画像 (16:9)" />
-            <PricingItem available text="画像生成" limit="無制限" highlight />
-            <PricingItem
-              available
-              text="生成履歴の保存"
-              limit="無制限"
-              highlight
-            />
+            <PricingItem available text="全アスペクト比 (1:1, 9:16, 16:9)" />
+            <PricingItem available text="画像生成" limit="月50枚" highlight />
+            <PricingItem available text="セッション" limit="無制限" />
             <PricingItem available text="チャットヒアリング" />
             <PricingItem available text="キャッチコピー・ハッシュタグ提案" />
+            <PricingItem available text="画像保存" limit="無期限" highlight />
           </ul>
           <button className="w-full py-3.5 rounded-full text-sm font-semibold bg-accent-warm text-white shadow-[0_2px_12px_rgba(232,113,58,.2)] transition-all duration-300 hover:bg-accent-warm-hover hover:-translate-y-0.5 cursor-pointer border-none">
             Proで始める &rarr;

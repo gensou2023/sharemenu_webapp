@@ -6,8 +6,15 @@ import { getActivePrompt } from "@/lib/prompt-loader";
 import { checkRateLimit } from "@/lib/rate-limiter";
 import { createAdminClient } from "@/lib/supabase";
 import { checkAchievements } from "@/lib/achievement-checker";
+import type { UserPlan } from "@/lib/types";
 
 const IMAGE_MODEL = "gemini-2.0-flash-exp-image-generation";
+
+const PLAN_IMAGE_LIMITS: Record<UserPlan, number> = {
+  free: 10,
+  pro: 50,
+  business: 200,
+};
 
 export async function POST(req: NextRequest) {
   // --- 認証チェック ---
@@ -34,6 +41,41 @@ export async function POST(req: NextRequest) {
         },
       }
     );
+  }
+
+  // --- 月間画像枚数チェック ---
+  try {
+    const supabaseCheck = createAdminClient();
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+    const [userRes, monthlyImagesRes] = await Promise.all([
+      supabaseCheck.from("users").select("plan").eq("id", userId).single(),
+      supabaseCheck
+        .from("generated_images")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .gte("created_at", monthStart),
+    ]);
+
+    const plan: UserPlan = (userRes.data?.plan as UserPlan) || "free";
+    const limit = PLAN_IMAGE_LIMITS[plan];
+    const used = monthlyImagesRes.count ?? 0;
+
+    if (used >= limit) {
+      return NextResponse.json(
+        {
+          error: "monthly_limit_reached",
+          message: `今月の画像生成枠（${limit}枚）を使い切りました。`,
+          plan,
+          used,
+          limit,
+        },
+        { status: 429 }
+      );
+    }
+  } catch {
+    // チェック失敗時は生成を続行（安全側に倒す）
   }
 
   const startTime = Date.now();

@@ -91,6 +91,9 @@ export default function AdminUsersPage() {
                   <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
                     ロール
                   </th>
+                  <th className="text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
+                    プラン
+                  </th>
                   <th className="hidden md:table-cell text-left px-4 py-3 text-xs text-text-muted uppercase tracking-wider">
                     登録日
                   </th>
@@ -109,7 +112,7 @@ export default function AdminUsersPage() {
                 {users.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={8}
                       className="px-4 py-8 text-center text-text-muted"
                     >
                       ユーザーが見つかりません
@@ -139,6 +142,19 @@ export default function AdminUsersPage() {
                           }`}
                         >
                           {u.role === "admin" ? "管理者" : "ユーザー"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                            u.plan === "pro"
+                              ? "bg-accent-warm/20 text-accent-warm"
+                              : u.plan === "business"
+                              ? "bg-accent-gold/20 text-accent-gold"
+                              : "bg-border-light text-text-secondary"
+                          }`}
+                        >
+                          {u.plan === "pro" ? "Pro" : u.plan === "business" ? "Business" : "Free"}
                         </span>
                       </td>
                       <td className="hidden md:table-cell px-4 py-3 text-text-muted">

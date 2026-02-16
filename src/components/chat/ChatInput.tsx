@@ -16,9 +16,15 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 export default function ChatInput({
   onSend,
   disabled = false,
+  imageRemaining,
+  imageLimit,
+  plan,
 }: {
   onSend: (message: string, image?: ImageAttachment) => void;
   disabled?: boolean;
+  imageRemaining?: number;
+  imageLimit?: number;
+  plan?: string;
 }) {
   const [value, setValue] = useState("");
   const [imagePreview, setImagePreview] = useState<{
@@ -225,8 +231,19 @@ export default function ChatInput({
           </svg>
         </button>
       </div>
-      <div className="text-[11px] text-text-muted mt-2 text-center">
-        Enter で送信 · Shift+Enter で改行 · 📎 写真アップロード対応
+      <div className="text-[11px] text-text-muted mt-2 text-center flex items-center justify-center gap-2">
+        <span>Enter で送信 · Shift+Enter で改行 · 📎 写真アップロード対応</span>
+        {imageRemaining !== undefined && imageLimit !== undefined && (
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-medium ${
+            imageRemaining <= 0
+              ? "border-red-300 text-red-500 bg-red-50"
+              : imageRemaining <= 3
+              ? "border-amber-300 text-amber-600 bg-amber-50"
+              : "border-border-light text-text-secondary bg-bg-primary"
+          }`}>
+            残り {imageRemaining}/{imageLimit} 枚{plan === "pro" && " | Pro"}
+          </span>
+        )}
       </div>
     </div>
   );

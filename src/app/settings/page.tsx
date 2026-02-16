@@ -16,6 +16,7 @@ type UserData = {
   email: string;
   name: string;
   role: string;
+  plan: string;
   created_at: string;
   business_type: string | null;
   shop_concept: string | null;
@@ -180,7 +181,10 @@ export default function SettingsPage() {
                 onSave={handleSave}
               />
 
-              <PlanSection planLabel="Free（無料プラン）" />
+              <PlanSection
+                planLabel={user?.plan === "pro" ? "Pro（プロプラン）" : "Free（無料プラン）"}
+                planDescription={user?.plan === "pro" ? "月50枚まで · 画像保存無期限" : "月10枚まで · 画像保存30日"}
+              />
 
               <GenerationDefaultsSection />
 

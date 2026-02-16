@@ -40,7 +40,14 @@ export const GET = withAdmin(async (_req: NextRequest) => {
   ]);
 
   const totalUsers = totalUsersRes.count || 0;
-  const proUsers = 0; // Stripe未実装、将来対応
+
+  // plan カラムから Pro ユーザー数を取得
+  const { count: proUsersCount } = await supabase
+    .from("users")
+    .select("id", { count: "exact", head: true })
+    .eq("plan", "pro")
+    .is("deleted_at", null);
+  const proUsers = proUsersCount || 0;
   const freeUsers = totalUsers - proUsers;
 
   // アクティブユーザー（ユニーク）
@@ -59,21 +66,17 @@ export const GET = withAdmin(async (_req: NextRequest) => {
   }
   const powerUsers = Object.values(sessionCountByUser).filter((c) => c >= 5).length;
 
-  // セッション上限到達者（Free上限 = 3）
-  const sessionLimitHitUsers = Object.values(sessionCountByUser).filter((c) => c >= 3).length;
-
-  // 画像上限到達者（今日、1日上限 = 3）
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-  const { data: todayImages } = await supabase
+  // 画像上限到達者（今月、Free上限 = 10枚/月）
+  const { data: monthlyImages } = await supabase
     .from("generated_images")
     .select("user_id")
-    .gte("created_at", todayStart);
+    .gte("created_at", monthStart);
 
   const imageCountByUser: Record<string, number> = {};
-  for (const img of (todayImages || [])) {
+  for (const img of (monthlyImages || [])) {
     imageCountByUser[img.user_id] = (imageCountByUser[img.user_id] || 0) + 1;
   }
-  const imageLimitHitUsers = Object.values(imageCountByUser).filter((c) => c >= 3).length;
+  const imageLimitHitUsers = Object.values(imageCountByUser).filter((c) => c >= 10).length;
 
   // 日別トレンド: 新規登録
   const dailySignupMap: Record<string, number> = {};
@@ -103,14 +106,14 @@ export const GET = withAdmin(async (_req: NextRequest) => {
   // リテンション（簡易コホート）
   const retention = await calcRetention(supabase);
 
-  // Pro転換候補（今月セッション上限に達したユーザー上位20名）
-  const limitHitUserIds = Object.entries(sessionCountByUser)
-    .filter(([, c]) => c >= 3)
+  // Pro転換候補（今月画像生成数が多いユーザー上位20名）
+  const limitHitUserIds = Object.entries(imageCountByUser)
+    .filter(([, c]) => c >= 5)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 20)
     .map(([id]) => id);
 
-  let upgradeCandidates: { id: string; name: string; email: string; sessions_this_month: number; total_images: number; created_at: string }[] = [];
+  let upgradeCandidates: { id: string; name: string; email: string; images_this_month: number; total_images: number; created_at: string }[] = [];
   if (limitHitUserIds.length > 0) {
     const { data: candidates } = await supabase
       .from("users")
@@ -132,10 +135,10 @@ export const GET = withAdmin(async (_req: NextRequest) => {
       id: u.id,
       name: u.name || "—",
       email: u.email,
-      sessions_this_month: sessionCountByUser[u.id] || 0,
+      images_this_month: imageCountByUser[u.id] || 0,
       total_images: imagesByUser[u.id] || 0,
       created_at: u.created_at,
-    })).sort((a: { sessions_this_month: number }, b: { sessions_this_month: number }) => b.sessions_this_month - a.sessions_this_month);
+    })).sort((a: { images_this_month: number }, b: { images_this_month: number }) => b.images_this_month - a.images_this_month);
   }
 
   return NextResponse.json({
@@ -149,7 +152,6 @@ export const GET = withAdmin(async (_req: NextRequest) => {
       power_users: powerUsers,
     },
     limit_hits: {
-      session_limit_hit_users: sessionLimitHitUsers,
       image_limit_hit_users: imageLimitHitUsers,
     },
     daily_signups: dailySignups,

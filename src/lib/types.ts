@@ -58,6 +58,7 @@ export type FlowStep = 1 | 2 | 3 | 4 | 5;
 
 // --- ユーザー ---
 export type UserRole = "user" | "admin";
+export type UserPlan = "free" | "pro" | "business";
 
 export type BusinessType =
   | "izakaya" | "cafe" | "french" | "italian"
@@ -68,6 +69,7 @@ export interface UserProfile {
   email: string;
   name: string;
   role: UserRole;
+  plan: UserPlan;
   avatar_url: string | null;
   business_type: BusinessType | null;
   shop_concept: string | null;
@@ -85,6 +87,7 @@ export type AdminUserSummary = {
   email: string;
   name: string;
   role: UserRole;
+  plan: UserPlan;
   created_at: string;
   deleted_at: string | null;
   sessionCount: number;
@@ -172,11 +175,10 @@ export interface GenerationDefaults {
 
 // --- 利用状況 ---
 export interface UsageStats {
+  plan: UserPlan;
   current_period: {
-    image_generations_today: number;
-    image_generation_limit_today: number;
-    sessions_this_month: number;
-    session_limit_this_month: number;
+    image_generations_this_month: number;
+    image_generation_limit_month: number;
   };
   totals: {
     total_images: number;

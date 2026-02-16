@@ -3,7 +3,6 @@
 import { useState } from "react";
 import AppLayout from "@/components/AppLayout";
 import AdPlaceholder from "@/components/AdPlaceholder";
-import PlanLimitModal from "@/components/PlanLimitModal";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsSection from "@/components/dashboard/StatsSection";
@@ -22,22 +21,16 @@ export default function DashboardPage() {
   const { sessions, setSessions, stats, setStats, galleryStats, loading, userName, userRole, onboardingCompleted, completeOnboarding, achievements, newBadges, dismissBadge } = useDashboardData();
   const {
     downloading,
-    showLimitModal,
-    setShowLimitModal,
-    deletingOldest,
     deleteTarget,
     setDeleteTarget,
     deletingSession,
-    oldestSession,
     handleCreateNew,
     handleDownload,
     handleDeleteConfirm,
-    handleDeleteOldestAndCreate,
   } = useSessionActions(sessions, setSessions, stats, setStats);
 
   const [shareTarget, setShareTarget] = useState<SessionData | null>(null);
 
-  const remaining = Math.max(0, 3 - sessions.length);
   const statsCards = [
     {
       label: "総生成数",
@@ -76,22 +69,6 @@ export default function DashboardPage() {
         </svg>
       ),
     },
-    ...(userRole === "user"
-      ? [
-          {
-            label: "残りセッション",
-            value: String(remaining),
-            sub: "Free プラン上限: 3",
-            accent: (remaining === 0 ? "warm" : "olive") as "warm" | "olive",
-            icon: (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-            ),
-          },
-        ]
-      : []),
   ];
 
   return (
@@ -135,15 +112,6 @@ export default function DashboardPage() {
       </main>
 
       {/* モーダル群 */}
-      <PlanLimitModal
-        isOpen={showLimitModal}
-        onClose={() => setShowLimitModal(false)}
-        sessionCount={sessions.length}
-        onDeleteOldest={handleDeleteOldestAndCreate}
-        deleting={deletingOldest}
-        oldestSessionName={oldestSession?.shop_name || oldestSession?.title}
-      />
-
       {shareTarget && shareTarget.imageIds?.[0] && (
         <ShareModal
           imageId={shareTarget.imageIds[0]}

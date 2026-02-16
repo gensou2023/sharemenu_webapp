@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SessionData, StatsData } from "./useDashboardData";
-
-const FREE_SESSION_LIMIT = 3;
 
 async function downloadImages(urls: string[], shopName: string | null) {
   for (let i = 0; i < urls.length; i++) {
@@ -38,26 +36,12 @@ export function useSessionActions(
   setStats: React.Dispatch<React.SetStateAction<StatsData | null>>
 ) {
   const [downloading, setDownloading] = useState<string | null>(null);
-  const [showLimitModal, setShowLimitModal] = useState(false);
-  const [deletingOldest, setDeletingOldest] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<SessionData | null>(null);
   const [deletingSession, setDeletingSession] = useState(false);
   const router = useRouter();
 
-  const oldestSession = useMemo(
-    () =>
-      [...sessions].sort(
-        (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-      )[0],
-    [sessions]
-  );
-
   const handleCreateNew = () => {
-    if (sessions.length >= FREE_SESSION_LIMIT) {
-      setShowLimitModal(true);
-    } else {
-      router.push("/chat");
-    }
+    router.push("/chat");
   };
 
   const handleDownload = (item: SessionData) => {
@@ -88,33 +72,13 @@ export function useSessionActions(
     }
   };
 
-  const handleDeleteOldestAndCreate = async () => {
-    if (!oldestSession) return;
-    setDeletingOldest(true);
-    try {
-      await deleteSessionApi(oldestSession.id);
-      setSessions((prev) => prev.filter((s) => s.id !== oldestSession.id));
-      setShowLimitModal(false);
-      router.push("/chat");
-    } catch {
-      alert("削除に失敗しました。もう一度お試しください。");
-    } finally {
-      setDeletingOldest(false);
-    }
-  };
-
   return {
     downloading,
-    showLimitModal,
-    setShowLimitModal,
-    deletingOldest,
     deleteTarget,
     setDeleteTarget,
     deletingSession,
-    oldestSession,
     handleCreateNew,
     handleDownload,
     handleDeleteConfirm,
-    handleDeleteOldestAndCreate,
   };
 }

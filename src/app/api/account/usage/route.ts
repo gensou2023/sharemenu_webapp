@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createAdminClient } from "@/lib/supabase";
+import type { UserPlan } from "@/lib/types";
+
+const PLAN_IMAGE_LIMITS: Record<UserPlan, number> = {
+  free: 10,
+  pro: 50,
+  business: 200,
+};
 
 export async function GET() {
   const session = await auth();
@@ -12,20 +19,19 @@ export async function GET() {
     const supabase = createAdminClient();
     const userId = session.user.id;
     const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
     // 並行でクエリ実行
-    const [imagesRes, sessionsRes, totalImagesRes, totalSessionsRes, dailyRes] = await Promise.all([
-      // 今日の画像生成数
+    const [userRes, monthlyImagesRes, totalImagesRes, totalSessionsRes, dailyRes] = await Promise.all([
+      // ユーザーの plan を取得
+      supabase
+        .from("users")
+        .select("plan")
+        .eq("id", userId)
+        .single(),
+      // 今月の画像生成数
       supabase
         .from("generated_images")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .gte("created_at", todayStart),
-      // 今月のセッション数
-      supabase
-        .from("chat_sessions")
         .select("id", { count: "exact", head: true })
         .eq("user_id", userId)
         .gte("created_at", monthStart),
@@ -65,16 +71,14 @@ export async function GET() {
     }
     const daily_chart = Object.entries(dailyMap).map(([date, count]) => ({ date, count }));
 
-    // プラン制限値（Free固定、将来Pro対応）
-    const imageLimitToday = 3;
-    const sessionLimitMonth = 3;
+    const plan: UserPlan = (userRes.data?.plan as UserPlan) || "free";
+    const imageLimit = PLAN_IMAGE_LIMITS[plan];
 
     return NextResponse.json({
+      plan,
       current_period: {
-        image_generations_today: imagesRes.count ?? 0,
-        image_generation_limit_today: imageLimitToday,
-        sessions_this_month: sessionsRes.count ?? 0,
-        session_limit_this_month: sessionLimitMonth,
+        image_generations_this_month: monthlyImagesRes.count ?? 0,
+        image_generation_limit_month: imageLimit,
       },
       totals: {
         total_images: totalImagesRes.count ?? 0,

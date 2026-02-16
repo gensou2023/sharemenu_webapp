@@ -3,9 +3,10 @@ import SettingsCard from "@/components/settings/shared/SettingsCard";
 
 type Props = {
   planLabel: string;
+  planDescription: string;
 };
 
-export default function PlanSection({ planLabel }: Props) {
+export default function PlanSection({ planLabel, planDescription }: Props) {
   return (
     <SettingsCard id="plan" title="プラン" accentColor="gold" animationDelay="0.2s">
       <div className="flex items-center justify-between">
@@ -14,7 +15,7 @@ export default function PlanSection({ planLabel }: Props) {
             {planLabel}
           </div>
           <div className="text-xs text-text-secondary">
-            月3セッションまで · 基本テンプレート
+            {planDescription}
           </div>
         </div>
         <Link

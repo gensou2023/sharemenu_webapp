@@ -12,6 +12,7 @@ import SavePromptModal from "@/components/chat/SavePromptModal";
 import AdPlaceholder from "@/components/AdPlaceholder";
 import { useChatSession } from "@/hooks/useChatSession";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { useUsage } from "@/hooks/useUsage";
 import type { GeneratedImage } from "@/lib/types";
 
 // useSearchParamsを使うコンポーネントをSuspenseでラップ
@@ -56,6 +57,12 @@ function ChatPageInner() {
   const { data: authSession } = useSession();
   const isAdmin = authSession?.user?.role === "admin";
   const isOnline = useOnlineStatus();
+  const { usage } = useUsage();
+
+  const imageRemaining = usage
+    ? Math.max(0, usage.current_period.image_generation_limit_month - usage.current_period.image_generations_this_month)
+    : undefined;
+  const imageLimit = usage?.current_period.image_generation_limit_month;
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [promptMode, setPromptMode] = useState(false);
@@ -249,7 +256,13 @@ function ChatPageInner() {
               </div>
 
               {/* 入力エリア */}
-              <ChatInput onSend={handleSend} disabled={isTyping || isGeneratingImage || isRestoring || !isOnline} />
+              <ChatInput
+                onSend={handleSend}
+                disabled={isTyping || isGeneratingImage || isRestoring || !isOnline}
+                imageRemaining={imageRemaining}
+                imageLimit={imageLimit}
+                plan={usage?.plan}
+              />
             </>
           )}
         </div>

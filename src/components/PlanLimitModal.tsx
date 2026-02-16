@@ -5,17 +5,15 @@ import Link from "next/link";
 export default function PlanLimitModal({
   isOpen,
   onClose,
-  sessionCount,
-  onDeleteOldest,
-  deleting,
-  oldestSessionName,
+  used,
+  limit,
+  recentImages,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  sessionCount: number;
-  onDeleteOldest?: () => void;
-  deleting?: boolean;
-  oldestSessionName?: string;
+  used: number;
+  limit: number;
+  recentImages?: string[];
 }) {
   if (!isOpen) return null;
 
@@ -32,16 +30,35 @@ export default function PlanLimitModal({
         <div className="bg-bg-secondary rounded-[20px] border border-border-light shadow-[0_20px_60px_rgba(0,0,0,.15)] w-full max-w-[420px] animate-[msgIn_0.3s_ease-out]">
           {/* ヘッダー */}
           <div className="text-center pt-8 pb-4 px-6">
-            <div className="text-5xl mb-3">🔒</div>
+            <div className="text-5xl mb-3">🎉</div>
             <h2 className="font-[family-name:var(--font-playfair)] text-xl font-bold mb-2">
-              無料プランの上限に達しました
+              今月の無料枠を使い切りました！
             </h2>
             <p className="text-sm text-text-secondary leading-relaxed">
-              無料プランでは月<strong>3セッション</strong>まで作成できます。
-              <br />
-              現在 <strong>{sessionCount}セッション</strong> 使用中です。
+              今月 <strong>{used}枚</strong> の画像を生成しました。
             </p>
           </div>
+
+          {/* 今月の成果サムネイル */}
+          {recentImages && recentImages.length > 0 && (
+            <div className="px-6 pb-4">
+              <div className="text-xs text-text-muted mb-2">今月作成した画像:</div>
+              <div className="grid grid-cols-4 gap-2">
+                {recentImages.slice(0, 4).map((url, i) => (
+                  <div
+                    key={i}
+                    className="aspect-square rounded-[8px] overflow-hidden bg-border-light"
+                  >
+                    <img
+                      src={url}
+                      alt={`生成画像 ${i + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* プラン比較 */}
           <div className="px-6 pb-4">
@@ -52,9 +69,9 @@ export default function PlanLimitModal({
                 </div>
                 <div className="text-2xl font-bold mb-1">¥0</div>
                 <ul className="text-[11px] text-text-secondary space-y-1">
-                  <li>月3セッション</li>
-                  <li>基本テンプレート</li>
-                  <li>広告あり</li>
+                  <li>月10枚まで</li>
+                  <li>全機能利用可</li>
+                  <li>画像保存30日</li>
                 </ul>
               </div>
               <div className="p-4 rounded-[12px] bg-accent-warm/5 border border-accent-warm/20">
@@ -63,31 +80,18 @@ export default function PlanLimitModal({
                 </div>
                 <div className="text-2xl font-bold text-accent-warm mb-1">¥700</div>
                 <ul className="text-[11px] text-text-secondary space-y-1">
-                  <li className="font-semibold text-text-primary">無制限セッション</li>
-                  <li>全テンプレート</li>
-                  <li>広告なし</li>
+                  <li className="font-semibold text-text-primary">月50枚まで</li>
+                  <li>全機能利用可</li>
+                  <li>画像保存無期限</li>
                 </ul>
               </div>
             </div>
-          </div>
-
-          {/* 古い順に削除して続行オプション */}
-          {onDeleteOldest && (
-            <div className="px-6 pb-4">
-              <div className="p-3 rounded-[12px] bg-amber-50 border border-amber-200">
-                <p className="text-xs text-amber-700 leading-relaxed">
-                  または、一番古いセッション
-                  {oldestSessionName && (
-                    <strong>&ldquo;{oldestSessionName}&rdquo;</strong>
-                  )}
-                  を削除して新しいセッションを作成できます。
-                </p>
-                <p className="text-[10px] text-amber-600 mt-1">
-                  ⚠ 削除されたデータは復元できません
-                </p>
-              </div>
+            <div className="text-center mt-3">
+              <span className="text-xs text-text-muted">
+                Pro なら1枚あたり約¥14で作れます
+              </span>
             </div>
-          )}
+          </div>
 
           {/* ボタン */}
           <div className="px-6 pb-6 flex flex-col gap-2.5">
@@ -95,29 +99,13 @@ export default function PlanLimitModal({
               href="/#pricing"
               className="w-full py-3.5 rounded-[28px] bg-accent-warm text-white text-sm font-semibold text-center no-underline transition-all duration-300 hover:bg-accent-warm-hover hover:-translate-y-0.5 block"
             >
-              Proプランにアップグレード →
+              Pro で続ける →
             </Link>
-            {onDeleteOldest && (
-              <button
-                onClick={onDeleteOldest}
-                disabled={deleting}
-                className="w-full py-3 rounded-[28px] text-sm text-red-600 bg-transparent border border-red-300 cursor-pointer transition-all duration-300 hover:bg-red-50 hover:border-red-400 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {deleting ? (
-                  <>
-                    <div className="w-3.5 h-3.5 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
-                    削除中...
-                  </>
-                ) : (
-                  "古いセッションを削除して作成 →"
-                )}
-              </button>
-            )}
             <button
               onClick={onClose}
               className="w-full py-3 rounded-[28px] text-sm text-text-secondary bg-transparent border border-border-medium cursor-pointer transition-all duration-300 hover:border-text-primary"
             >
-              後で検討する
+              来月まで待つ
             </button>
           </div>
         </div>

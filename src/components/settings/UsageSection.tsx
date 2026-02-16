@@ -17,18 +17,12 @@ export default function UsageSection() {
         </div>
       ) : usage ? (
         <div className="space-y-5">
-          {/* プログレスバー */}
+          {/* 月間画像生成 */}
           <UsageProgressBar
-            label="今日の画像生成"
-            current={usage.current_period.image_generations_today}
-            limit={usage.current_period.image_generation_limit_today}
+            label="今月の画像生成"
+            current={usage.current_period.image_generations_this_month}
+            limit={usage.current_period.image_generation_limit_month}
             unit="枚"
-          />
-          <UsageProgressBar
-            label="今月のセッション"
-            current={usage.current_period.sessions_this_month}
-            limit={usage.current_period.session_limit_this_month}
-            unit="件"
           />
 
           {/* 累計統計 */}
