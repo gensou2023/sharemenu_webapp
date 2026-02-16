@@ -16,7 +16,7 @@ export async function GET() {
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-  const [sessionsResult, statsResult, monthlyResult, recentSessionResult] = await Promise.all([
+  const [sessionsResult, statsResult, monthlyResult, recentSessionResult, sharedImagesResult] = await Promise.all([
     // 最近のセッション（最大10件）
     supabase
       .from("chat_sessions")
@@ -53,17 +53,18 @@ export async function GET() {
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId)
       .gte("created_at", thirtyDaysAgo.toISOString()),
+
+    // ギャラリー共有画像
+    supabase
+      .from("shared_images")
+      .select("id, image_id, category, created_at, generated_images!inner(storage_path, prompt)")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(50),
   ]);
 
   const recentSessionCount = recentSessionResult.count;
-
-  // ギャラリー共有画像（自分の共有画像 + いいね/保存数）
-  const { data: sharedImages } = await supabase
-    .from("shared_images")
-    .select("id, image_id, category, created_at, generated_images!inner(storage_path, prompt)")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const sharedImages = sharedImagesResult.data;
 
   // 共有画像ごとのいいね・保存数を取得（RPC で集計済みカウントを取得）
   const sharedIds = (sharedImages || []).map((s) => s.id);

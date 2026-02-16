@@ -59,6 +59,7 @@ export function useDashboardData() {
   const [stats, setStats] = useState<StatsData | null>(null);
   const [galleryStats, setGalleryStats] = useState<GalleryStatsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [achievementsLoading, setAchievementsLoading] = useState(true);
   const [userName, setUserName] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [onboardingCompleted, setOnboardingCompleted] = useState<boolean | null>(null);
@@ -66,12 +67,12 @@ export function useDashboardData() {
   const [newBadges, setNewBadges] = useState<NewAchievement[]>([]);
 
   useEffect(() => {
-    async function fetchData() {
+    // メインデータ（dashboard + account）を先に取得・表示
+    const fetchMain = async () => {
       try {
-        const [dashRes, accountRes, achieveRes] = await Promise.all([
+        const [dashRes, accountRes] = await Promise.all([
           fetch("/api/dashboard"),
           fetch("/api/account"),
-          fetch("/api/achievements"),
         ]);
         if (dashRes.ok) {
           const data = await dashRes.json();
@@ -85,6 +86,17 @@ export function useDashboardData() {
           setUserRole(accountData.user?.role || null);
           setOnboardingCompleted(!!accountData.user?.onboarding_completed_at);
         }
+      } catch {
+        // API失敗時はフォールバック表示
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // アチーブメントは非同期で遅延取得（メイン表示をブロックしない）
+    const fetchAchievements = async () => {
+      try {
+        const achieveRes = await fetch("/api/achievements");
         if (achieveRes.ok) {
           const achieveData = await achieveRes.json();
           setAchievements({
@@ -106,12 +118,14 @@ export function useDashboardData() {
           }
         }
       } catch {
-        // API失敗時はフォールバック表示
+        // アチーブメント取得失敗はサイレント
       } finally {
-        setLoading(false);
+        setAchievementsLoading(false);
       }
-    }
-    fetchData();
+    };
+
+    fetchMain();
+    fetchAchievements();
   }, []);
 
   const dismissBadge = useCallback(() => {
@@ -134,5 +148,5 @@ export function useDashboardData() {
     }
   };
 
-  return { sessions, setSessions, stats, setStats, galleryStats, loading, userName, userRole, onboardingCompleted, completeOnboarding, achievements, newBadges, dismissBadge };
+  return { sessions, setSessions, stats, setStats, galleryStats, loading, achievementsLoading, userName, userRole, onboardingCompleted, completeOnboarding, achievements, newBadges, dismissBadge };
 }

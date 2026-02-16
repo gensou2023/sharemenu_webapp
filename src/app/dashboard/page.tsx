@@ -18,7 +18,7 @@ import { useDashboardData, type SessionData } from "@/hooks/useDashboardData";
 import { useSessionActions } from "@/hooks/useSessionActions";
 
 export default function DashboardPage() {
-  const { sessions, setSessions, stats, setStats, galleryStats, loading, userName, userRole, onboardingCompleted, completeOnboarding, achievements, newBadges, dismissBadge } = useDashboardData();
+  const { sessions, setSessions, stats, setStats, galleryStats, loading, achievementsLoading, userName, userRole, onboardingCompleted, completeOnboarding, achievements, newBadges, dismissBadge } = useDashboardData();
   const {
     downloading,
     deleteTarget,
@@ -100,7 +100,7 @@ export default function DashboardPage() {
             visible={achievements?.visible || []}
             hidden={achievements?.hidden || []}
             totalHidden={achievements?.totalHidden || 0}
-            loading={loading}
+            loading={achievementsLoading}
           />
 
           <div className="mt-9">
