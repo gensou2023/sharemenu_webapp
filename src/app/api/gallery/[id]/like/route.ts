@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createAdminClient } from "@/lib/supabase";
+import { createNotification } from "@/lib/notifications";
 
 export async function POST(
   _req: Request,
@@ -36,6 +37,24 @@ export async function POST(
       if (error) {
         console.error("Like error:", error);
         return NextResponse.json({ error: "いいねに失敗しました。" }, { status: 500 });
+      }
+    }
+
+    // 新規いいね時にオーナーへ通知
+    if (!existing) {
+      const { data: image } = await supabase
+        .from("shared_images")
+        .select("user_id")
+        .eq("id", id)
+        .single();
+      if (image && image.user_id !== session.user.id) {
+        createNotification({
+          userId: image.user_id,
+          type: "gallery_reaction",
+          title: "いいねされました",
+          message: "あなたの画像にいいねが付きました。",
+          metadata: { sharedImageId: id, fromUserId: session.user.id },
+        });
       }
     }
 

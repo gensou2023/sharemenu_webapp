@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withAdmin } from "@/lib/admin-auth";
+import { withAdmin, type RouteContext } from "@/lib/admin-auth";
 import { createAdminClient } from "@/lib/supabase";
+import { Session } from "next-auth";
 
-export const POST = withAdmin(async (req: NextRequest) => {
-  const id = req.nextUrl.pathname.split("/").pop();
-  if (!id) {
-    return NextResponse.json({ error: "IDが指定されていません" }, { status: 400 });
-  }
+export const POST = withAdmin(async (req: NextRequest, _session: Session, context: RouteContext) => {
+  const { id } = await context.params;
 
   const { action } = await req.json();
   if (!["remove", "dismiss"].includes(action)) {

@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import AppSidebar, { type NavItem } from "@/components/AppSidebar";
+import NotificationBell from "@/components/NotificationBell";
+import NotificationDropdown from "@/components/NotificationDropdown";
+import { useNotifications } from "@/hooks/useNotifications";
 
 const SIDEBAR_NAV: NavItem[] = [
   { href: "/dashboard", label: "ダッシュボード", icon: "📊", matchExact: true },
@@ -23,6 +26,7 @@ export default function AppLayout({ children, defaultCollapsed = false, noScroll
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { notifications, unreadCount, loading: notifLoading, isOpen: notifOpen, setIsOpen: setNotifOpen, markAsRead, markAllAsRead } = useNotifications();
 
   const userName = session?.user?.name || "ゲスト";
   const userInitial = userName.charAt(0);
@@ -76,6 +80,26 @@ export default function AppLayout({ children, defaultCollapsed = false, noScroll
           <span className="text-[11px] font-semibold px-3 py-1 rounded-full bg-accent-gold/10 text-accent-gold border border-accent-gold/20 mr-3">
             Free
           </span>
+
+          {/* 通知ベル */}
+          {session?.user && (
+            <div className="relative">
+              <NotificationBell
+                unreadCount={unreadCount}
+                onClick={() => setNotifOpen(!notifOpen)}
+              />
+              {notifOpen && (
+                <NotificationDropdown
+                  notifications={notifications}
+                  unreadCount={unreadCount}
+                  loading={notifLoading}
+                  onClose={() => setNotifOpen(false)}
+                  onMarkAsRead={markAsRead}
+                  onMarkAllAsRead={markAllAsRead}
+                />
+              )}
+            </div>
+          )}
 
           {/* ユーザーメニュー */}
           {session?.user && (

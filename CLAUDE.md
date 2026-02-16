@@ -123,8 +123,10 @@ src/
 | `image_reports` | 通報 |
 | `user_settings` | ユーザー設定（生成デフォルト等） |
 | `user_achievements` | アチーブメント |
+| `notification_preferences` | 通知設定 |
+| `notifications` | 通知 |
 
-## API エンドポイント（21本）
+## API エンドポイント（22本）
 
 | パス | メソッド | 概要 |
 |------|---------|------|
@@ -141,6 +143,7 @@ src/
 | `/api/account/settings` | GET/PATCH | ユーザー設定（生成デフォルト） |
 | `/api/account/usage` | GET | 使用状況統計 |
 | `/api/achievements` | GET/PATCH | アチーブメント |
+| `/api/notifications` | GET/PATCH | 通知一覧・既読処理 |
 | `/api/admin/stats` | GET | 管理ダッシュボード統計 |
 | `/api/admin/sessions` | GET | 管理セッション一覧 |
 | `/api/admin/users` | GET | 管理ユーザー一覧 |
@@ -191,7 +194,7 @@ npm start        # 本番サーバー起動
 
 | 項目 | 優先度 | 概要 |
 |------|--------|------|
-| useChatSession.ts | HIGH | 688行・10責務 → 4フックに分割必要 |
+| ~~useChatSession.ts~~ | ~~HIGH~~ | DONE — 4フック分割済み（useChatFlow, useImageGeneration, useSessionPersistence, useSessionRestore） |
 | ~~dashboard/page.tsx~~ | ~~HIGH~~ | DONE — コンポーネント分離済み（160行） |
 | ~~admin 認証チェック~~ | ~~HIGH~~ | DONE — `withAdmin` ミドルウェア化済み |
 | login/signup レイアウト | MEDIUM | 重複 → AuthLayout 共通化 |
@@ -200,12 +203,10 @@ npm start        # 本番サーバー起動
 ## 次回セッションのタスク
 
 1. **Sprint B 残件（スキップ可）** — #36 レイアウト微調整, #41 インサイトカード改善, #38 広告枠配置改善
-2. **Sprint C 計画** — #47 ダークモード（CSS影響大・事前設計必要）, #48 通知センター（#51完了済み）
-3. **リファクタリング（HIGH）** — useChatSession 分割
-4. **login/signup レイアウト共通化** — AuthLayout 抽出
-5. **PR #53 クローズ検討** — Sprint A で withAdmin() が別途実装済み
-6. **リリースノート機能** — #44→#43→#42（連鎖依存、Sprint D候補）
-7. **多言語対応（i18n）** — 日本語/英語のUI切り替え機能。設定画面 S-06 で言語選択を想定（Phase 3以降で本格対応）
+2. **Sprint D 計画** — #47 ダークモード（CSS影響大・事前設計必要）
+3. **login/signup レイアウト共通化** — AuthLayout 抽出
+4. **リリースノート機能** — #44→#43→#42（連鎖依存、Sprint D候補）
+5. **多言語対応（i18n）** — 日本語/英語のUI切り替え機能。設定画面 S-06 で言語選択を想定（Phase 3以降で本格対応）
 
 ## エージェント構成
 

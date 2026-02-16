@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { withAdmin, type RouteContext } from "@/lib/admin-auth";
 import { createAdminClient } from "@/lib/supabase";
+import { Session } from "next-auth";
 
 // ユーザー詳細（管理者用）
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (session?.user?.role !== "admin") {
-    return NextResponse.json({ error: "権限がありません" }, { status: 403 });
-  }
-
-  const { id: userId } = await params;
+export const GET = withAdmin(async (_req: NextRequest, session: Session, context: RouteContext) => {
+  const { id: userId } = await context.params;
   const supabase = createAdminClient();
 
   // ユーザー基本情報
@@ -39,28 +32,23 @@ export async function GET(
     recentImagesResult,
     lastActiveResult,
   ] = await Promise.all([
-    // セッション数
     supabase
       .from("chat_sessions")
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId),
-    // 完了セッション数
     supabase
       .from("chat_sessions")
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId)
       .eq("status", "completed"),
-    // 画像数
     supabase
       .from("generated_images")
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId),
-    // API呼び出し数
     supabase
       .from("api_usage_logs")
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId),
-    // 最新10セッション
     supabase
       .from("chat_sessions")
       .select(
@@ -73,14 +61,12 @@ export async function GET(
       .eq("user_id", userId)
       .order("updated_at", { ascending: false })
       .limit(10),
-    // 最新12枚の生成画像
     supabase
       .from("generated_images")
       .select("id, storage_path, prompt, created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(12),
-    // 最終アクティビティ
     supabase
       .from("api_usage_logs")
       .select("created_at")
@@ -145,19 +131,11 @@ export async function GET(
       recentImages,
     },
   });
-}
+});
 
 // アカウント停止/復元（管理者用）
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const session = await auth();
-  if (session?.user?.role !== "admin") {
-    return NextResponse.json({ error: "権限がありません" }, { status: 403 });
-  }
-
-  const { id: userId } = await params;
+export const POST = withAdmin(async (req: NextRequest, session: Session, context: RouteContext) => {
+  const { id: userId } = await context.params;
   const supabase = createAdminClient();
   const body = await req.json();
   const { action } = body;
@@ -242,4 +220,4 @@ export async function POST(
     { error: "不明なアクションです。" },
     { status: 400 }
   );
-}
+});
