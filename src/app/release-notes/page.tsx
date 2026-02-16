@@ -74,9 +74,7 @@ export default async function ReleaseNotesPage() {
 
                 <h2 className="text-lg font-semibold mb-2">{note.title}</h2>
                 <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-line">
-                  {note.content.length > 200
-                    ? note.content.slice(0, 200) + "..."
-                    : note.content}
+                  {note.content}
                 </p>
               </article>
             ))}

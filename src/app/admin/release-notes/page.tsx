@@ -20,7 +20,6 @@ type FormData = {
   title: string;
   content: string;
   category: ReleaseNoteCategory;
-  is_published: boolean;
 };
 
 const EMPTY_FORM: FormData = {
@@ -28,7 +27,6 @@ const EMPTY_FORM: FormData = {
   title: "",
   content: "",
   category: "feature",
-  is_published: false,
 };
 
 export default function AdminReleaseNotesPage() {
@@ -39,6 +37,7 @@ export default function AdminReleaseNotesPage() {
   const [form, setForm] = useState<FormData>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [previewNote, setPreviewNote] = useState<FormData | null>(null);
 
   const fetchNotes = () => {
     setLoading(true);
@@ -64,7 +63,6 @@ export default function AdminReleaseNotesPage() {
       title: note.title,
       content: note.content,
       category: note.category,
-      is_published: note.is_published,
     });
     setShowForm(true);
   };
@@ -75,7 +73,7 @@ export default function AdminReleaseNotesPage() {
     setForm(EMPTY_FORM);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (publish: boolean) => {
     if (!form.version.trim() || !form.title.trim() || !form.content.trim()) return;
     setSaving(true);
     try {
@@ -86,7 +84,7 @@ export default function AdminReleaseNotesPage() {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, is_published: publish }),
       });
       if (res.ok) {
         closeForm();
@@ -184,28 +182,31 @@ export default function AdminReleaseNotesPage() {
               className="w-full px-3 py-2 text-sm border border-border-light rounded-[8px] bg-bg-primary outline-none focus:border-accent-warm resize-y"
             />
           </div>
-          <div className="mb-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={form.is_published}
-                onChange={(e) => setForm({ ...form, is_published: e.target.checked })}
-                className="w-4 h-4 accent-accent-warm cursor-pointer"
-              />
-              <span className="text-sm text-text-secondary">公開する</span>
-            </label>
-          </div>
           <div className="flex gap-2">
             <button
-              onClick={handleSave}
-              disabled={saving}
-              className="px-5 py-2 text-sm font-semibold rounded-[8px] bg-accent-warm text-white cursor-pointer border-none hover:bg-accent-warm-hover disabled:opacity-50"
+              onClick={() => setPreviewNote({ ...form })}
+              disabled={!form.version.trim() || !form.title.trim() || !form.content.trim()}
+              className="px-5 py-2 text-sm font-semibold rounded-[8px] border border-border-light cursor-pointer bg-transparent text-text-primary hover:border-text-primary disabled:opacity-50 transition-colors"
             >
-              {saving ? "保存中..." : editingId ? "更新" : "作成"}
+              プレビュー
+            </button>
+            <button
+              onClick={() => handleSave(false)}
+              disabled={saving}
+              className="px-5 py-2 text-sm font-semibold rounded-[8px] border border-accent-warm cursor-pointer bg-transparent text-accent-warm hover:bg-accent-warm/10 disabled:opacity-50 transition-colors"
+            >
+              {saving ? "保存中..." : "下書き保存"}
+            </button>
+            <button
+              onClick={() => handleSave(true)}
+              disabled={saving}
+              className="px-5 py-2 text-sm font-semibold rounded-[8px] bg-accent-warm text-white cursor-pointer border-none hover:bg-accent-warm-hover disabled:opacity-50 transition-colors"
+            >
+              {saving ? "保存中..." : "公開する"}
             </button>
             <button
               onClick={closeForm}
-              className="px-5 py-2 text-sm rounded-[8px] border border-border-light cursor-pointer bg-transparent text-text-secondary hover:border-text-primary"
+              className="px-5 py-2 text-sm rounded-[8px] border border-border-light cursor-pointer bg-transparent text-text-secondary hover:border-text-primary transition-colors"
             >
               キャンセル
             </button>
@@ -262,6 +263,17 @@ export default function AdminReleaseNotesPage() {
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <button
+                        onClick={() => setPreviewNote({
+                          version: note.version,
+                          title: note.title,
+                          content: note.content,
+                          category: note.category,
+                        })}
+                        className="px-3 py-1 text-xs font-medium rounded-[6px] border border-border-light cursor-pointer bg-transparent text-text-secondary hover:border-text-primary transition-colors"
+                      >
+                        プレビュー
+                      </button>
+                      <button
                         onClick={() => openEdit(note)}
                         className="px-3 py-1 text-xs font-medium rounded-[6px] bg-accent-warm/10 text-accent-warm cursor-pointer border-none hover:bg-accent-warm/20 transition-colors"
                       >
@@ -279,6 +291,43 @@ export default function AdminReleaseNotesPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* プレビューモーダル */}
+      {previewNote && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-bg-primary rounded-[12px] max-w-2xl w-full mx-4 shadow-xl overflow-hidden">
+            <article className="bg-bg-secondary rounded-[12px] border border-border-light p-6 relative overflow-hidden m-6 mb-0">
+              {/* アクセントバー */}
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-accent-warm via-accent-gold to-accent-olive" />
+
+              <div className="flex items-center gap-2 mb-3">
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-bg-dark text-text-inverse">
+                  {previewNote.version}
+                </span>
+                <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_COLORS[previewNote.category]}`}>
+                  {CATEGORY_LABELS[previewNote.category]}
+                </span>
+                <span className="text-xs text-text-muted ml-auto">
+                  {new Date().toLocaleDateString("ja-JP")}
+                </span>
+              </div>
+
+              <h2 className="text-lg font-semibold mb-2">{previewNote.title}</h2>
+              <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-line">
+                {previewNote.content}
+              </p>
+            </article>
+            <div className="flex justify-end p-6">
+              <button
+                onClick={() => setPreviewNote(null)}
+                className="px-5 py-2 text-sm rounded-[8px] border border-border-light cursor-pointer bg-transparent text-text-secondary hover:border-text-primary transition-colors"
+              >
+                閉じる
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
