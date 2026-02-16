@@ -98,10 +98,6 @@ export default function DashboardPage() {
             loading={loading}
           />
 
-          <div className="mb-9">
-            <AdPlaceholder variant="banner" />
-          </div>
-
           <SessionGrid
             sessions={sessions}
             loading={loading}
@@ -111,6 +107,10 @@ export default function DashboardPage() {
             onShare={setShareTarget}
             onCreateNew={handleCreateNew}
           />
+
+          <div className="mt-9">
+            <AdPlaceholder variant="banner" />
+          </div>
         </div>
 
         <CommonFooter showFaq />
