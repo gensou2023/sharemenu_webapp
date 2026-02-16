@@ -85,6 +85,7 @@ export default function CommonFooter({ showFaq = false }: { showFaq?: boolean })
               { label: "利用規約", href: "/terms" },
               { label: "プライバシーポリシー", href: "/privacy" },
               { label: "特定商取引法", href: "/tokushoho" },
+              { label: "リリースノート", href: "/release-notes" },
               { label: "お問い合わせ", href: "mailto:support@menucraft-ai.jp" },
             ].map((link) => (
               <Link

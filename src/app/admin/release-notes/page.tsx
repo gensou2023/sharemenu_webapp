@@ -22,6 +22,21 @@ type FormData = {
   category: ReleaseNoteCategory;
 };
 
+const CONTENT_TEMPLATES: Record<string, { label: string; content: string }> = {
+  feature: {
+    label: "新機能",
+    content: `【新機能】\n〇〇の機能が追加されました。\n\n■ 概要\n-\n\n■ 使い方\n1.\n2.\n3.`,
+  },
+  bugfix: {
+    label: "バグ修正",
+    content: `【バグ修正】\n以下の不具合を修正しました。\n\n■ 修正内容\n-\n\n■ 影響範囲\n-`,
+  },
+  announcement: {
+    label: "お知らせ",
+    content: `【お知らせ】\n\n■ 内容\n-\n\n■ 詳細\n`,
+  },
+};
+
 const EMPTY_FORM: FormData = {
   version: "",
   title: "",
@@ -135,6 +150,7 @@ export default function AdminReleaseNotesPage() {
               <label className="block text-xs font-medium text-text-secondary mb-1.5">
                 バージョン
               </label>
+              <p className="text-[11px] text-text-muted mb-1.5">セマンティックバージョニング形式（例: v1.0.0 → v1.2.3）</p>
               <input
                 type="text"
                 value={form.version}
@@ -152,9 +168,9 @@ export default function AdminReleaseNotesPage() {
                 onChange={(e) => setForm({ ...form, category: e.target.value as ReleaseNoteCategory })}
                 className="w-full px-3 py-2 text-sm border border-border-light rounded-[8px] bg-bg-primary outline-none focus:border-accent-warm"
               >
-                <option value="feature">新機能</option>
-                <option value="bugfix">バグ修正</option>
-                <option value="improvement">改善</option>
+                <option value="feature">新機能 — 新しい機能の追加</option>
+                <option value="bugfix">バグ修正 — 不具合の修正</option>
+                <option value="improvement">改善 — パフォーマンス向上やUI改善</option>
               </select>
             </div>
           </div>
@@ -162,6 +178,7 @@ export default function AdminReleaseNotesPage() {
             <label className="block text-xs font-medium text-text-secondary mb-1.5">
               タイトル
             </label>
+            <p className="text-[11px] text-text-muted mb-1.5">ユーザーに伝わる簡潔な見出し（例: メニュー画像の一括ダウンロード機能を追加）</p>
             <input
               type="text"
               value={form.title}
@@ -171,9 +188,23 @@ export default function AdminReleaseNotesPage() {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-xs font-medium text-text-secondary mb-1.5">
-              内容
-            </label>
+            <div className="flex items-center gap-2 mb-1.5">
+              <label className="block text-xs font-medium text-text-secondary">
+                内容
+              </label>
+              <div className="flex gap-1.5">
+                {Object.entries(CONTENT_TEMPLATES).map(([key, tmpl]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setForm({ ...form, content: tmpl.content })}
+                    className="px-2 py-0.5 text-[11px] font-medium rounded-[4px] border border-border-light cursor-pointer bg-transparent text-text-secondary hover:border-accent-warm hover:text-accent-warm transition-colors"
+                  >
+                    {tmpl.label}
+                  </button>
+                ))}
+              </div>
+            </div>
             <textarea
               value={form.content}
               onChange={(e) => setForm({ ...form, content: e.target.value })}

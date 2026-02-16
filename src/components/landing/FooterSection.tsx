@@ -49,6 +49,7 @@ export default function FooterSection() {
                   { label: "料金プラン", href: "/#pricing" },
                   { label: "使い方", href: "/" },
                   { label: "導入事例", href: "/" },
+                  { label: "リリースノート", href: "/release-notes" },
                 ].map((link) => (
                   <li key={link.label} className="list-none">
                     <Link
