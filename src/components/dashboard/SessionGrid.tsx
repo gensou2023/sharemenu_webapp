@@ -19,7 +19,7 @@ export default function SessionGrid({
   onCreateNew: () => void;
 }) {
   return (
-    <section>
+    <section className="mb-9">
       <div className="mb-6">
         <span className="inline-block text-xs font-semibold text-accent-warm uppercase tracking-[2px] mb-2">
           History

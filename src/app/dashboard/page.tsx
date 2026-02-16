@@ -86,17 +86,8 @@ export default function DashboardPage() {
 
         <div className="max-w-[960px] mx-auto px-6 sm:px-10 py-10 relative z-10">
           <DashboardHeader onCreateNew={handleCreateNew} userName={userName} stats={stats} userRole={userRole} sessionCount={sessions.length} />
-          <StatsSection cards={statsCards} loading={loading} />
           <QuickActions onCreateNew={handleCreateNew} />
-
-          <GalleryStatsSection data={galleryStats} loading={loading} />
-
-          <AchievementSection
-            visible={achievements?.visible || []}
-            hidden={achievements?.hidden || []}
-            totalHidden={achievements?.totalHidden || 0}
-            loading={loading}
-          />
+          <StatsSection cards={statsCards} loading={loading} />
 
           <SessionGrid
             sessions={sessions}
@@ -106,6 +97,15 @@ export default function DashboardPage() {
             onDelete={setDeleteTarget}
             onShare={setShareTarget}
             onCreateNew={handleCreateNew}
+          />
+
+          <GalleryStatsSection data={galleryStats} loading={loading} />
+
+          <AchievementSection
+            visible={achievements?.visible || []}
+            hidden={achievements?.hidden || []}
+            totalHidden={achievements?.totalHidden || 0}
+            loading={loading}
           />
 
           <div className="mt-9">
