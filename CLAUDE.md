@@ -209,9 +209,10 @@ npm start        # 本番サーバー起動
 
 ## 次回セッションのタスク
 
-1. **マネタイズ案B 実装** — Free(10枚/月) + Pro(¥700/月, 50枚/月) のプラン変更。DB plan カラム追加、制限ロジック変更、UI 更新（`docs/monetization-plan.md` 参照）
+1. **本番移行 Phase 1-2** — インフラ整備（Vercel/Supabase Pro化）+ Stripe決済連携（`docs/production-migration-plan.md`, `docs/stripe-integration-research.md` 参照）
 2. **Sprint D 計画** — #47 ダークモード（CSS影響大・事前設計必要）
 3. **多言語対応（i18n）** — 調査・設計完了済み（`docs/i18n-research.md`）。Phase 3以降で本格対応
+4. **Open Issues** — #62 管理アイコン統一 / #61 PreviewPanel UX / #48 通知センター / #40 動的Tips
 
 ## エージェント構成
 
