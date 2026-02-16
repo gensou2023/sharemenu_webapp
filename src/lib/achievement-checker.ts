@@ -44,7 +44,7 @@ export async function checkAchievements(userId: string): Promise<NewAchievement[
     userResult,
   ] = await Promise.all([
     supabase.from("generated_images").select("id", { count: "exact", head: true }).eq("user_id", userId),
-    supabase.from("messages").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("role", "user"),
+    supabase.from("messages").select("id, chat_sessions!inner(user_id)", { count: "exact", head: true }).eq("chat_sessions.user_id", userId).eq("role", "user"),
     supabase.from("chat_sessions").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("status", "completed"),
     supabase.from("shared_images").select("id", { count: "exact", head: true }).eq("user_id", userId),
     supabase.from("image_saves").select("id", { count: "exact", head: true }).eq("user_id", userId),
@@ -68,8 +68,9 @@ export async function checkAchievements(userId: string): Promise<NewAchievement[
 
   const userCreatedAt = userResult.data?.created_at ? new Date(userResult.data.created_at) : null;
 
-  // thresholdからタイプを抽出するヘルパー
-  const getThresholdType = (t: Record<string, number | string>) => Object.keys(t)[0];
+  // thresholdからタイプと値を抽出するヘルパー
+  // DB format: {"type":"image_count","value":1} or {"type":"signup_hours_images","hours":24,"images":3}
+  const getThresholdType = (t: Record<string, number | string>) => String(t.type);
 
   // いいね関連（遅延取得 — 必要な場合のみ）
   let totalLikesReceived: number | null = null;
@@ -124,7 +125,7 @@ export async function checkAchievements(userId: string): Promise<NewAchievement[
   for (const achievement of unchecked) {
     const t = achievement.threshold as Record<string, number | string>;
     const type = getThresholdType(t);
-    const value = t[type];
+    const value = t.value;
     let unlocked = false;
 
     switch (type) {
@@ -162,9 +163,9 @@ export async function checkAchievements(userId: string): Promise<NewAchievement[
         unlocked = await checkHourCondition(supabase, userId, "after", Number(value));
         break;
       case "signup_hours_images": {
-        // 値は "24:3" 形式（hours:images）
         if (userCreatedAt) {
-          const [hours, images] = String(value).split(":").map(Number);
+          const hours = Number(t.hours);
+          const images = Number(t.images);
           const cutoff = new Date(userCreatedAt.getTime() + hours * 60 * 60 * 1000);
           const { count } = await supabase
             .from("generated_images")
@@ -176,25 +177,11 @@ export async function checkAchievements(userId: string): Promise<NewAchievement[
         break;
       }
       case "session_messages_lte": {
-        const { data: completedSessions } = await supabase
-          .from("chat_sessions")
-          .select("id, generated_images(id)")
-          .eq("user_id", userId)
-          .eq("status", "completed");
-        for (const sess of completedSessions || []) {
-          const imgs = sess.generated_images as unknown as { id: string }[];
-          if (imgs && imgs.length > 0) {
-            const { count: msgCount } = await supabase
-              .from("messages")
-              .select("id", { count: "exact", head: true })
-              .eq("session_id", sess.id)
-              .eq("role", "user");
-            if ((msgCount || 0) <= Number(value)) {
-              unlocked = true;
-              break;
-            }
-          }
-        }
+        const { data: result } = await supabase.rpc("check_session_messages_lte", {
+          p_user_id: userId,
+          p_max_messages: Number(value),
+        });
+        unlocked = result === true;
         break;
       }
       case "session_regenerate_gte": {
@@ -245,16 +232,16 @@ async function checkHourCondition(
   const { data: images } = await supabase
     .from("generated_images")
     .select("created_at")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
-    .limit(1);
+    .eq("user_id", userId);
 
   if (!images || images.length === 0) return false;
 
-  const imageHour = new Date(images[0].created_at).getHours();
-  if (direction === "before") {
-    return imageHour < hour;
-  } else {
-    return imageHour >= hour && imageHour < 5; // 0:00〜4:59
-  }
+  return images.some((img) => {
+    const h = new Date(img.created_at).getHours();
+    if (direction === "before") {
+      return h < hour;
+    } else {
+      return h >= hour && h < 5; // 0:00〜4:59
+    }
+  });
 }

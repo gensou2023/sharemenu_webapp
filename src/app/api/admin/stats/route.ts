@@ -63,27 +63,6 @@ function calcChange(current: number, previous: number): number {
   return Math.round(((current - previous) / previous) * 1000) / 10;
 }
 
-function groupByDay(
-  rows: { created_at: string }[] | null,
-  days: number = 30
-): Map<string, number> {
-  const map = new Map<string, number>();
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 86400000);
-    map.set(d.toISOString().slice(0, 10), 0);
-  }
-  (rows || []).forEach((row) => {
-    const key = row.created_at.slice(0, 10);
-    if (map.has(key)) map.set(key, (map.get(key) || 0) + 1);
-  });
-  return map;
-}
-
-function getSparkline(dailyMap: Map<string, number>): number[] {
-  const values = Array.from(dailyMap.values());
-  return values.slice(-7);
-}
-
 // --- メインハンドラー ---
 
 export const GET = withAdmin(async () => {
@@ -105,10 +84,6 @@ export const GET = withAdmin(async () => {
     prevUsers,
     prevSessions,
     prevImages,
-    // 時系列データ（created_atのみ取得）
-    usersTs,
-    sessionsTs,
-    imagesTs,
     // セッション完了/進行中
     completedSessions,
     activeSessions,
@@ -157,22 +132,6 @@ export const GET = withAdmin(async () => {
       .select("id", { count: "exact", head: true })
       .gte("created_at", sixtyDaysAgo)
       .lt("created_at", thirtyDaysAgo),
-    // 時系列（30日分の created_at のみ取得）
-    supabase
-      .from("users")
-      .select("created_at")
-      .gte("created_at", thirtyDaysAgo)
-      .order("created_at"),
-    supabase
-      .from("chat_sessions")
-      .select("created_at")
-      .gte("created_at", thirtyDaysAgo)
-      .order("created_at"),
-    supabase
-      .from("generated_images")
-      .select("created_at")
-      .gte("created_at", thirtyDaysAgo)
-      .order("created_at"),
     // 完了/進行中
     supabase
       .from("chat_sessions")
@@ -196,25 +155,25 @@ export const GET = withAdmin(async () => {
       .select("status, duration_ms")
       .gte("created_at", thirtyDaysAgo),
     // ギャラリー統計
-    supabase.from("shared_images").select("*", { count: "exact", head: true }),
-    supabase.from("image_likes").select("*", { count: "exact", head: true }),
-    supabase.from("image_saves").select("*", { count: "exact", head: true }),
-    supabase.from("image_reports").select("*", { count: "exact", head: true }),
+    supabase.from("shared_images").select("id", { count: "exact", head: true }),
+    supabase.from("image_likes").select("id", { count: "exact", head: true }),
+    supabase.from("image_saves").select("id", { count: "exact", head: true }),
+    supabase.from("image_reports").select("id", { count: "exact", head: true }),
     // プロフィール設定率
-    supabase.from("users").select("*", { count: "exact", head: true }).not("business_type", "is", null).is("deleted_at", null),
+    supabase.from("users").select("id", { count: "exact", head: true }).not("business_type", "is", null).is("deleted_at", null),
   ]);
 
-  // --- 時系列集計 ---
-  const usersByDay = groupByDay(usersTs.data);
-  const sessionsByDay = groupByDay(sessionsTs.data);
-  const imagesByDay = groupByDay(imagesTs.data);
+  // --- 時系列集計（RPC で DB 側で集計） ---
+  const { data: timeseriesData } = await supabase.rpc("get_admin_timeseries", {
+    p_since: thirtyDaysAgo,
+  });
 
-  const timeseries: DailyDataPoint[] = Array.from(usersByDay.keys()).map(
-    (date) => ({
-      date,
-      users: usersByDay.get(date) || 0,
-      sessions: sessionsByDay.get(date) || 0,
-      images: imagesByDay.get(date) || 0,
+  const timeseries: DailyDataPoint[] = (timeseriesData || []).map(
+    (row: { day: string; user_count: number; session_count: number; image_count: number }) => ({
+      date: row.day,
+      users: Number(row.user_count),
+      sessions: Number(row.session_count),
+      images: Number(row.image_count),
     })
   );
 
@@ -282,7 +241,7 @@ export const GET = withAdmin(async () => {
           currentUsers.count || 0,
           prevUsers.count || 0
         ),
-        sparkline: getSparkline(usersByDay),
+        sparkline: timeseries.slice(-7).map((d) => d.users),
       },
       totalSessions: {
         current: allSessions.count || 0,
@@ -291,7 +250,7 @@ export const GET = withAdmin(async () => {
           currentSessions.count || 0,
           prevSessions.count || 0
         ),
-        sparkline: getSparkline(sessionsByDay),
+        sparkline: timeseries.slice(-7).map((d) => d.sessions),
       },
       totalImages: {
         current: allImages.count || 0,
@@ -300,7 +259,7 @@ export const GET = withAdmin(async () => {
           currentImages.count || 0,
           prevImages.count || 0
         ),
-        sparkline: getSparkline(imagesByDay),
+        sparkline: timeseries.slice(-7).map((d) => d.images),
       },
       completionRate: {
         current: completionRateCurrent,

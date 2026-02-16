@@ -205,6 +205,7 @@ npm start        # 本番サーバー起動
 | ~~admin 認証チェック~~ | ~~HIGH~~ | DONE — `withAdmin` ミドルウェア化済み |
 | ~~login/signup レイアウト~~ | ~~MEDIUM~~ | DONE — AuthInput/AuthErrorMessage/AuthFooterLink 共通化済み |
 | ~~テストコード~~ | ~~HIGH~~ | DONE — Vitest 基盤構築済み（8ファイル, 74テスト） |
+| ~~DB パフォーマンス~~ | ~~HIGH~~ | DONE — #63 インデックス3本 + RPC関数3本追加、dashboard/achievement-checker/admin-stats 最適化、chat_lover バグ修正 |
 
 ## 次回セッションのタスク
 

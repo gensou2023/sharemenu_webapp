@@ -13,7 +13,10 @@ export async function GET() {
   const userId = session.user.id;
 
   // 並列でデータ取得
-  const [sessionsResult, statsResult, monthlyResult] = await Promise.all([
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+  const [sessionsResult, statsResult, monthlyResult, recentSessionResult] = await Promise.all([
     // 最近のセッション（最大10件）
     supabase
       .from("chat_sessions")
@@ -43,25 +46,26 @@ export async function GET() {
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId)
       .gte("created_at", new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()),
+
+    // 直近30日のセッション数
+    supabase
+      .from("chat_sessions")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .gte("created_at", thirtyDaysAgo.toISOString()),
   ]);
 
-  // 直近30日のセッション数
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  const { count: recentSessionCount } = await supabase
-    .from("chat_sessions")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .gte("created_at", thirtyDaysAgo.toISOString());
+  const recentSessionCount = recentSessionResult.count;
 
   // ギャラリー共有画像（自分の共有画像 + いいね/保存数）
   const { data: sharedImages } = await supabase
     .from("shared_images")
     .select("id, image_id, category, created_at, generated_images!inner(storage_path, prompt)")
     .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(50);
 
-  // 共有画像ごとのいいね・保存数を取得
+  // 共有画像ごとのいいね・保存数を取得（RPC で集計済みカウントを取得）
   const sharedIds = (sharedImages || []).map((s) => s.id);
   let sharedWithStats: Array<{
     id: string;
@@ -75,31 +79,30 @@ export async function GET() {
   }> = [];
 
   if (sharedIds.length > 0) {
-    const [likesResult, savesResult] = await Promise.all([
-      supabase.from("image_likes").select("shared_image_id").in("shared_image_id", sharedIds),
-      supabase.from("image_saves").select("shared_image_id").in("shared_image_id", sharedIds),
-    ]);
+    const { data: statsData } = await supabase.rpc("get_shared_image_stats", {
+      p_shared_ids: sharedIds,
+    });
 
-    const likeCounts: Record<string, number> = {};
-    for (const l of likesResult.data || []) {
-      likeCounts[l.shared_image_id] = (likeCounts[l.shared_image_id] || 0) + 1;
-    }
-    const saveCounts: Record<string, number> = {};
-    for (const s of savesResult.data || []) {
-      saveCounts[s.shared_image_id] = (saveCounts[s.shared_image_id] || 0) + 1;
+    const statsMap: Record<string, { like_count: number; save_count: number }> = {};
+    for (const row of statsData || []) {
+      statsMap[row.shared_image_id] = {
+        like_count: Number(row.like_count),
+        save_count: Number(row.save_count),
+      };
     }
 
     sharedWithStats = (sharedImages || []).map((s) => {
       const gen = s.generated_images as unknown as { storage_path: string; prompt: string };
       const { data: urlData } = supabase.storage.from("generated").getPublicUrl(gen.storage_path);
+      const counts = statsMap[s.id] || { like_count: 0, save_count: 0 };
       return {
         id: s.id,
         image_id: s.image_id,
         image_url: urlData.publicUrl,
         prompt: gen.prompt,
         category: s.category,
-        like_count: likeCounts[s.id] || 0,
-        save_count: saveCounts[s.id] || 0,
+        like_count: counts.like_count,
+        save_count: counts.save_count,
         created_at: s.created_at,
       };
     });
