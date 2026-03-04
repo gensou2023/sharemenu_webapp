@@ -212,7 +212,8 @@ npm start        # 本番サーバー起動
 1. **本番移行 Phase 1-2** — インフラ整備（Vercel/Supabase Pro化）+ Stripe決済連携（`docs/production-migration-plan.md`, `docs/stripe-integration-research.md` 参照）
 2. **Sprint D 計画** — #47 ダークモード（CSS影響大・事前設計必要）
 3. **多言語対応（i18n）** — 調査・設計完了済み（`docs/i18n-research.md`）。Phase 3以降で本格対応
-4. **Open Issues** — #62 管理アイコン統一 / #61 PreviewPanel UX / #48 通知センター / #40 動的Tips
+4. **CodeRabbit 残指摘対応** — 初回レビュー残5件（#5修正済み、残り#1,2,3,4,6,7,8のうち5件）。`coderabbit review --plain` で再確認
+5. **Open Issues** — #62 管理アイコン統一 / #61 PreviewPanel UX / #48 通知センター / #40 動的Tips
 
 ## エージェント構成
 
