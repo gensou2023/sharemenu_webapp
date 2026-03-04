@@ -31,9 +31,9 @@ const CONTENT_TEMPLATES: Record<string, { label: string; content: string }> = {
     label: "バグ修正",
     content: `【バグ修正】\n以下の不具合を修正しました。\n\n■ 修正内容\n-\n\n■ 影響範囲\n-`,
   },
-  announcement: {
-    label: "お知らせ",
-    content: `【お知らせ】\n\n■ 内容\n-\n\n■ 詳細\n`,
+  improvement: {
+    label: "改善",
+    content: `【改善】\n以下の改善を行いました。\n\n■ 改善内容\n-\n\n■ 期待される効果\n-`,
   },
 };
 

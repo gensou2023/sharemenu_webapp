@@ -1,0 +1,39 @@
+# CodeRabbit 設定ファイル
+# https://docs.coderabbit.ai/getting-started/configure-coderabbit
+language: ja
+
+reviews:
+  auto_review:
+    enabled: true
+    drafts: false
+  path_filters:
+    - "src/**"
+    - "!docs/**"
+    - "!supabase/**"
+    - "!**/__tests__/**/*.snap"
+  path_instructions:
+    - path: "src/app/api/**"
+      instructions: |
+        セキュリティを重点的にレビュー:
+        - 認証チェック（auth()の呼び出し有無）
+        - 入力バリデーション
+        - SQLインジェクション防止
+        - レート制限の適用
+    - path: "src/components/**"
+      instructions: |
+        UIコンポーネントのレビュー:
+        - アクセシビリティ（aria属性、キーボード操作）
+        - 不要な再レンダリングの防止
+        - デザイントークンの使用（ハードコード色の検出）
+    - path: "src/hooks/**"
+      instructions: |
+        React Hooksのレビュー:
+        - Hooksルール違反がないか
+        - 依存配列の正確性
+        - メモリリーク（useEffect cleanupの有無）
+    - path: "src/lib/**"
+      instructions: |
+        共通ライブラリのレビュー:
+        - 型安全性
+        - エラーハンドリング
+        - 外部入力のバリデーション
